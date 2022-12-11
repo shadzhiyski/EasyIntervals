@@ -73,6 +73,7 @@ public class IntervalSet<TLimit> : ICollection<Interval<TLimit>>
 
         _aaTree = new AATree<Interval<TLimit>>(
             IntervalComparer<TLimit>.Create(comparer),
+            intervals,
             (parent) =>
             {
                 var isLeftNull = parent.Left is null;
@@ -108,8 +109,6 @@ public class IntervalSet<TLimit> : ICollection<Interval<TLimit>>
                 parentValue.MaxEnd = maxChildComparison > 0 ? parent.Value.End : childMaxEnd;
                 parent.Value = parentValue;
             });
-
-        AddRange(intervals);
     }
 
     /// <summary>

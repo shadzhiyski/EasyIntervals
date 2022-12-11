@@ -57,7 +57,14 @@ internal class AATree<T> : IEnumerable<T>
     /// Creates an empty AATree.
     /// </summary>
     public AATree()
-        : this(Comparer<T>.Default, (_) => {})
+        : this(Comparer<T>.Default, Enumerable.Empty<T>(), (_) => {})
+    { }
+
+    /// <summary>
+    /// Creates an AATree with elements.
+    /// </summary>
+    public AATree(IEnumerable<T> elements)
+        : this(Comparer<T>.Default, elements, (_) => {})
     { }
 
     /// <summary>
@@ -65,7 +72,7 @@ internal class AATree<T> : IEnumerable<T>
     /// </summary>
     /// <param name="comparer"></param>
     public AATree(Comparison<T> comparison)
-        : this(Comparer<T>.Create(comparison), (_) => {})
+        : this(Comparer<T>.Create(comparison), Enumerable.Empty<T>(), (_) => {})
     { }
 
     /// <summary>
@@ -73,14 +80,79 @@ internal class AATree<T> : IEnumerable<T>
     /// </summary>
     /// <param name="comparer"></param>
     public AATree(IComparer<T> comparer, Action<Node> onChildChanged)
+        : this(comparer, Enumerable.Empty<T>(), onChildChanged)
+    { }
+
+    /// <summary>
+    /// Creates AATree with comparer and elements.
+    /// </summary>
+    /// <param name="comparer"></param>
+    public AATree(IComparer<T> comparer, IEnumerable<T> elements, Action<Node> onChildChanged)
     {
         _comparer = comparer;
         _onChildChanged = onChildChanged;
+        _root = InitializeTree(elements);
+        Count = elements.Count();
     }
 
     internal Node? Root => _root;
 
     public int Count { get; private set; }
+
+    private Node? InitializeTree(IEnumerable<T> elements)
+    {
+        if (elements.Count() == 0)
+        {
+            return default;
+        }
+
+        var orderedElements = elements.ToArray();
+        Array.Sort(orderedElements, _comparer);
+        var orderedNodes = orderedElements.Select(n => new Node(n, _onChildChanged)).ToArray();
+
+        if (orderedNodes.Length % 2 == 0)
+        {
+            orderedNodes[orderedNodes.Length - 2].Right = orderedNodes[orderedNodes.Length - 1];
+        }
+
+        var treeDepth = (int)Math.Log2(orderedNodes.Length);
+        var startIndex = 0;
+        for (int iteration = 1; iteration <= treeDepth; iteration++)
+        {
+            var step = 1 << (iteration + 1);
+            var childrenStep = step >> 2;
+            startIndex = (step >> 1) - 1;
+            if (startIndex >= orderedNodes.Length / 2)
+            {
+                startIndex = (step >> 2) - 1;
+                break;
+            }
+
+            var index = startIndex;
+            for (; index < orderedNodes.Length - childrenStep; index += step)
+            {
+                orderedNodes[index].Level = iteration + 1;
+                orderedNodes[index].Left = orderedNodes[index - childrenStep];
+                orderedNodes[index].Right = orderedNodes[index + childrenStep];
+            }
+
+            index -= step;
+            var smallStep = step >> 1;
+            index += smallStep;
+            if (index < orderedNodes.Length - 1
+                && orderedNodes[index].Left is null
+                && orderedNodes[index].Right is null)
+            {
+                orderedNodes[index].Level = iteration + 1;
+                orderedNodes[index].Left = orderedNodes[index - childrenStep];
+                orderedNodes[index].Right = orderedNodes[index + childrenStep];
+
+                orderedNodes[index - smallStep].Right = orderedNodes[index];
+            }
+        }
+
+        return orderedNodes[startIndex];
+    }
 
     public bool Add(T element)
     {

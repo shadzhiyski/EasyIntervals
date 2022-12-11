@@ -37,9 +37,7 @@ public class AATreeTests
 
     private AATree<T> CreateAATree<T>(IEnumerable<T> input)
     {
-        var aaTree = new AATree<T>();
-
-        FillAATree(aaTree, input);
+        var aaTree = new AATree<T>(input);
 
         return aaTree;
     }
