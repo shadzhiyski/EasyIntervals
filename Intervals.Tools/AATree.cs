@@ -355,11 +355,27 @@ internal class AATree<T> : IEnumerable<T>
 
     public IEnumerator<T> GetEnumerator()
     {
+        return GetEnumerator(_root);
+    }
+
+    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
+    public static IEnumerable<T> Enumerate(Node? root)
+    {
+        var enumerator = GetEnumerator(root);
+        while (enumerator.MoveNext())
+        {
+            yield return enumerator.Current;
+        }
+    }
+
+    private static IEnumerator<T> GetEnumerator(Node? root)
+    {
         var visited = new HashSet<Node>();
         var stack = new Stack<Node>();
-        if (_root is not null)
+        if (root is not null)
         {
-            stack.Push(_root);
+            stack.Push(root);
         }
 
         while (stack.Count > 0)
@@ -382,6 +398,4 @@ internal class AATree<T> : IEnumerable<T>
             }
         };
     }
-
-    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }
