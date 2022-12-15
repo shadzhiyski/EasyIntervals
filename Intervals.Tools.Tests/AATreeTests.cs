@@ -407,6 +407,37 @@ public class AATreeTests
         numbers.Should().ContainInOrder(expected);
     }
 
+    [Fact]
+    public void Initialize_EvenCountElements_ShouldCreateValidAATree()
+    {
+        var evenCountElements = new List<int>(input);
+        evenCountElements.Add(60);
+
+        var aaTree = new AATree<int>(evenCountElements);
+
+        VerifyAATree(aaTree.Root!);
+    }
+
+    [Fact]
+    public void Initialize_PowerOfTwoCountElements_ShouldCreateValidAATree()
+    {
+        var elements = input.Union(new int[] { 60, 45, 12 }).ToList();
+
+        var aaTree = new AATree<int>(elements);
+
+        VerifyAATree(aaTree.Root!);
+    }
+
+    [Fact]
+    public void Initialize_OneBelowPowerOfTwoCountElements_ShouldCreateValidAATree()
+    {
+        var elements = input.Union(new int[] { 60, 45 }).ToList();
+
+        var aaTree = new AATree<int>(elements);
+
+        VerifyAATree(aaTree.Root!);
+    }
+
     private static void VerifyAATree<T>(AATree<T>.Node node) where T : struct
     {
         var queue = new Queue<AATree<T>.Node>();
