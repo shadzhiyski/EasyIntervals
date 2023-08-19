@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <InternalsVisibleTo Include="Intervals.Tools.Tests" />
+    <InternalsVisibleTo Include="Intervals.Tools.Playground" />
   </ItemGroup>
 
 </Project>
