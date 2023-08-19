@@ -13,7 +13,6 @@ public class IntervalCollectionsBenchmarks
     private const int TotalIntervalsCount = 1_000_000;
     private const int MaxStartLimit = 10_000_000;
     private const int MaxIntervalLength = 1_000;
-    private const int InsertsPerIntersectionCount = 20;
 
     private static List<Interval<int>> InitRandomIntervals()
     {
@@ -32,7 +31,6 @@ public class IntervalCollectionsBenchmarks
     }
 
     private readonly List<Interval<int>> _intervals;
-    private readonly List<bool> _seededCanIntersectFlag;
     private readonly List<Interval<int>> _seededIntersectionIntervals;
     private readonly Random _random;
 
@@ -40,7 +38,6 @@ public class IntervalCollectionsBenchmarks
     {
         _random = new Random();
         _intervals = InitRandomIntervals();
-        _seededCanIntersectFlag = _intervals.Select((itv, i) => i % _random.Next(1, 3) == 0).ToList();
         _seededIntersectionIntervals = Enumerable.Range(0, 1_000)
             .Select(i => CreateRandomInterval(0, MaxStartLimit))
             .ToList();
@@ -100,14 +97,8 @@ public class IntervalCollectionsBenchmarks
     Interval<int> CreateRandomInterval(int minStart, int maxEnd)
     {
         var start = _random!.Next(minStart, maxEnd);
-        var end = _random.Next(minStart, maxEnd);
-        if (start > end)
-        {
-            var tmp = end;
-            start = end;
-            end = tmp;
-        }
+        var length = _random.Next(0, maxEnd - minStart);
 
-        return new Interval<int>(start, end);
+        return new Interval<int>(start, start + length);
     }
 }
