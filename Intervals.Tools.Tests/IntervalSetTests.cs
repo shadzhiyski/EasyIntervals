@@ -74,6 +74,26 @@ public class IntervalSetTests
     }
 
     [Fact]
+    public void Merge_NonEmptyCollection_ShouldReturnMergedIntervalsSorted()
+    {
+        // Arrange
+        var intervalSet = CreateIntervalSet(input);
+        var expected = new Interval<int>[] {
+            (1, 2),
+            (2, 4),
+            (6, 12, IntervalType.EndClosed),
+            (13, 68, IntervalType.StartClosed),
+            (69, 92),
+        };
+
+        // Act
+        var result = intervalSet.Merge();
+
+        // Assert
+        result.Should().ContainInOrder(expected);
+    }
+
+    [Fact]
     public void Merge_NonEmptyCollection_ShouldReturnIntervalSetWithMergedIntervals()
     {
         // Arrange
@@ -440,5 +460,37 @@ public class IntervalSetTests
 
         // Assert
         result.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void Intersect_HasManyIntersectedIntervals_ShouldReturnIntersectedIntervalsSorted()
+    {
+        // Arrange
+        var expected = new Interval<int>[] {
+            (3, 8, IntervalType.Closed),
+            (11, 16, IntervalType.StartClosed),
+            (11, 14, IntervalType.EndClosed),
+            (12, 29, IntervalType.Closed),
+            (21, 42, IntervalType.Closed),
+            (22, 25, IntervalType.Closed)
+        };
+
+        var intervalSet = new IntervalSet<int>();
+
+        intervalSet.Add((2, 5)); // (2, 5)
+        intervalSet.Add((3, 8, IntervalType.Open)); // (3, 8)
+        intervalSet.Add((3, 8, IntervalType.Closed)); // [3, 8]
+        intervalSet.Add((11, 14, IntervalType.EndClosed)); // (11, 14]
+        intervalSet.Add((11, 16, IntervalType.StartClosed)); // [11, 16)
+        intervalSet.Add((22, 25, IntervalType.Closed)); // [22, 25]
+        intervalSet.Add((45, 50, IntervalType.Closed)); // [45, 50]
+        intervalSet.Add((21, 42, IntervalType.Closed)); // [21, 42]
+        intervalSet.Add((12, 29, IntervalType.Closed)); // [12, 29]
+
+        // Act
+        var result = intervalSet.Intersect((8, 22, IntervalType.Closed));
+
+        // Assert
+        result.Should().ContainInOrder(expected);
     }
 }

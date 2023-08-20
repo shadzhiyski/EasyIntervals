@@ -57,7 +57,7 @@ public class IntervalSet<TLimit> : ICollection<Interval<TLimit>>
     /// <summary>
     /// Creates IntervalSet with given intervals.
     /// </summary>
-    /// <param name="elements">intervals</param>
+    /// <param name="intervals">intervals</param>
     public IntervalSet(IEnumerable<Interval<TLimit>> intervals)
         : this(Comparer<TLimit>.Default, intervals)
     { }
@@ -65,15 +65,25 @@ public class IntervalSet<TLimit> : ICollection<Interval<TLimit>>
     /// <summary>
     /// Creates IntervalSet with given comparer and intervals.
     /// </summary>
-    /// <param name="elements">intervals</param>
     /// <param name="comparer">comparer</param>
+    /// <param name="intervals">intervals</param>
     public IntervalSet(IComparer<TLimit> comparer, IEnumerable<Interval<TLimit>> intervals)
+        : this(comparer, intervals, areIntervalsSorted: false)
+    { }
+
+    /// <summary>
+    /// Creates IntervalSet with given comparer and intervals and flag if intervals are sorted.
+    /// </summary>
+    /// <param name="comparer">comparer</param>
+    /// <param name="intervals">intervals</param>
+    private IntervalSet(IComparer<TLimit> comparer, IEnumerable<Interval<TLimit>> intervals, bool areIntervalsSorted)
     {
         _comparer = comparer;
 
         _aaTree = new AATree<Interval<TLimit>>(
             IntervalComparer<TLimit>.Create(comparer),
             intervals,
+            areIntervalsSorted,
             (parent) =>
             {
                 var isLeftNull = parent.Left is null;
@@ -190,36 +200,8 @@ public class IntervalSet<TLimit> : ICollection<Interval<TLimit>>
         Interval<TLimit> interval, IntersectionType intersectionType = IntersectionType.Any)
     {
         var intersectedIntervals = new List<Interval<TLimit>>();
-        var queue = new Queue<AATree<Interval<TLimit>>.Node?>();
-        queue.Enqueue(_aaTree.Root);
-
-        while (queue.Count > 0)
-        {
-            var current = queue.Dequeue();
-
-            if ((intersectionType == IntersectionType.Any && IntersectAny(interval, current!.Value))
-                || (intersectionType == IntersectionType.Cover && IsCovering(interval, current!.Value))
-                || (intersectionType == IntersectionType.Within && IsCovering(current!.Value, interval)))
-            {
-                intersectedIntervals.Add(current.Value);
-            }
-
-            if (current!.Left is not null
-                && _comparer.Compare(interval.Start, current!.Left.Value.MaxEnd) <= 0)
-            {
-                queue.Enqueue(current.Left);
-            }
-
-            var startComparison = _comparer.Compare(interval.End, current!.Value.Start);
-            if (current!.Right is not null
-                && startComparison >= 0
-                && _comparer.Compare(interval.Start, current!.Right.Value.MaxEnd) <= 0)
-            {
-                queue.Enqueue(current.Right);
-            }
-        }
-
-        return new IntervalSet<TLimit>(_comparer, intersectedIntervals);
+        IntersectRecursive(_aaTree.Root, interval, intersectionType, intersectedIntervals);
+        return new IntervalSet<TLimit>(_comparer, intersectedIntervals, areIntervalsSorted: true);
     }
 
     /// <summary>
@@ -229,6 +211,36 @@ public class IntervalSet<TLimit> : ICollection<Interval<TLimit>>
     /// <returns>intersected intervals.</returns>
     public IntervalSet<TLimit> Intersect(TLimit limit) =>
         Intersect((limit, limit, IntervalType.Closed), IntersectionType.Any);
+
+    private void IntersectRecursive(AATree<Interval<TLimit>>.Node? node,
+        Interval<TLimit> interval, IntersectionType intersectionType, IList<Interval<TLimit>> result)
+    {
+        if (node is null)
+        {
+            return;
+        }
+
+        if (node!.Left is not null
+            && _comparer.Compare(interval.Start, node!.Left.Value.MaxEnd) <= 0)
+        {
+            IntersectRecursive(node.Left, interval, intersectionType, result);
+        }
+
+        if ((intersectionType == IntersectionType.Any && IntersectAny(interval, node!.Value))
+            || (intersectionType == IntersectionType.Cover && IsCovering(interval, node!.Value))
+            || (intersectionType == IntersectionType.Within && IsCovering(node!.Value, interval)))
+        {
+            result.Add(node.Value);
+        }
+
+        var startComparison = _comparer.Compare(interval.End, node!.Value.Start);
+        if (node!.Right is not null
+            && startComparison >= 0
+            && _comparer.Compare(interval.Start, node!.Right.Value.MaxEnd) <= 0)
+        {
+            IntersectRecursive(node.Right, interval, intersectionType, result);
+        }
+    }
 
     private bool IsCovering(Interval<TLimit> interval, Interval<TLimit> intervalToBeCovered)
     {
@@ -282,7 +294,7 @@ public class IntervalSet<TLimit> : ICollection<Interval<TLimit>>
     /// <returns>interval set of united intervals.</returns>
     public IntervalSet<TLimit> Union(IntervalSet<TLimit> other)
     {
-        var result = new IntervalSet<TLimit>(_comparer, this);
+        var result = new IntervalSet<TLimit>(_comparer, this, areIntervalsSorted: true);
         result.AddRange(other);
 
         return result;
@@ -297,7 +309,7 @@ public class IntervalSet<TLimit> : ICollection<Interval<TLimit>>
         var result = new List<Interval<TLimit>>();
         Merge(_aaTree.Root, result);
 
-        return new IntervalSet<TLimit>(_comparer, result);
+        return new IntervalSet<TLimit>(_comparer, result, areIntervalsSorted: true);
     }
 
     private void Merge(

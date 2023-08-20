@@ -88,10 +88,18 @@ internal class AATree<T> : IEnumerable<T>
     /// </summary>
     /// <param name="comparer"></param>
     public AATree(IComparer<T> comparer, IEnumerable<T> elements, Action<Node> onChildChanged)
+        : this(comparer, elements, areElementsSorted: false, onChildChanged)
+    { }
+
+    /// <summary>
+    /// Creates AATree with comparer and elements and flag if elements are sorted.
+    /// </summary>
+    /// <param name="comparer"></param>
+    internal AATree(IComparer<T> comparer, IEnumerable<T> elements, bool areElementsSorted, Action<Node> onChildChanged)
     {
         _comparer = comparer;
         _onChildChanged = onChildChanged;
-        _root = InitializeTree(elements);
+        _root = InitializeTree(elements, areElementsSorted);
         Count = elements.Count();
     }
 
@@ -99,7 +107,7 @@ internal class AATree<T> : IEnumerable<T>
 
     public int Count { get; private set; }
 
-    private Node? InitializeTree(IEnumerable<T> elements)
+    private Node? InitializeTree(IEnumerable<T> elements, bool areSorted = false)
     {
         if (elements.Count() == 0)
         {
@@ -107,7 +115,11 @@ internal class AATree<T> : IEnumerable<T>
         }
 
         var orderedElements = elements.ToArray();
-        Array.Sort(orderedElements, _comparer);
+        if (!areSorted)
+        {
+            Array.Sort(orderedElements, _comparer);
+        }
+
         var orderedNodes = orderedElements.Select(n => new Node(n, _onChildChanged)).ToArray();
 
         if (orderedNodes.Length % 2 == 0)
