@@ -2,6 +2,13 @@ namespace Intervals.Tools.Tests;
 
 public class IntervalSetTests
 {
+    /// Test AA Tree Structure:
+    ///
+    /// [3]:                (7, 12]     -->    (42, 68)
+    ///                  /                  /           \
+    /// [2]:     (2, 4)           [18, 13]                (56, 65) --> (73, 90)
+    ///         /     \          /       \               /            /       \
+    /// [1]:  (1, 2) (6, 11)  [13, 18] (24, 56)    (55, 58)        (69, 92) (74, 80)
     private Interval<int>[] input = {
             (18, 34, IntervalType.Closed),
             (13, 18, IntervalType.Closed),
