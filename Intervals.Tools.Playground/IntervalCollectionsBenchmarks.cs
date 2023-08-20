@@ -10,34 +10,34 @@ namespace Intervals.Tools.Playground;
 [Orderer(SummaryOrderPolicy.FastestToSlowest)]
 public class IntervalCollectionsBenchmarks
 {
-    private const int TotalIntervalsCount = 1_000_000;
+    private const int TotalIntervalsCount = 250_000;
     private const int MaxStartLimit = 10_000_000;
     private const int MaxIntervalLength = 1_000;
 
-    private static List<Interval<int>> InitRandomIntervals()
+    private static Interval<int>[] InitRandomIntervals(int totalIntervalsCount, int maxStartLimit, int maxIntervalLength)
     {
         var random = new Random();
-        var intervals = Enumerable.Range(0, TotalIntervalsCount)
+        var intervals = Enumerable.Range(0, totalIntervalsCount)
             .Select(i =>
             {
-                var start = random.Next(MaxStartLimit);
-                var end = random.Next(start, start + MaxIntervalLength);
+                var start = random.Next(maxStartLimit);
+                var end = random.Next(start, start + maxIntervalLength);
                 return new Interval<int>(start, end, IntervalType.Closed);
             })
             .Distinct()
-            .ToList();
+            .ToArray();
 
         return intervals;
     }
 
-    private readonly List<Interval<int>> _intervals;
+    private readonly Interval<int>[] _intervals;
     private readonly List<Interval<int>> _seededIntersectionIntervals;
     private readonly Random _random;
 
     public IntervalCollectionsBenchmarks()
     {
         _random = new Random();
-        _intervals = InitRandomIntervals();
+        _intervals = InitRandomIntervals(TotalIntervalsCount, MaxStartLimit, MaxIntervalLength);
         _seededIntersectionIntervals = Enumerable.Range(0, 1_000)
             .Select(i => CreateRandomInterval(0, MaxStartLimit))
             .ToList();
@@ -91,6 +91,38 @@ public class IntervalCollectionsBenchmarks
         foreach (var intersectionInterval in _seededIntersectionIntervals)
         {
             var result = intervalTree.Query(intersectionInterval.Start, intersectionInterval.End);
+        }
+    }
+
+    [Benchmark]
+    public void Test100XMoreIntersectionsThanInsertsIntervalSet()
+    {
+        var seededIntervals = _intervals[0..1_000];
+        var intervalSet = new IntervalSet<int>();
+        foreach (var interval in seededIntervals)
+        {
+            intervalSet.Add(interval);
+            for (int j = 0; j < 100; j++)
+            {
+                var intersectionInterval = CreateRandomInterval(0, MaxStartLimit);
+                var result = intervalSet.Intersect(intersectionInterval);
+            }
+        }
+    }
+
+    [Benchmark]
+    public void Test100XMoreIntersectionsThanInsertsIntervalTree()
+    {
+        var seededIntervals = _intervals[0..1_000];
+        var intervalTree = new IntervalTree<int, string>();
+        foreach (var interval in seededIntervals)
+        {
+            intervalTree.Add(interval.Start, interval.End, $"{interval.Start}, {interval.End}");
+            for (int j = 0; j < 100; j++)
+            {
+                var intersectionInterval = CreateRandomInterval(0, MaxStartLimit);
+                var result = intervalTree.Query(intersectionInterval.Start, intersectionInterval.End);
+            }
         }
     }
 
