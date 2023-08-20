@@ -186,7 +186,7 @@ public class IntervalSet<TLimit> : ICollection<Interval<TLimit>>
     /// <param name="interval">interval</param>
     /// <param name="intersectionType"></param>
     /// <returns>intersected intervals.</returns>
-    public IEnumerable<Interval<TLimit>> Intersect(
+    public IntervalSet<TLimit> Intersect(
         Interval<TLimit> interval, IntersectionType intersectionType = IntersectionType.Any)
     {
         var intersectedIntervals = new List<Interval<TLimit>>();
@@ -219,7 +219,7 @@ public class IntervalSet<TLimit> : ICollection<Interval<TLimit>>
             }
         }
 
-        return intersectedIntervals;//new IntervalSet<TLimit>(_comparer, intersectedIntervals);
+        return new IntervalSet<TLimit>(_comparer, intersectedIntervals);
     }
 
     /// <summary>
@@ -227,7 +227,7 @@ public class IntervalSet<TLimit> : ICollection<Interval<TLimit>>
     /// </summary>
     /// <param name="limit"></param>
     /// <returns>intersected intervals.</returns>
-    public IEnumerable<Interval<TLimit>> Intersect(TLimit limit) =>
+    public IntervalSet<TLimit> Intersect(TLimit limit) =>
         Intersect((limit, limit, IntervalType.Closed), IntersectionType.Any);
 
     private bool IsCovering(Interval<TLimit> interval, Interval<TLimit> intervalToBeCovered)
@@ -283,7 +283,7 @@ public class IntervalSet<TLimit> : ICollection<Interval<TLimit>>
     public IntervalSet<TLimit> Union(IntervalSet<TLimit> other)
     {
         var result = new IntervalSet<TLimit>(_comparer, this);
-        result.AddRange(other.AsEnumerable());
+        result.AddRange(other);
 
         return result;
     }
