@@ -14,7 +14,7 @@ public class IntervalCollectionsBenchmarks
     private const int MaxStartLimit = 10_000_000;
     private const int MaxIntervalLength = 1_000;
 
-    private static Interval<int>[] InitRandomIntervals(int totalIntervalsCount, int maxStartLimit, int maxIntervalLength)
+    private static ISet<Interval<int>> InitRandomIntervals(int totalIntervalsCount, int maxStartLimit, int maxIntervalLength)
     {
         var random = new Random();
         var intervals = Enumerable.Range(0, totalIntervalsCount)
@@ -24,13 +24,12 @@ public class IntervalCollectionsBenchmarks
                 var end = random.Next(start, start + maxIntervalLength);
                 return new Interval<int>(start, end, IntervalType.Closed);
             })
-            .Distinct()
-            .ToArray();
+            .ToHashSet();
 
         return intervals;
     }
 
-    private readonly Interval<int>[] _intervals;
+    private readonly ISet<Interval<int>> _intervals;
     private readonly List<Interval<int>> _seededIntersectionIntervals;
     private readonly Random _random;
 
@@ -97,7 +96,7 @@ public class IntervalCollectionsBenchmarks
     [Benchmark]
     public void Test100XMoreIntersectionsThanInsertsIntervalSet()
     {
-        var seededIntervals = _intervals[0..1_000];
+        var seededIntervals = _intervals.Take(1_000).ToArray();
         var intervalSet = new IntervalSet<int>();
         foreach (var interval in seededIntervals)
         {
@@ -113,7 +112,7 @@ public class IntervalCollectionsBenchmarks
     [Benchmark]
     public void Test100XMoreIntersectionsThanInsertsIntervalTree()
     {
-        var seededIntervals = _intervals[0..1_000];
+        var seededIntervals = _intervals.Take(1_000).ToArray();
         var intervalTree = new IntervalTree<int, string>();
         foreach (var interval in seededIntervals)
         {

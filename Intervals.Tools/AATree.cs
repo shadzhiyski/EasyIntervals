@@ -57,13 +57,13 @@ internal class AATree<T> : IEnumerable<T>
     /// Creates an empty AATree.
     /// </summary>
     public AATree()
-        : this(Comparer<T>.Default, Enumerable.Empty<T>(), (_) => {})
+        : this(Comparer<T>.Default, Enumerable.Empty<T>().ToHashSet(), (_) => {})
     { }
 
     /// <summary>
     /// Creates an AATree with elements.
     /// </summary>
-    public AATree(IEnumerable<T> elements)
+    public AATree(ISet<T> elements)
         : this(Comparer<T>.Default, elements, (_) => {})
     { }
 
@@ -72,7 +72,7 @@ internal class AATree<T> : IEnumerable<T>
     /// </summary>
     /// <param name="comparer"></param>
     public AATree(Comparison<T> comparison)
-        : this(Comparer<T>.Create(comparison), Enumerable.Empty<T>(), (_) => {})
+        : this(Comparer<T>.Create(comparison), Enumerable.Empty<T>().ToHashSet(), (_) => {})
     { }
 
     /// <summary>
@@ -80,14 +80,14 @@ internal class AATree<T> : IEnumerable<T>
     /// </summary>
     /// <param name="comparer"></param>
     public AATree(IComparer<T> comparer, Action<Node> onChildChanged)
-        : this(comparer, Enumerable.Empty<T>(), onChildChanged)
+        : this(comparer, Enumerable.Empty<T>().ToHashSet(), onChildChanged)
     { }
 
     /// <summary>
     /// Creates AATree with comparer and elements.
     /// </summary>
     /// <param name="comparer"></param>
-    public AATree(IComparer<T> comparer, IEnumerable<T> elements, Action<Node> onChildChanged)
+    public AATree(IComparer<T> comparer, ISet<T> elements, Action<Node> onChildChanged)
         : this(comparer, elements, areElementsSorted: false, onChildChanged)
     { }
 
@@ -95,7 +95,7 @@ internal class AATree<T> : IEnumerable<T>
     /// Creates AATree with comparer and elements and flag if elements are sorted.
     /// </summary>
     /// <param name="comparer"></param>
-    internal AATree(IComparer<T> comparer, IEnumerable<T> elements, bool areElementsSorted, Action<Node> onChildChanged)
+    internal AATree(IComparer<T> comparer, ISet<T> elements, bool areElementsSorted, Action<Node> onChildChanged)
     {
         _comparer = comparer;
         _onChildChanged = onChildChanged;
@@ -107,7 +107,7 @@ internal class AATree<T> : IEnumerable<T>
 
     public int Count { get; private set; }
 
-    private Node? InitializeTree(IEnumerable<T> elements, bool areSorted = false)
+    private Node? InitializeTree(ISet<T> elements, bool areSorted = false)
     {
         if (elements.Count() == 0)
         {
