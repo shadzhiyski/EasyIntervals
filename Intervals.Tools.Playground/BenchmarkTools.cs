@@ -12,7 +12,7 @@ public class BenchmarkTools
         return new Interval<int>(start, start + length);
     }
 
-    public static ISet<Interval<int>> InitRandomIntervals(int totalIntervalsCount, int maxStartLimit, int maxIntervalLength)
+    public static ISet<Interval<int>> CreateRandomIntervals(int totalIntervalsCount, int maxStartLimit, int maxIntervalLength)
     {
         var random = new Random();
         var intervals = Enumerable.Range(0, totalIntervalsCount)

@@ -21,7 +21,7 @@ public class IntervalCollectionsInitializationBenchmarks
     public IntervalCollectionsInitializationBenchmarks()
     {
         _random = new Random();
-        _intervals = BenchmarkTools.InitRandomIntervals(TotalIntervalsCount, MaxStartLimit, MaxIntervalLength);
+        _intervals = BenchmarkTools.CreateRandomIntervals(TotalIntervalsCount, MaxStartLimit, MaxIntervalLength);
         _sortedSetIntervals = new SortedSet<Interval<int>>(_intervals, IntervalComparer<int>.Create(Comparer<int>.Default));
         _seededIntersectionIntervals = Enumerable.Range(0, 1_000)
             .Select(i => BenchmarkTools.CreateRandomInterval(0, MaxStartLimit))
