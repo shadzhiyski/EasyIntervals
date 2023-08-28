@@ -3,7 +3,7 @@ namespace Intervals.Tools.Tests;
 public class AATreeTests
 {
 
-    private ISet<int> input = new HashSet<int> {
+    private int[] input = {
             18,
             13,
             1,
@@ -35,7 +35,7 @@ public class AATreeTests
         (55, 58, 58)
     };
 
-    private AATree<T> CreateAATree<T>(ISet<T> input)
+    private AATree<T> CreateAATree<T>(IEnumerable<T> input)
     {
         var aaTree = new AATree<T>(input);
 
@@ -181,7 +181,7 @@ public class AATreeTests
     {
         var aaTree = CreateAATree(input);
 
-        aaTree.Count.Should().Be(input.Count);
+        aaTree.Count.Should().Be(input.Length);
     }
 
     [Fact]
@@ -410,7 +410,7 @@ public class AATreeTests
     [Fact]
     public void Initialize_EvenCountElements_ShouldCreateValidAATree()
     {
-        var evenCountElements = new HashSet<int>(input);
+        var evenCountElements = new List<int>(input);
         evenCountElements.Add(60);
 
         var aaTree = new AATree<int>(evenCountElements);
@@ -421,7 +421,7 @@ public class AATreeTests
     [Fact]
     public void Initialize_PowerOfTwoCountElements_ShouldCreateValidAATree()
     {
-        var elements = input.Union(new int[] { 60, 45, 12 }).ToHashSet();
+        var elements = input.Union(new int[] { 60, 45, 12 }).ToList();
 
         var aaTree = new AATree<int>(elements);
 
@@ -431,7 +431,7 @@ public class AATreeTests
     [Fact]
     public void Initialize_OneBelowPowerOfTwoCountElements_ShouldCreateValidAATree()
     {
-        var elements = input.Union(new int[] { 60, 45 }).ToHashSet();
+        var elements = input.Union(new int[] { 60, 45 }).ToList();
 
         var aaTree = new AATree<int>(elements);
 

@@ -76,7 +76,7 @@ public class IntervalSet<TLimit> : ICollection<Interval<TLimit>>
     /// </summary>
     /// <param name="comparer">comparer</param>
     /// <param name="intervals">intervals</param>
-    private IntervalSet(IComparer<TLimit> comparer, ISet<Interval<TLimit>> intervals, bool areIntervalsSorted)
+    private IntervalSet(IComparer<TLimit> comparer, IEnumerable<Interval<TLimit>> intervals, bool areIntervalsSorted)
     {
         _comparer = comparer;
 
@@ -199,7 +199,7 @@ public class IntervalSet<TLimit> : ICollection<Interval<TLimit>>
     public IntervalSet<TLimit> Intersect(
         Interval<TLimit> interval, IntersectionType intersectionType = IntersectionType.Any)
     {
-        var intersectedIntervals = new HashSet<Interval<TLimit>>();
+        var intersectedIntervals = new List<Interval<TLimit>>();
         IntersectRecursive(_aaTree.Root, interval, intersectionType, intersectedIntervals);
         return new IntervalSet<TLimit>(_comparer, intersectedIntervals, areIntervalsSorted: true);
     }
@@ -213,7 +213,7 @@ public class IntervalSet<TLimit> : ICollection<Interval<TLimit>>
         Intersect((limit, limit, IntervalType.Closed), IntersectionType.Any);
 
     private void IntersectRecursive(AATree<Interval<TLimit>>.Node? node,
-        Interval<TLimit> interval, IntersectionType intersectionType, ISet<Interval<TLimit>> result)
+        Interval<TLimit> interval, IntersectionType intersectionType, IList<Interval<TLimit>> result)
     {
         if (node is null)
         {
@@ -294,7 +294,7 @@ public class IntervalSet<TLimit> : ICollection<Interval<TLimit>>
     /// <returns>interval set of united intervals.</returns>
     public IntervalSet<TLimit> Union(IntervalSet<TLimit> other)
     {
-        var result = new IntervalSet<TLimit>(_comparer, this.ToHashSet(), areIntervalsSorted: true);
+        var result = new IntervalSet<TLimit>(_comparer, this, areIntervalsSorted: true);
         result.AddRange(other);
 
         return result;
@@ -309,7 +309,7 @@ public class IntervalSet<TLimit> : ICollection<Interval<TLimit>>
         var result = new List<Interval<TLimit>>();
         Merge(_aaTree.Root, result);
 
-        return new IntervalSet<TLimit>(_comparer, result.ToHashSet(), areIntervalsSorted: true);
+        return new IntervalSet<TLimit>(_comparer, result, areIntervalsSorted: true);
     }
 
     private void Merge(
