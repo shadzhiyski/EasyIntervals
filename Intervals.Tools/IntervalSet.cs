@@ -84,41 +84,43 @@ public class IntervalSet<TLimit> : ICollection<Interval<TLimit>>
             IntervalComparer<TLimit>.Create(comparer),
             intervals,
             areIntervalsSorted,
-            (parent) =>
-            {
-                var isLeftNull = parent.Left is null;
-                var isRightNull = parent.Right is null;
-                var parentValue = parent.Value;
-                if (!isLeftNull && isRightNull)
-                {
-                    var comparison = _comparer.Compare(parent.Value.End, parent.Left!.Value.MaxEnd);
-                    parentValue.MaxEnd = comparison > 0 ? parent.Value.End : parent.Left!.Value.MaxEnd;
-                    parent.Value = parentValue;
-                    return;
-                }
+            OnChildChanged);
+    }
 
-                if (isLeftNull && !isRightNull)
-                {
-                    var comparison = _comparer.Compare(parent.Value.End, parent.Right!.Value.MaxEnd);
-                    parentValue.MaxEnd = comparison > 0 ? parent.Value.End : parent.Right!.Value.MaxEnd;
-                    parent.Value = parentValue;
-                    return;
-                }
+    private void OnChildChanged(AATree<Interval<TLimit>>.Node parent)
+    {
+        var isLeftNull = parent.Left is null;
+        var isRightNull = parent.Right is null;
+        var parentValue = parent.Value;
+        if (!isLeftNull && isRightNull)
+        {
+            var comparison = _comparer.Compare(parent.Value.End, parent.Left!.Value.MaxEnd);
+            parentValue.MaxEnd = comparison > 0 ? parent.Value.End : parent.Left!.Value.MaxEnd;
+            parent.Value = parentValue;
+            return;
+        }
 
-                if (isLeftNull && isRightNull)
-                {
-                    parentValue.MaxEnd = parent.Value.End;
-                    parent.Value = parentValue;
-                    return;
-                }
+        if (isLeftNull && !isRightNull)
+        {
+            var comparison = _comparer.Compare(parent.Value.End, parent.Right!.Value.MaxEnd);
+            parentValue.MaxEnd = comparison > 0 ? parent.Value.End : parent.Right!.Value.MaxEnd;
+            parent.Value = parentValue;
+            return;
+        }
 
-                var leftRightComparison = _comparer.Compare(parent.Left!.Value.MaxEnd, parent.Right!.Value.MaxEnd);
-                var childMaxEnd = leftRightComparison > 0 ? parent.Left!.Value.MaxEnd : parent.Right!.Value.MaxEnd;
+        if (isLeftNull && isRightNull)
+        {
+            parentValue.MaxEnd = parent.Value.End;
+            parent.Value = parentValue;
+            return;
+        }
 
-                var maxChildComparison = _comparer.Compare(parent.Value.End, childMaxEnd);
-                parentValue.MaxEnd = maxChildComparison > 0 ? parent.Value.End : childMaxEnd;
-                parent.Value = parentValue;
-            });
+        var leftRightComparison = _comparer.Compare(parent.Left!.Value.MaxEnd, parent.Right!.Value.MaxEnd);
+        var childMaxEnd = leftRightComparison > 0 ? parent.Left!.Value.MaxEnd : parent.Right!.Value.MaxEnd;
+
+        var maxChildComparison = _comparer.Compare(parent.Value.End, childMaxEnd);
+        parentValue.MaxEnd = maxChildComparison > 0 ? parent.Value.End : childMaxEnd;
+        parent.Value = parentValue;
     }
 
     /// <summary>
