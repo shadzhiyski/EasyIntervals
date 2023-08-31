@@ -361,18 +361,32 @@ public class IntervalSetTests
         result.Should().ContainEquivalentOf(expected);
     }
 
+    /// <summary>
+    /// Intersection interval:
+    ///                   [--------]
+    /// Set:
+    ///    [--------------]
+    ///    (--------------)        (--------]
+    /// (--------)     (--------)  [--------------)
+    /// Expected set:
+    ///                (--------)
+    ///    [--------------]        [--------------)
+    /// 2--3-----5-----7--8-----10-11-------14----16-
+    /// </summary>
     [Fact]
-    public void Intersect_HasAnyIntersection_ShouldReturnIntersectedIntervals()
+    public void Intersect_GivenIntervalHasAnyIntersection_ShouldReturnIntersectedIntervals()
     {
         // Arrange
         var expected = new Interval<int>[] {
             (3, 8, IntervalType.Closed),
-            (11, 16, IntervalType.StartClosed)
+            (11, 16, IntervalType.StartClosed),
+            (7, 10),
         };
 
         var intervalSet = new IntervalSet<int>
         {
             (2, 5), // (2, 5)
+            (7, 10), // (7, 10)
             (3, 8, IntervalType.Open), // (3, 8)
             (3, 8, IntervalType.Closed), // [3, 8]
             (11, 16, IntervalType.StartClosed), // [11, 16)
@@ -386,8 +400,19 @@ public class IntervalSetTests
         result.Should().BeEquivalentTo(expected);
     }
 
+    /// <summary>
+    /// Intersection interval:
+    ///                   (--------)
+    /// Set:
+    ///    [--------------]
+    ///    (--------------)        (--------]
+    /// (--------)                 [--------------)
+    /// Expected set:
+    ///
+    /// 2--3-----5--------8--------11-------14----16-
+    /// </summary>
     [Fact]
-    public void Intersect_NoAnyIntersection_ShouldReturnEmptyCollection()
+    public void Intersect_GivenIntervalHasNoIntersection_ShouldReturnEmptyCollection()
     {
         // Arrange
         var intervalSet = new IntervalSet<int>
@@ -406,12 +431,24 @@ public class IntervalSetTests
         result.Should().BeEmpty();
     }
 
+    /// <summary>
+    /// Intersection interval:
+    ///          [--------------------------------]
+    /// Set:
+    ///    [--------------------------]
+    /// (--------)
+    ///          [--------------)  (--------]
+    /// Expected set:
+    ///          [--------------)  (--------]
+    /// 2--3-----5--------------10-11-12----14----16-
+    /// </summary>
     [Fact]
-    public void Intersect_HasCoveringIntersection_ShouldReturnIntersectedIntervals()
+    public void Intersect_GivenIntervalHasCoveringIntersection_ShouldReturnIntersectedIntervals()
     {
         // Arrange
         var expected = new Interval<int>[] {
-            (5, 10, IntervalType.StartClosed)
+            (5, 10, IntervalType.StartClosed),
+            (11, 14, IntervalType.EndClosed)
         };
 
         var intervalSet = new IntervalSet<int>
@@ -419,18 +456,29 @@ public class IntervalSetTests
             (2, 5),
             (5, 10, IntervalType.StartClosed),
             (3, 12, IntervalType.Closed),
-            (11, 16, IntervalType.StartClosed)
+            (11, 14, IntervalType.EndClosed)
         };
 
         // Act
-        var result = intervalSet.Intersect((5, 11, IntervalType.Closed), IntersectionType.Cover);
+        var result = intervalSet.Intersect((5, 16, IntervalType.Closed), IntersectionType.Cover);
 
         // Assert
         result.Should().BeEquivalentTo(expected);
     }
 
+    /// <summary>
+    /// Intersection interval:
+    ///          (--------------)
+    /// Set:
+    ///    [--------------------------]
+    /// (--------)
+    ///          [--------------)  (--------]
+    /// Expected set:
+    ///
+    /// 2--3-----5--------------10-11-12----14----16-
+    /// </summary>
     [Fact]
-    public void Intersect_NoCoveringIntersection_ShouldReturnEmptyCollection()
+    public void Intersect_GivenIntervalHasNoCoveringIntersection_ShouldReturnEmptyCollection()
     {
         // Arrange
         var intervalSet = new IntervalSet<int>
@@ -442,14 +490,25 @@ public class IntervalSetTests
         };
 
         // Act
-        var result = intervalSet.Intersect((8, 11), IntersectionType.Cover);
+        var result = intervalSet.Intersect((5, 10), IntersectionType.Cover);
 
         // Assert
         result.Should().BeEmpty();
     }
 
+    /// <summary>
+    /// Intersection interval:
+    ///          [-----------------]
+    /// Set:
+    ///    [--------------------------]
+    /// (--------)
+    ///          [--------------)  (--------]
+    /// Expected set:
+    ///    [--------------------------]
+    /// 2--3-----5--------------10-11-12----14----16-
+    /// </summary>
     [Fact]
-    public void Intersect_HasWithinIntersection_ShouldReturnIntersectedIntervals()
+    public void Intersect_GivenIntervalHasWithinIntersection_ShouldReturnIntersectedIntervals()
     {
         // Arrange
         var expected = new Interval<int>[] {
@@ -471,8 +530,19 @@ public class IntervalSetTests
         result.Should().BeEquivalentTo(expected);
     }
 
+    /// <summary>
+    /// Intersection interval:
+    ///          (--------------------------------)
+    /// Set:
+    ///    [--------------------------]
+    /// (--------)
+    ///          [--------------)  (--------]
+    /// Expected set:
+    ///
+    /// 2--3-----5--------------10-11-12----14----16-
+    /// </summary>
     [Fact]
-    public void Intersect_NoWithinIntersection_ShouldReturnEmptyCollection()
+    public void Intersect_GivenIntervalHasNoWithinIntersection_ShouldReturnEmptyCollection()
     {
         // Arrange
         var intervalSet = new IntervalSet<int>
@@ -484,14 +554,14 @@ public class IntervalSetTests
         };
 
         // Act
-        var result = intervalSet.Intersect((5, 17), IntersectionType.Within);
+        var result = intervalSet.Intersect((5, 16), IntersectionType.Within);
 
         // Assert
         result.Should().BeEmpty();
     }
 
     [Fact]
-    public void Intersect_HasManyIntersectedIntervals_ShouldReturnIntersectedIntervalsSorted()
+    public void Intersect_GivenIntervalHasManyIntersectedIntervals_ShouldReturnIntersectedIntervalsSorted()
     {
         // Arrange
         var expected = new Interval<int>[] {
