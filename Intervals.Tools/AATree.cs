@@ -134,14 +134,14 @@ internal class AATree<T> : IEnumerable<T>
             var step = 1 << (iteration + 1);
             var childrenStep = step >> 2;
             startIndex = (step >> 1) - 1;
-            if (startIndex >= orderedNodes.Length / 2)
+            if (startIndex >= (double)orderedNodes.Length / 2)
             {
                 startIndex = (step >> 2) - 1;
                 break;
             }
 
             var index = startIndex;
-            for (; index < orderedNodes.Length - (childrenStep << 1); index += step)
+            for (; index <= orderedNodes.Length - (childrenStep << 1); index += step)
             {
                 orderedNodes[index].Level = iteration + 1;
                 orderedNodes[index].Left = orderedNodes[index - childrenStep];
