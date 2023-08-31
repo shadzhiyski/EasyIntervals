@@ -228,9 +228,9 @@ public class IntervalSet<TLimit> : ICollection<Interval<TLimit>>
             IntersectRecursive(node.Left, interval, intersectionType, result);
         }
 
-        if ((intersectionType == IntersectionType.Any && IntersectAny(interval, node!.Value))
-            || (intersectionType == IntersectionType.Cover && IsCovering(interval, node!.Value))
-            || (intersectionType == IntersectionType.Within && IsCovering(node!.Value, interval)))
+        if ((intersectionType == IntersectionType.Any && IntervalTools.HasAnyIntersection(interval, node!.Value, _comparer))
+            || (intersectionType == IntersectionType.Cover && IntervalTools.Covers(interval, node!.Value, _comparer))
+            || (intersectionType == IntersectionType.Within && IntervalTools.Covers(node!.Value, interval, _comparer)))
         {
             result.Add(node.Value);
         }
@@ -243,41 +243,6 @@ public class IntervalSet<TLimit> : ICollection<Interval<TLimit>>
             IntersectRecursive(node.Right, interval, intersectionType, result);
         }
     }
-
-    private bool IsCovering(Interval<TLimit> interval, Interval<TLimit> intervalToBeCovered)
-    {
-        var startsComparison = _comparer.Compare(interval.Start, intervalToBeCovered.Start);
-        var endsComparison = _comparer.Compare(interval.End, intervalToBeCovered.End);
-        return (startsComparison < 0
-                || (startsComparison == 0 && (interval.Type & IntervalType.StartClosed) <= (intervalToBeCovered.Type & IntervalType.StartClosed)))
-            && (endsComparison > 0
-                || (endsComparison == 0 && (interval.Type & IntervalType.EndClosed) >= (intervalToBeCovered.Type & IntervalType.EndClosed)));
-    }
-
-    private bool IntersectAny(Interval<TLimit> interval1, Interval<TLimit> interval2)
-    {
-        var startEndComparison = _comparer.Compare(interval1.Start, interval2.End);
-        var endStartComparison = _comparer.Compare(interval1.End, interval2.Start);
-        if (startEndComparison > 0 || endStartComparison < 0)
-        {
-            return false;
-        }
-
-        var overlapsStartEnd = startEndComparison < 0
-            || ((interval1.Type & IntervalType.StartClosed) > 0
-                && (interval2.Type & IntervalType.EndClosed) > 0
-                && startEndComparison == 0);
-        var overlapsEndStart = endStartComparison > 0
-            || ((interval1.Type & IntervalType.EndClosed) > 0
-                && (interval2.Type & IntervalType.StartClosed) > 0
-                && endStartComparison == 0);
-        return overlapsStartEnd && overlapsEndStart;
-    }
-
-    private bool Touch(Interval<TLimit> before, Interval<TLimit> after) =>
-        _comparer.Compare(before.End, after.Start) == 0
-            && ((before.Type & IntervalType.EndClosed) | (after.Type & IntervalType.StartClosed)) > 0;
-
 
     /// <summary>
     /// Excepts the set with given exception interval.
@@ -354,33 +319,15 @@ public class IntervalSet<TLimit> : ICollection<Interval<TLimit>>
         Interval<TLimit>? before, AATree<Interval<TLimit>>.Node? after, out Interval<TLimit> result)
     {
         if (before is not null
-            && (IntersectAny(before.Value, after!.Value) || Touch(before.Value, after!.Value)))
+            && (IntervalTools.HasAnyIntersection(before.Value, after!.Value, _comparer)
+                || IntervalTools.Touch(before.Value, after!.Value, _comparer)))
         {
-            result = MergeIntervals(before.Value, after!.Value);
+            result = IntervalTools.Merge(before.Value, after!.Value, _comparer);
             return true;
         }
 
         result = default!;
         return false;
-    }
-
-    private Interval<TLimit> MergeIntervals(Interval<TLimit> before, Interval<TLimit> after)
-    {
-        var startComparison = _comparer.Compare(after.Start, before.Start);
-        var startIntervalType = startComparison == 0
-            ? (after.Type | before.Type) & IntervalType.StartClosed
-            : before.Type & IntervalType.StartClosed;
-        var endComparison = _comparer.Compare(after.End, before.End);
-        var endIntervalType = endComparison > 0
-            ? after.Type & IntervalType.EndClosed
-            : endComparison < 0
-                ? before.Type & IntervalType.EndClosed
-                : (after.Type | before.Type) & IntervalType.EndClosed;
-        return (
-            before.Start,
-            endComparison > 0 ? after.End : before.End,
-            startIntervalType | endIntervalType
-        );
     }
 
     public IEnumerator<Interval<TLimit>> GetEnumerator() => _aaTree.GetEnumerator();
