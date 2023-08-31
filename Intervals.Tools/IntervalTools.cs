@@ -44,7 +44,7 @@ public static class IntervalTools
         var startsComparison = comparer.Compare(interval.Start, other.Start);
         var endsComparison = comparer.Compare(interval.End, other.End);
         return (startsComparison < 0
-                || (startsComparison == 0 && (interval.Type & IntervalType.StartClosed) <= (other.Type & IntervalType.StartClosed)))
+                || (startsComparison == 0 && (interval.Type & IntervalType.StartClosed) >= (other.Type & IntervalType.StartClosed)))
             && (endsComparison > 0
                 || (endsComparison == 0 && (interval.Type & IntervalType.EndClosed) >= (other.Type & IntervalType.EndClosed)));
     }
