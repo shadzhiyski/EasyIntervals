@@ -25,7 +25,7 @@ public class IntervalToolsTests
     }
 
     [Theory]
-    [InlineData(2, 8, IntervalType.Open, 3, 5, IntervalType.Open)]
+    [InlineData(2, 8, IntervalType.Open, 2, 8, IntervalType.Open)]
     [InlineData(2, 8, IntervalType.StartClosed, 2, 8, IntervalType.Open)]
     [InlineData(2, 8, IntervalType.EndClosed, 2, 8, IntervalType.Open)]
     public void Covers_IntervalCoversOther_ShouldReturnTrue(
