@@ -16,8 +16,14 @@ public enum IntervalType
 /// </summary>
 public struct Interval<TLimit> : IEquatable<Interval<TLimit>>
 {
-    public Interval(TLimit start, TLimit end, IntervalType type = IntervalType.Open)
+    public Interval(TLimit start, TLimit end, IntervalType type = IntervalType.Open, IComparer<TLimit>? comparer = null)
     {
+        comparer ??= Comparer<TLimit>.Default;
+        if (comparer.Compare(start, end) > 0)
+        {
+            throw new ArgumentException("Start must not be greater than end.");
+        }
+
         Start = start;
         End = end;
         Type = type;

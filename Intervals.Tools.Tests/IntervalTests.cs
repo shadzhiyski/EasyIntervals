@@ -2,16 +2,26 @@ namespace Intervals.Tools.Tests;
 
 public class IntervalTests
 {
-    [Theory]
-    [InlineData(2, 5, IntervalType.Open, "(2, 5)")]
-    [InlineData(2, 5, IntervalType.Closed, "[2, 5]")]
-    [InlineData(2, 5, IntervalType.EndClosed, "(2, 5]")]
-    [InlineData(2, 5, IntervalType.StartClosed, "[2, 5)")]
-    public void ToString_ShouldPrintCorrect(int start, int end, IntervalType intervalType, string expectedValue)
+    [Fact]
+    public void Initialization_StartGreaterThanEnd_ShouldThrowArgumentException()
     {
-        var interval = new Interval<int>(start, end, intervalType);
+        var start = 5;
+        var end = 2;
 
-        interval.ToString().Should().BeEquivalentTo(expectedValue);
+        var act = () => new Interval<int>(start, end);
+
+        act.Should().Throw<ArgumentException>().WithMessage("Start must not be greater than end.");
+    }
+
+    [Fact]
+    public void Initialization_ValidLimits_ShouldCreateInterval()
+    {
+        var start = 2;
+        var end = 5;
+
+        var act = () => new Interval<int>(start, end);
+
+        act.Should().NotThrow<ArgumentException>();
     }
 
     [Fact]
@@ -46,5 +56,17 @@ public class IntervalTests
         var result = interval1.Equals(interval2);
 
         result.Should().BeTrue();
+    }
+
+    [Theory]
+    [InlineData(2, 5, IntervalType.Open, "(2, 5)")]
+    [InlineData(2, 5, IntervalType.Closed, "[2, 5]")]
+    [InlineData(2, 5, IntervalType.EndClosed, "(2, 5]")]
+    [InlineData(2, 5, IntervalType.StartClosed, "[2, 5)")]
+    public void ToString_ShouldPrintCorrect(int start, int end, IntervalType intervalType, string expectedValue)
+    {
+        var interval = new Interval<int>(start, end, intervalType);
+
+        interval.ToString().Should().BeEquivalentTo(expectedValue);
     }
 }
