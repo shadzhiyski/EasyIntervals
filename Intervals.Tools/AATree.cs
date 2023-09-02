@@ -372,42 +372,27 @@ internal class AATree<T> : IEnumerable<T>
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    public static IEnumerable<T> Enumerate(Node? root)
+    private IEnumerator<T> GetEnumerator(Node? root)
     {
-        var enumerator = GetEnumerator(root);
-        while (enumerator.MoveNext())
+        var elements = new List<T>(Count);
+        GetEnumerator(root, elements);
+        foreach (var element in elements)
         {
-            yield return enumerator.Current;
+            yield return element;
         }
     }
 
-    private static IEnumerator<T> GetEnumerator(Node? root)
+    private static void GetEnumerator(Node? root, ICollection<T> elements)
     {
-        var visited = new HashSet<Node>();
-        var stack = new Stack<Node>();
-        if (root is not null)
+        if (root is null)
         {
-            stack.Push(root);
+            return;
         }
 
-        while (stack.Count > 0)
-        {
-            var current = stack.Peek();
-            while (current?.Left is not null && !visited.Contains(current.Left))
-            {
-                stack.Push(current.Left);
-                current = current.Left;
-            }
+        GetEnumerator(root.Left, elements);
 
-            current = stack.Pop();
-            visited.Add(current);
+        elements.Add(root.Value);
 
-            yield return current.Value;
-
-            if (current.Right is not null && !visited.Contains(current.Right))
-            {
-                stack.Push(current.Right);
-            }
-        };
+        GetEnumerator(root.Right, elements);
     }
 }
