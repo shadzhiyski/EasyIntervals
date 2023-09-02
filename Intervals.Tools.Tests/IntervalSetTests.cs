@@ -128,6 +128,14 @@ public class IntervalSetTests
         result.Should().BeEmpty();
     }
 
+    /// <summary>
+    /// Set:
+    ///         [-----------------------------)
+    ///   [-----------------------------]
+    /// Expected set:
+    ///   [-----------------------------------)
+    /// --6-----7-----------------------11----12-------
+    /// </summary>
     [Fact]
     public void Merge_BeforeClosedAfterStartClosed_ShouldReturnCorrectStartClosed()
     {
@@ -146,6 +154,14 @@ public class IntervalSetTests
         result.Should().ContainEquivalentOf(expected);
     }
 
+    /// <summary>
+    /// Set:
+    ///         (-----------------------------]
+    ///   [-----------------------------)
+    /// Expected set:
+    ///   [-----------------------------------]
+    /// --6-----7-----------------------11----12-------
+    /// </summary>
     [Fact]
     public void Merge_BeforeStartClosedAfterEndClosed_ShouldReturnCorrectClosed()
     {
@@ -164,6 +180,14 @@ public class IntervalSetTests
         result.Should().ContainEquivalentOf(expected);
     }
 
+    /// <summary>
+    /// Set:
+    ///         (-----------------------------]
+    ///   (-----------------------------)
+    /// Expected set:
+    ///   (-----------------------------------]
+    /// --6-----7-----------------------11----12-------
+    /// </summary>
     [Fact]
     public void Merge_BeforeOpenAfterEndClosed_ShouldReturnCorrectEndClosed()
     {
@@ -182,6 +206,14 @@ public class IntervalSetTests
         result.Should().ContainEquivalentOf(expected);
     }
 
+    /// <summary>
+    /// Set:
+    ///         [-----------------------------)
+    ///   (-----------------------------)
+    /// Expected set:
+    ///   (-----------------------------------)
+    /// --6-----7-----------------------11----12-------
+    /// </summary>
     [Fact]
     public void Merge_BeforeOpenAfterStartClosed_ShouldReturnCorrectOpen()
     {
@@ -200,6 +232,14 @@ public class IntervalSetTests
         result.Should().ContainEquivalentOf(expected);
     }
 
+    /// <summary>
+    /// Set:
+    ///   (-----------------------)
+    ///   (-----------------------------]
+    /// Expected set:
+    ///   (-----------------------------]
+    /// --7-----------------------11----12-------------
+    /// </summary>
     [Fact]
     public void Merge_SameStartBeforeOpenAfterEndClosed_ShouldReturnCorrectEndClosed()
     {
@@ -218,6 +258,14 @@ public class IntervalSetTests
         result.Should().ContainEquivalentOf(expected);
     }
 
+    /// <summary>
+    /// Set:
+    ///   [-----------------------)
+    ///   (-----------------------------]
+    /// Expected set:
+    ///   [-----------------------------]
+    /// --7-----------------------11----12-------------
+    /// </summary>
     [Fact]
     public void Merge_SameStartBeforeStartClosedAfterEndClosed_ShouldReturnCorrectClosed()
     {
@@ -236,6 +284,14 @@ public class IntervalSetTests
         result.Should().ContainEquivalentOf(expected);
     }
 
+    /// <summary>
+    /// Set:
+    ///   [-----------------------)
+    ///   [-----------------------------]
+    /// Expected set:
+    ///   [-----------------------------]
+    /// --7-----------------------11----12-------------
+    /// </summary>
     [Fact]
     public void Merge_SameStartBeforeStartClosedAfterClosed_ShouldReturnCorrectClosed()
     {
@@ -254,6 +310,14 @@ public class IntervalSetTests
         result.Should().ContainEquivalentOf(expected);
     }
 
+    /// <summary>
+    /// Set:
+    ///           (-------------------]
+    ///    (--------------------------)
+    /// Expected set:
+    ///    (--------------------------]
+    /// ---6------7-------8-----------12-------------
+    /// </summary>
     [Fact]
     public void Merge_SameEndBeforeOpenAfterEndClosed_ShouldReturnCorrectEndClosed()
     {
@@ -272,6 +336,14 @@ public class IntervalSetTests
         result.Should().ContainEquivalentOf(expected);
     }
 
+    /// <summary>
+    /// Set:
+    ///           (-------------------]
+    ///    [--------------------------)
+    /// Expected set:
+    ///    [--------------------------]
+    /// ---6------7-------8-----------12-------------
+    /// </summary>
     [Fact]
     public void Merge_SameEndBeforeStartClosedAfterEndClosed_ShouldReturnCorrectClosed()
     {
@@ -290,6 +362,14 @@ public class IntervalSetTests
         result.Should().ContainEquivalentOf(expected);
     }
 
+    /// <summary>
+    /// Set:
+    ///           (-------------------)
+    ///    [--------------------------)
+    /// Expected set:
+    ///    [--------------------------)
+    /// ---6------7-------8-----------12-------------
+    /// </summary>
     [Fact]
     public void Merge_SameEndBeforeStartClosedAfterOpen_ShouldReturnCorrectStartClosed()
     {
@@ -308,6 +388,15 @@ public class IntervalSetTests
         result.Should().ContainEquivalentOf(expected);
     }
 
+    /// <summary>
+    /// Set:
+    ///                   (-----------)
+    ///    (--------------]
+    /// Expected set:
+    ///                   (-----------)
+    ///    (--------------]
+    /// ---6--------------8-----------12-------------
+    /// </summary>
     [Fact]
     public void Merge_TouchingIntervalsBeforeOpenAfterOpen_ShouldNotMergeIntervals()
     {
@@ -325,6 +414,14 @@ public class IntervalSetTests
         result.Should().BeEquivalentTo(new [] { before, after });
     }
 
+    /// <summary>
+    /// Set:
+    ///                   (-----------)
+    ///    (--------------]
+    /// Expected set:
+    ///    (--------------------------)
+    /// ---6--------------8-----------12-------------
+    /// </summary>
     [Fact]
     public void Merge_TouchingIntervalsBeforeEndClosedAfterOpen_ShouldMergeIntervals()
     {
@@ -343,6 +440,14 @@ public class IntervalSetTests
         result.Should().ContainEquivalentOf(expected);
     }
 
+    /// <summary>
+    /// Set:
+    ///                   [-----------)
+    ///    (--------------)
+    /// Expected set:
+    ///    (--------------------------)
+    /// ---6--------------8-----------12-------------
+    /// </summary>
     [Fact]
     public void Merge_TouchingIntervalsBeforeOpenAfterStartClosed_ShouldMergeIntervals()
     {
