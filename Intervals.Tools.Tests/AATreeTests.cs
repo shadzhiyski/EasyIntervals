@@ -112,7 +112,7 @@ public class AATreeTests
 
         aaTree.Add(element);
 
-        VerifyAATree(aaTree.Root!);
+        VerifyAATree(aaTree);
     }
 
     [Fact]
@@ -267,7 +267,7 @@ public class AATreeTests
 
         aaTree.Remove(element);
 
-        VerifyAATree(aaTree.Root!);
+        VerifyAATree(aaTree);
     }
 
     [Fact]
@@ -415,7 +415,7 @@ public class AATreeTests
 
         var aaTree = new AATree<int>(evenCountElements);
 
-        VerifyAATree(aaTree.Root!);
+        VerifyAATree(aaTree);
     }
 
     [Fact]
@@ -425,7 +425,7 @@ public class AATreeTests
 
         var aaTree = new AATree<int>(elements);
 
-        VerifyAATree(aaTree.Root!);
+        VerifyAATree(aaTree);
     }
 
     [Fact]
@@ -435,17 +435,19 @@ public class AATreeTests
 
         var aaTree = new AATree<int>(elements);
 
-        VerifyAATree(aaTree.Root!);
+        VerifyAATree(aaTree);
     }
 
-    private static void VerifyAATree<T>(AATree<T>.Node node) where T : struct
+    private static void VerifyAATree<T>(AATree<T> tree) where T : struct
     {
         var queue = new Queue<AATree<T>.Node>();
-        queue.Enqueue(node);
+        queue.Enqueue(tree.Root!);
 
+        int traversedNodesCount = 0;
         while (queue.Count > 0)
         {
             var current = queue.Dequeue();
+            traversedNodesCount++;
 
             VerifySingleNode(current);
 
@@ -459,6 +461,8 @@ public class AATreeTests
                 queue.Enqueue(current.Right);
             }
         }
+
+        traversedNodesCount.Should().Be(tree.Count);
     }
 
     private static void VerifySingleNode<T>(AATree<T>.Node node) where T : struct
