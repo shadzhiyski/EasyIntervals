@@ -13,6 +13,20 @@ public class IntervalTests
         act.Should().Throw<ArgumentException>().WithMessage("Start must not be greater than end.");
     }
 
+    [Theory]
+    [InlineData(IntervalType.Open)]
+    [InlineData(IntervalType.StartClosed)]
+    [InlineData(IntervalType.EndClosed)]
+    public void Initialization_EqualLimitsNotClosedIntervalType_ShouldThrowArgumentException(IntervalType intervalType)
+    {
+        var start = 5;
+        var end = 5;
+
+        var act = () => new Interval<int>(start, end, intervalType);
+
+        act.Should().Throw<ArgumentException>().WithMessage("Equal limits must be combined only with Closed interval type.");
+    }
+
     [Fact]
     public void Initialization_ValidLimits_ShouldCreateInterval()
     {

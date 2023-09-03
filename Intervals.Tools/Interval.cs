@@ -19,9 +19,15 @@ public struct Interval<TLimit> : IEquatable<Interval<TLimit>>
     public Interval(TLimit start, TLimit end, IntervalType type = IntervalType.Open, IComparer<TLimit>? comparer = null)
     {
         comparer ??= Comparer<TLimit>.Default;
-        if (comparer.Compare(start, end) > 0)
+        var startEndComparison = comparer.Compare(start, end);
+        if (startEndComparison > 0)
         {
             throw new ArgumentException("Start must not be greater than end.");
+        }
+
+        if (startEndComparison == 0 && type != IntervalType.Closed)
+        {
+            throw new ArgumentException("Equal limits must be combined only with Closed interval type.");
         }
 
         Start = start;
@@ -78,4 +84,10 @@ public struct Interval<TLimit> : IEquatable<Interval<TLimit>>
 
     public static implicit operator Interval<TLimit>((TLimit Start, TLimit End, IntervalType Type) interval) =>
         new Interval<TLimit>(interval.Start, interval.End, interval.Type);
+
+    public static implicit operator Interval<TLimit>((TLimit Start, TLimit End, IComparer<TLimit> Comparer) interval) =>
+        new Interval<TLimit>(interval.Start, interval.End, IntervalType.Open, interval.Comparer);
+
+    public static implicit operator Interval<TLimit>((TLimit Start, TLimit End, IntervalType Type, IComparer<TLimit> Comparer) interval) =>
+        new Interval<TLimit>(interval.Start, interval.End, interval.Type, interval.Comparer);
 }
