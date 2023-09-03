@@ -28,11 +28,15 @@ public enum IntersectionType
 
 /// <summary>
 /// IntervalSet is a collection for storing unique intervals where multiple add, remove and search operations can be done in efficient time.
-/// It's using self-balancing Binary Search Tree (BST) - AA Tree.
 /// </summary>
 /// <remarks>
+/// It's an implementation of Augmented Interval Tree abstract data structure,
+/// using self-balancing Binary Search Tree (BST) - AA Tree.
 /// It provides functionalities for add, remove, intersect, except, union and merge of intervals.
 /// </remarks>
+/// <seealso href="https://en.wikipedia.org/wiki/Interval_tree">Interval Tree</seealso>
+/// <seealso href="https://en.wikipedia.org/wiki/Interval_tree#Augmented_tree">Augmented Interval Tree</seealso>
+/// <seealso href="https://en.wikipedia.org/wiki/AA_tree">AA Tree</seealso>
 /// <typeparam name="TLimit">Represents the limit type of start and end of interval</typeparam>
 public class IntervalSet<TLimit> : ICollection<Interval<TLimit>>
 {
@@ -284,12 +288,6 @@ public class IntervalSet<TLimit> : ICollection<Interval<TLimit>>
     {
         if (node is null)
         {
-            return;
-        }
-
-        if (node.Left is null && node.Right is null)
-        {
-            MergeCurrent(node, intervals);
             return;
         }
 

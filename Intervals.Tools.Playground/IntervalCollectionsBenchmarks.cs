@@ -16,15 +16,11 @@ public class IntervalCollectionsBenchmarks
     private const int MaxIntervalLength = 1_000;
 
     private readonly ISet<Interval<int>> _intervals;
-    private readonly SortedSet<Interval<int>> _sortedSetIntervals;
     private readonly List<Interval<int>> _seededIntersectionIntervals;
-    private readonly Random _random;
 
     public IntervalCollectionsBenchmarks()
     {
-        _random = new Random();
         _intervals = BenchmarkTools.CreateRandomIntervals(TotalIntervalsCount, MaxStartLimit, MaxIntervalLength);
-        _sortedSetIntervals = new SortedSet<Interval<int>>(_intervals, IntervalComparer<int>.Create(Comparer<int>.Default));
         _seededIntersectionIntervals = Enumerable.Range(0, IntersectionIntervalsCount)
             .Select(i => BenchmarkTools.CreateRandomInterval(0, MaxStartLimit))
             .ToList();
