@@ -301,7 +301,7 @@ public class IntervalSet<TLimit> : ICollection<Interval<TLimit>>
     private void MergeCurrent(AATree<Interval<TLimit>>.Node? node, IList<Interval<TLimit>> intervals)
     {
         var lastIndex = intervals.Count - 1;
-        Interval<TLimit>? left = intervals.Count > 0 ? intervals[lastIndex] : default;
+        Interval<TLimit>? left = intervals.Count > 0 ? intervals[lastIndex] : null;
         var isMerged = TryMerge(left, node, out Interval<TLimit> interval);
 
         if (isMerged)
