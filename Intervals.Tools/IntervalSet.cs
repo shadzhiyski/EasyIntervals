@@ -30,18 +30,15 @@ public enum IntersectionType
 /// IntervalSet is a collection for storing unique intervals where multiple add, remove and search operations can be done in efficient time.
 /// </summary>
 /// <remarks>
-/// It's an implementation of Augmented Interval Tree abstract data structure,
-/// using self-balancing Binary Search Tree (BST) - AA Tree.
+/// It's an implementation of <seealso href="https://en.wikipedia.org/wiki/Interval_tree#Augmented_tree">Augmented Interval Tree</seealso>
+/// abstract data structure, using self-balancing Binary Search Tree (BST) - <seealso href="https://en.wikipedia.org/wiki/AA_tree">AA Tree</seealso>.
 /// It provides functionalities for add, remove, intersect, except, union and merge of intervals.
 /// </remarks>
-/// <seealso href="https://en.wikipedia.org/wiki/Interval_tree">Interval Tree</seealso>
-/// <seealso href="https://en.wikipedia.org/wiki/Interval_tree#Augmented_tree">Augmented Interval Tree</seealso>
-/// <seealso href="https://en.wikipedia.org/wiki/AA_tree">AA Tree</seealso>
 /// <typeparam name="TLimit">Represents the limit type of start and end of interval</typeparam>
 public class IntervalSet<TLimit> : ICollection<Interval<TLimit>>
 {
-    private IComparer<TLimit> _comparer;
-    private AATree<Interval<TLimit>> _aaTree;
+    private readonly IComparer<TLimit> _comparer;
+    private readonly AATree<Interval<TLimit>> _aaTree;
 
     /// <summary>
     /// Creates an empty IntervalSet.
@@ -51,7 +48,7 @@ public class IntervalSet<TLimit> : ICollection<Interval<TLimit>>
     { }
 
     /// <summary>
-    /// Creates an IntervalSet with comparer.
+    /// Creates an IntervalSet with limit <c>comparer</c>.
     /// </summary>
     /// <param name="comparer">comparer</param>
     public IntervalSet(IComparer<TLimit> comparer)
@@ -59,7 +56,7 @@ public class IntervalSet<TLimit> : ICollection<Interval<TLimit>>
     { }
 
     /// <summary>
-    /// Creates IntervalSet with given intervals.
+    /// Creates IntervalSet with <c>intervals</c>.
     /// </summary>
     /// <param name="intervals">intervals</param>
     public IntervalSet(ISet<Interval<TLimit>> intervals)
@@ -67,7 +64,7 @@ public class IntervalSet<TLimit> : ICollection<Interval<TLimit>>
     { }
 
     /// <summary>
-    /// Creates IntervalSet with given comparer and intervals.
+    /// Creates IntervalSet with limit <c>comparer</c> and <c>intervals</c>.
     /// </summary>
     /// <param name="comparer">comparer</param>
     /// <param name="intervals">intervals</param>
@@ -76,7 +73,7 @@ public class IntervalSet<TLimit> : ICollection<Interval<TLimit>>
     { }
 
     /// <summary>
-    /// Creates IntervalSet with given comparer and intervals and flag if intervals are sorted.
+    /// Creates IntervalSet with limit <c>comparer</c>, <c>intervals</c> and flag if intervals are sorted.
     /// </summary>
     /// <param name="comparer">comparer</param>
     /// <param name="intervals">intervals</param>
@@ -135,20 +132,20 @@ public class IntervalSet<TLimit> : ICollection<Interval<TLimit>>
     public bool IsReadOnly => false;
 
     /// <summary>
-    /// Adds interval.
+    /// Adds <c>interval</c>.
     /// </summary>
-    /// <param name="item">item</param>
-    void ICollection<Interval<TLimit>>.Add(Interval<TLimit> item) => Add(item);
+    /// <param name="interval">interval</param>
+    void ICollection<Interval<TLimit>>.Add(Interval<TLimit> interval) => Add(interval);
 
     /// <summary>
-    /// Adds interval.
+    /// Adds <c>interval</c>.
     /// </summary>
-    /// <param name="item"></param>
+    /// <param name="interval">interval</param>
     /// <returns>true if interval is successfully added; otherwise, false.</returns>
-    public bool Add(Interval<TLimit> item) => _aaTree.Add(item);
+    public bool Add(Interval<TLimit> interval) => _aaTree.Add(interval);
 
     /// <summary>
-    /// Adds collection of intervals.
+    /// Adds collection of <c>intervals</c>.
     /// </summary>
     /// <param name="intervals">intervals</param>
     public void AddRange(IEnumerable<Interval<TLimit>> intervals)
@@ -160,33 +157,33 @@ public class IntervalSet<TLimit> : ICollection<Interval<TLimit>>
     }
 
     /// <summary>
-    /// Checks if an interval is present.
+    /// Checks if <c>interval</c> is present.
     /// </summary>
-    /// <param name="item"></param>
+    /// <param name="interval"></param>
     /// <returns>true if contains interval; otherwise, false.</returns>
-    public bool Contains(Interval<TLimit> item) => _aaTree.Contains(item);
+    public bool Contains(Interval<TLimit> interval) => _aaTree.Contains(interval);
 
     /// <summary>
-    /// Removes interval.
+    /// Removes <c>interval</c>.
     /// </summary>
-    /// <param name="item"></param>
+    /// <param name="interval"></param>
     /// <returns>true if interval is successfully removed; otherwise, false.</returns>
-    public bool Remove(Interval<TLimit> item)
+    public bool Remove(Interval<TLimit> interval)
     {
-        return _aaTree.Remove(item);
+        return _aaTree.Remove(interval);
     }
 
     /// <summary>
-    /// Removes sequence of intervals.
+    /// Removes <c>intervals</c>.
     /// </summary>
-    /// <param name="items"></param>
+    /// <param name="intervals"></param>
     /// <returns>true if all intervals are successfully removed; If any interval is not removed, false.</returns>
-    public bool Remove(IEnumerable<Interval<TLimit>> items) => items
+    public bool Remove(IEnumerable<Interval<TLimit>> intervals) => intervals
         .Select(item => Remove(item))
         .All(result => result);
 
     /// <summary>
-    /// Removes intervals intersecting the limit.
+    /// Removes intervals intersecting <c>limit</c>.
     /// </summary>
     /// <param name="limit">Limit</param>
     /// <returns>true if any intervals are intersected and removed; otherwise, false.</returns>
@@ -197,11 +194,11 @@ public class IntervalSet<TLimit> : ICollection<Interval<TLimit>>
     }
 
     /// <summary>
-    /// Intersects the set with given interval by type of intersection.
+    /// Intersects the set with <c>interval</c> by <c>intersectionType</c>.
     /// </summary>
     /// <param name="interval">interval</param>
-    /// <param name="intersectionType"></param>
-    /// <returns>intersected intervals.</returns>
+    /// <param name="intersectionType">intersectionType</param>
+    /// <returns>interval set with intersected intervals.</returns>
     public IntervalSet<TLimit> Intersect(
         Interval<TLimit> interval, IntersectionType intersectionType = IntersectionType.Any)
     {
@@ -211,10 +208,10 @@ public class IntervalSet<TLimit> : ICollection<Interval<TLimit>>
     }
 
     /// <summary>
-    /// Intersects the set with given limit.
+    /// Intersects the set with <c>limit</c>.
     /// </summary>
     /// <param name="limit"></param>
-    /// <returns>intersected intervals.</returns>
+    /// <returns>interval set with intersected intervals.</returns>
     public IntervalSet<TLimit> Intersect(TLimit limit) =>
         Intersect((limit, limit, IntervalType.Closed), IntersectionType.Any);
 
@@ -249,20 +246,21 @@ public class IntervalSet<TLimit> : ICollection<Interval<TLimit>>
     }
 
     /// <summary>
-    /// Excepts the set with given exception interval.
+    /// Excepts the set with <c>interval</c> by <c>intersectionType</c>.
     /// </summary>
-    /// <param name="limit"></param>
-    /// <returns>excepted intervals.</returns>
+    /// <param name="interval">interval</param>
+    /// <param name="intersectionType">intersectionType</param>
+    /// <returns>interval set with excepted intervals.</returns>
     public IntervalSet<TLimit> Except(Interval<TLimit> interval, IntersectionType intersectionType)
     {
         throw new NotImplementedException();
     }
 
     /// <summary>
-    /// Unions all unique intervals from the current and a given IntervalSet.
+    /// Unions all unique intervals from the current and <c>other</c> interval set.
     /// </summary>
     /// <param name="other"></param>
-    /// <returns>interval set of united intervals.</returns>
+    /// <returns>interval set with united intervals.</returns>
     public IntervalSet<TLimit> Union(IntervalSet<TLimit> other)
     {
         var result = new IntervalSet<TLimit>(_comparer, this, areIntervalsSorted: true);
@@ -272,7 +270,7 @@ public class IntervalSet<TLimit> : ICollection<Interval<TLimit>>
     }
 
     /// <summary>
-    /// Merges intersecting intervals into single intervals.
+    /// Merges intersecting intervals.
     /// </summary>
     /// <returns>interval set with merged intervals.</returns>
     public IntervalSet<TLimit> Merge()
