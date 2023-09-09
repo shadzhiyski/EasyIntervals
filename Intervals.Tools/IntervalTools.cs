@@ -50,46 +50,46 @@ public static class IntervalTools
     }
 
     /// <summary>
-    /// Checks if end of <c>before</c> interval touches start of <c>after</c> interval.
+    /// Checks if end of <c>precedingInterval</c> touches start of <c>followingInterval</c>.
     /// <para>
-    /// !IMPORTANT!: This method assumes that <c>before</c> interval is lower than <c>after</c> interval.
+    /// !IMPORTANT!: This method assumes that <c>precedingInterval</c> is lower than <c>followingInterval</c>.
     /// </para>
     /// </summary>
     /// <typeparam name="TLimit"></typeparam>
-    /// <param name="before"></param>
-    /// <param name="after"></param>
+    /// <param name="precedingInterval"></param>
+    /// <param name="followingInterval"></param>
     /// <param name="comparer"></param>
     /// <returns></returns>
-    internal static bool Touch<TLimit>(Interval<TLimit> before, Interval<TLimit> after, IComparer<TLimit> comparer) =>
-        comparer.Compare(before.End, after.Start) == 0
-            && ((before.Type & IntervalType.EndClosed) | (after.Type & IntervalType.StartClosed)) > 0;
+    internal static bool Touch<TLimit>(Interval<TLimit> precedingInterval, Interval<TLimit> followingInterval, IComparer<TLimit> comparer) =>
+        comparer.Compare(precedingInterval.End, followingInterval.Start) == 0
+            && ((precedingInterval.Type & IntervalType.EndClosed) | (followingInterval.Type & IntervalType.StartClosed)) > 0;
 
     /// <summary>
     /// Merges 2 intervals.
     /// <para>
-    /// !IMPORTANT!: This method assumes that <c>before</c> interval is lower than <c>after</c> interval and they both have intersection.
+    /// !IMPORTANT!: This method assumes that <c>precedingInterval</c> is lower than <c>followingInterval</c> and they both have intersection.
     /// </para>
     /// </summary>
     /// <typeparam name="TLimit"></typeparam>
-    /// <param name="before"></param>
-    /// <param name="after"></param>
+    /// <param name="precedingInterval"></param>
+    /// <param name="followingInterval"></param>
     /// <param name="comparer"></param>
     /// <returns></returns>
-    internal static Interval<TLimit> Merge<TLimit>(Interval<TLimit> before, Interval<TLimit> after, IComparer<TLimit> comparer)
+    internal static Interval<TLimit> Merge<TLimit>(Interval<TLimit> precedingInterval, Interval<TLimit> followingInterval, IComparer<TLimit> comparer)
     {
-        var startComparison = comparer.Compare(after.Start, before.Start);
+        var startComparison = comparer.Compare(followingInterval.Start, precedingInterval.Start);
         var startIntervalType = startComparison == 0
-            ? (after.Type | before.Type) & IntervalType.StartClosed
-            : before.Type & IntervalType.StartClosed;
-        var endComparison = comparer.Compare(after.End, before.End);
+            ? (followingInterval.Type | precedingInterval.Type) & IntervalType.StartClosed
+            : precedingInterval.Type & IntervalType.StartClosed;
+        var endComparison = comparer.Compare(followingInterval.End, precedingInterval.End);
         var endIntervalType = endComparison > 0
-            ? after.Type & IntervalType.EndClosed
+            ? followingInterval.Type & IntervalType.EndClosed
             : endComparison < 0
-                ? before.Type & IntervalType.EndClosed
-                : (after.Type | before.Type) & IntervalType.EndClosed;
+                ? precedingInterval.Type & IntervalType.EndClosed
+                : (followingInterval.Type | precedingInterval.Type) & IntervalType.EndClosed;
         return (
-            before.Start,
-            endComparison > 0 ? after.End : before.End,
+            precedingInterval.Start,
+            endComparison > 0 ? followingInterval.End : precedingInterval.End,
             startIntervalType | endIntervalType
         );
     }

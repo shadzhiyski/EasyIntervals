@@ -137,7 +137,7 @@ public class IntervalSetTests
     /// --6-----7-----------------------11----12-------
     /// </summary>
     [Fact]
-    public void Merge_BeforeClosedAfterStartClosed_ShouldReturnCorrectStartClosed()
+    public void Merge_PrecedingClosedFollowingStartClosed_ShouldReturnCorrectStartClosed()
     {
         // Arrange
         var intervalSet = new IntervalSet<int>
@@ -163,7 +163,7 @@ public class IntervalSetTests
     /// --6-----7-----------------------11----12-------
     /// </summary>
     [Fact]
-    public void Merge_BeforeStartClosedAfterEndClosed_ShouldReturnCorrectClosed()
+    public void Merge_PrecedingStartClosedFollowingEndClosed_ShouldReturnCorrectClosed()
     {
         // Arrange
         var intervalSet = new IntervalSet<int>
@@ -189,7 +189,7 @@ public class IntervalSetTests
     /// --6-----7-----------------------11----12-------
     /// </summary>
     [Fact]
-    public void Merge_BeforeOpenAfterEndClosed_ShouldReturnCorrectEndClosed()
+    public void Merge_PrecedingOpenFollowingEndClosed_ShouldReturnCorrectEndClosed()
     {
         // Arrange
         var intervalSet = new IntervalSet<int>
@@ -215,7 +215,7 @@ public class IntervalSetTests
     /// --6-----7-----------------------11----12-------
     /// </summary>
     [Fact]
-    public void Merge_BeforeOpenAfterStartClosed_ShouldReturnCorrectOpen()
+    public void Merge_PrecedingOpenFollowingStartClosed_ShouldReturnCorrectOpen()
     {
         // Arrange
         var intervalSet = new IntervalSet<int>
@@ -241,7 +241,7 @@ public class IntervalSetTests
     /// --7-----------------------11----12-------------
     /// </summary>
     [Fact]
-    public void Merge_SameStartBeforeOpenAfterEndClosed_ShouldReturnCorrectEndClosed()
+    public void Merge_SameStartPrecedingOpenFollowingEndClosed_ShouldReturnCorrectEndClosed()
     {
         // Arrange
         var intervalSet = new IntervalSet<int>
@@ -267,7 +267,7 @@ public class IntervalSetTests
     /// --7-----------------------11----12-------------
     /// </summary>
     [Fact]
-    public void Merge_SameStartBeforeStartClosedAfterEndClosed_ShouldReturnCorrectClosed()
+    public void Merge_SameStartPrecedingStartClosedFollowingEndClosed_ShouldReturnCorrectClosed()
     {
         // Arrange
         var intervalSet = new IntervalSet<int>
@@ -293,7 +293,7 @@ public class IntervalSetTests
     /// --7-----------------------11----12-------------
     /// </summary>
     [Fact]
-    public void Merge_SameStartBeforeStartClosedAfterClosed_ShouldReturnCorrectClosed()
+    public void Merge_SameStartPrecedingStartClosedFollowingClosed_ShouldReturnCorrectClosed()
     {
         // Arrange
         var intervalSet = new IntervalSet<int>
@@ -319,7 +319,7 @@ public class IntervalSetTests
     /// ---6------7-------8-----------12-------------
     /// </summary>
     [Fact]
-    public void Merge_SameEndBeforeOpenAfterEndClosed_ShouldReturnCorrectEndClosed()
+    public void Merge_SameEndPrecedingOpenFollowingEndClosed_ShouldReturnCorrectEndClosed()
     {
         // Arrange
         var intervalSet = new IntervalSet<int>
@@ -345,7 +345,7 @@ public class IntervalSetTests
     /// ---6------7-------8-----------12-------------
     /// </summary>
     [Fact]
-    public void Merge_SameEndBeforeStartClosedAfterEndClosed_ShouldReturnCorrectClosed()
+    public void Merge_SameEndPrecedingStartClosedFollowingEndClosed_ShouldReturnCorrectClosed()
     {
         // Arrange
         var intervalSet = new IntervalSet<int>
@@ -371,7 +371,7 @@ public class IntervalSetTests
     /// ---6------7-------8-----------12-------------
     /// </summary>
     [Fact]
-    public void Merge_SameEndBeforeStartClosedAfterOpen_ShouldReturnCorrectStartClosed()
+    public void Merge_SameEndPrecedingStartClosedFollowingOpen_ShouldReturnCorrectStartClosed()
     {
         // Arrange
         var intervalSet = new IntervalSet<int>
@@ -398,20 +398,20 @@ public class IntervalSetTests
     /// ---6--------------8-----------12-------------
     /// </summary>
     [Fact]
-    public void Merge_TouchingIntervalsBeforeOpenAfterOpen_ShouldNotMergeIntervals()
+    public void Merge_TouchingIntervalsPrecedingOpenFollowingOpen_ShouldNotMergeIntervals()
     {
         // Arrange
         var intervalSet = new IntervalSet<int>();
-        var before = new Interval<int>(6, 8, IntervalType.Open);
-        var after = new Interval<int>(8, 12, IntervalType.Open);
-        intervalSet.Add(before);
-        intervalSet.Add(after);
+        var precedingInterval = new Interval<int>(6, 8, IntervalType.Open);
+        var followingInterval = new Interval<int>(8, 12, IntervalType.Open);
+        intervalSet.Add(precedingInterval);
+        intervalSet.Add(followingInterval);
 
         // Act
         var result = intervalSet.Merge();
 
         // Assert
-        result.Should().BeEquivalentTo(new [] { before, after });
+        result.Should().BeEquivalentTo(new [] { precedingInterval, followingInterval });
     }
 
     /// <summary>
@@ -423,14 +423,14 @@ public class IntervalSetTests
     /// ---6--------------8-----------12-------------
     /// </summary>
     [Fact]
-    public void Merge_TouchingIntervalsBeforeEndClosedAfterOpen_ShouldMergeIntervals()
+    public void Merge_TouchingIntervalsPrecedingEndClosedFollowingOpen_ShouldMergeIntervals()
     {
         // Arrange
         var intervalSet = new IntervalSet<int>();
-        var before = new Interval<int>(6, 8, IntervalType.EndClosed);
-        var after = new Interval<int>(8, 12, IntervalType.Open);
-        intervalSet.Add(before);
-        intervalSet.Add(after);
+        var precedingInterval = new Interval<int>(6, 8, IntervalType.EndClosed);
+        var followingInterval = new Interval<int>(8, 12, IntervalType.Open);
+        intervalSet.Add(precedingInterval);
+        intervalSet.Add(followingInterval);
         var expected = new Interval<int>(6, 12, IntervalType.Open);
 
         // Act
@@ -449,14 +449,14 @@ public class IntervalSetTests
     /// ---6--------------8-----------12-------------
     /// </summary>
     [Fact]
-    public void Merge_TouchingIntervalsBeforeOpenAfterStartClosed_ShouldMergeIntervals()
+    public void Merge_TouchingIntervalsPrecedingOpenFollowingStartClosed_ShouldMergeIntervals()
     {
         // Arrange
         var intervalSet = new IntervalSet<int>();
-        var before = new Interval<int>(6, 8, IntervalType.Open);
-        var after = new Interval<int>(8, 12, IntervalType.StartClosed);
-        intervalSet.Add(before);
-        intervalSet.Add(after);
+        var precedingInterval = new Interval<int>(6, 8, IntervalType.Open);
+        var followingInterval = new Interval<int>(8, 12, IntervalType.StartClosed);
+        intervalSet.Add(precedingInterval);
+        intervalSet.Add(followingInterval);
         var expected = new Interval<int>(6, 12, IntervalType.Open);
 
         // Act
