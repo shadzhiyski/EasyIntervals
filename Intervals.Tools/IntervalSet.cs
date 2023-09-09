@@ -300,27 +300,29 @@ public class IntervalSet<TLimit> : ICollection<Interval<TLimit>>
 
     private void MergeCurrent(AATree<Interval<TLimit>>.Node? node, IList<Interval<TLimit>> intervals)
     {
-        var lastIndex = intervals.Count - 1;
-        Interval<TLimit>? left = intervals.Count > 0 ? intervals[lastIndex] : null;
-        var isMerged = TryMerge(left, node, out Interval<TLimit> interval);
-
-        if (isMerged)
+        if (intervals.Count > 0)
         {
-            intervals[lastIndex] = interval;
-            return;
+            var lastIndex = intervals.Count - 1;
+            var precedingInterval = intervals[lastIndex];
+            var isMerged = TryMerge(precedingInterval, node!.Value, out Interval<TLimit> mergedInterval);
+
+            if (isMerged)
+            {
+                intervals[lastIndex] = mergedInterval;
+                return;
+            }
         }
 
         intervals.Add(node!.Value);
     }
 
     private bool TryMerge(
-        Interval<TLimit>? before, AATree<Interval<TLimit>>.Node? after, out Interval<TLimit> result)
+        Interval<TLimit> precedingInterval, Interval<TLimit> followingInterval, out Interval<TLimit> result)
     {
-        if (before is not null
-            && (IntervalTools.HasAnyIntersection(before.Value, after!.Value, _comparer)
-                || IntervalTools.Touch(before.Value, after!.Value, _comparer)))
+        if (IntervalTools.HasAnyIntersection(precedingInterval, followingInterval, _comparer)
+                || IntervalTools.Touch(precedingInterval, followingInterval, _comparer))
         {
-            result = IntervalTools.Merge(before.Value, after!.Value, _comparer);
+            result = IntervalTools.Merge(precedingInterval, followingInterval, _comparer);
             return true;
         }
 
