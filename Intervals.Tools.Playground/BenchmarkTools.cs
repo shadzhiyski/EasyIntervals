@@ -7,7 +7,7 @@ public class BenchmarkTools
     public static Interval<int> CreateRandomInterval(int minStart, int maxEnd)
     {
         var start = RandomNumberGenerator.GetInt32(minStart, maxEnd + 1);
-        var length = RandomNumberGenerator.GetInt32(0, maxEnd - minStart + 1);
+        var length = RandomNumberGenerator.GetInt32(1, maxEnd - minStart + 2);
 
         return new Interval<int>(start, start + length);
     }
