@@ -11,9 +11,11 @@ namespace Intervals.Tools.Playground;
 public class IntervalCollectionsBenchmarks
 {
     private const int TotalIntervalsCount = 250_000;
-    private const int IntersectionIntervalsCount = 100;
+    private const int IntersectionIntervalsCount = 1_000;
     private const int MaxStartLimit = 10_000_000;
     private const int MaxIntervalLength = 1_000;
+
+    private const int MaxIntersectionIntervalLength = 100_000;
 
     private readonly ISet<Interval<int>> _intervals;
     private readonly List<Interval<int>> _seededIntersectionIntervals;
@@ -22,7 +24,7 @@ public class IntervalCollectionsBenchmarks
     {
         _intervals = BenchmarkTools.CreateRandomIntervals(TotalIntervalsCount, MaxStartLimit, MaxIntervalLength);
         _seededIntersectionIntervals = Enumerable.Range(0, IntersectionIntervalsCount)
-            .Select(i => BenchmarkTools.CreateRandomInterval(0, MaxStartLimit))
+            .Select(i => BenchmarkTools.CreateRandomInterval(MaxStartLimit, MaxIntersectionIntervalLength))
             .ToList();
     }
 
@@ -32,7 +34,7 @@ public class IntervalCollectionsBenchmarks
         var intervalSet = new IntervalSet<int>(_intervals);
         foreach (var intersectionInterval in _seededIntersectionIntervals)
         {
-            var result = intervalSet.Intersect(intersectionInterval);
+            var _ = intervalSet.Intersect(intersectionInterval);
         }
     }
 
@@ -42,7 +44,7 @@ public class IntervalCollectionsBenchmarks
         var intervalSet = new IntervalSet<int>(_intervals).Merge();
         foreach (var intersectionInterval in _seededIntersectionIntervals)
         {
-            var result = intervalSet.Intersect(intersectionInterval);
+            var _ = intervalSet.Intersect(intersectionInterval);
         }
     }
 
@@ -57,7 +59,7 @@ public class IntervalCollectionsBenchmarks
 
         foreach (var intersectionInterval in _seededIntersectionIntervals)
         {
-            var result = intervalTree.Query(intersectionInterval.Start, intersectionInterval.End);
+            var _ = intervalTree.Query(intersectionInterval.Start, intersectionInterval.End);
         }
     }
 
@@ -69,10 +71,10 @@ public class IntervalCollectionsBenchmarks
         foreach (var interval in seededIntervals)
         {
             intervalSet.Add(interval);
-            for (int j = 0; j < 100; j++)
+            var intersectionIntervals = _seededIntersectionIntervals.Take(100);
+            foreach (var intersectionInterval in intersectionIntervals)
             {
-                var intersectionInterval = BenchmarkTools.CreateRandomInterval(0, MaxStartLimit);
-                var result = intervalSet.Intersect(intersectionInterval);
+                var _ = intervalSet.Intersect(intersectionInterval);
             }
         }
     }
@@ -85,10 +87,10 @@ public class IntervalCollectionsBenchmarks
         foreach (var interval in seededIntervals)
         {
             intervalTree.Add(interval.Start, interval.End, $"{interval.Start}, {interval.End}");
-            for (int j = 0; j < 100; j++)
+            var intersectionIntervals = _seededIntersectionIntervals.Take(100);
+            foreach (var intersectionInterval in intersectionIntervals)
             {
-                var intersectionInterval = BenchmarkTools.CreateRandomInterval(0, MaxStartLimit);
-                var result = intervalTree.Query(intersectionInterval.Start, intersectionInterval.End);
+                var _ = intervalTree.Query(intersectionInterval.Start, intersectionInterval.End);
             }
         }
     }

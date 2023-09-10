@@ -4,10 +4,10 @@ namespace Intervals.Tools.Playground;
 
 public class BenchmarkTools
 {
-    public static Interval<int> CreateRandomInterval(int minStart, int maxEnd)
+    public static Interval<int> CreateRandomInterval(int maxStartLimit, int maxIntervalLength)
     {
-        var start = RandomNumberGenerator.GetInt32(minStart, maxEnd + 1);
-        var length = RandomNumberGenerator.GetInt32(1, maxEnd - minStart + 2);
+        var start = RandomNumberGenerator.GetInt32(0, maxStartLimit + 1);
+        var length = RandomNumberGenerator.GetInt32(1, maxIntervalLength + 1);
 
         return new Interval<int>(start, start + length);
     }
