@@ -218,16 +218,13 @@ public class IntervalSet<TLimit> : ICollection<Interval<TLimit>>
     private void IntersectRecursive(AATree<Interval<TLimit>>.Node? node,
         Interval<TLimit> interval, IntersectionType intersectionType, IList<Interval<TLimit>> result)
     {
-        if (node is null)
+        if (node is null
+            || _comparer.Compare(interval.Start, node.Value.MaxEnd) > 0)
         {
             return;
         }
 
-        if (node!.Left is not null
-            && _comparer.Compare(interval.Start, node!.Left.Value.MaxEnd) <= 0)
-        {
-            IntersectRecursive(node.Left, interval, intersectionType, result);
-        }
+        IntersectRecursive(node.Left, interval, intersectionType, result);
 
         if ((intersectionType == IntersectionType.Any && IntervalTools.HasAnyIntersection(interval, node!.Value, _comparer))
             || (intersectionType == IntersectionType.Cover && IntervalTools.Covers(interval, node!.Value, _comparer))
@@ -237,9 +234,7 @@ public class IntervalSet<TLimit> : ICollection<Interval<TLimit>>
         }
 
         var startComparison = _comparer.Compare(interval.End, node!.Value.Start);
-        if (node!.Right is not null
-            && startComparison >= 0
-            && _comparer.Compare(interval.Start, node!.Right.Value.MaxEnd) <= 0)
+        if (startComparison >= 0)
         {
             IntersectRecursive(node.Right, interval, intersectionType, result);
         }
