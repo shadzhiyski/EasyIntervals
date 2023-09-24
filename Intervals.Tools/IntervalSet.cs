@@ -27,7 +27,8 @@ public enum IntersectionType
 }
 
 /// <summary>
-/// IntervalSet is a collection for storing unique intervals where multiple add, remove and search operations can be done in efficient time.
+/// IntervalSet is a collection for storing large amount of unique intervals
+/// where multiple add, remove and search operations can be done in efficient time.
 /// </summary>
 /// <remarks>
 /// It's an implementation of <see href="https://en.wikipedia.org/wiki/Interval_tree#Augmented_tree">Augmented Interval Tree</see>
@@ -233,8 +234,8 @@ public class IntervalSet<TLimit> : ICollection<Interval<TLimit>>
             result.Add(node.Value);
         }
 
-        var startComparison = _comparer.Compare(interval.End, node!.Value.Start);
-        if (startComparison >= 0)
+        var endStartComparison = _comparer.Compare(interval.End, node!.Value.Start);
+        if (endStartComparison >= 0)
         {
             IntersectRecursive(node.Right, interval, intersectionType, result);
         }
@@ -246,9 +247,39 @@ public class IntervalSet<TLimit> : ICollection<Interval<TLimit>>
     /// <param name="interval">interval</param>
     /// <param name="intersectionType">intersectionType</param>
     /// <returns>interval set with excepted intervals.</returns>
-    public IntervalSet<TLimit> Except(Interval<TLimit> interval, IntersectionType intersectionType)
+    public IntervalSet<TLimit> Except(
+        Interval<TLimit> interval, IntersectionType intersectionType = IntersectionType.Any)
     {
-        throw new NotImplementedException();
+        var intersectedIntervals = new List<Interval<TLimit>>();
+        ExceptRecursive(_aaTree.Root, interval, intersectionType, intersectedIntervals);
+        return new IntervalSet<TLimit>(_comparer, intersectedIntervals, areIntervalsSorted: true);
+    }
+
+    private void ExceptRecursive(AATree<Interval<TLimit>>.Node? node,
+        Interval<TLimit> interval, IntersectionType intersectionType, IList<Interval<TLimit>> result)
+    {
+        if (node is null)
+        {
+            return;
+        }
+
+        ExceptRecursive(node.Left, interval, intersectionType, result);
+
+        if (!((intersectionType == IntersectionType.Any && IntervalTools.HasAnyIntersection(interval, node!.Value, _comparer))
+            || (intersectionType == IntersectionType.Cover && IntervalTools.Covers(interval, node!.Value, _comparer))
+            || (intersectionType == IntersectionType.Within && IntervalTools.Covers(node!.Value, interval, _comparer))))
+        {
+            result.Add(node.Value);
+        }
+
+        var startComparison = _comparer.Compare(interval.Start, node!.Value.Start);
+        if (node!.Right is not null
+            && !(intersectionType != IntersectionType.Within
+                && startComparison <= 0
+                && _comparer.Compare(interval.End, node!.Right.Value.MaxEnd) >= 0))
+        {
+            ExceptRecursive(node.Right, interval, intersectionType, result);
+        }
     }
 
     /// <summary>

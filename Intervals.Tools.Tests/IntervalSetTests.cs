@@ -697,4 +697,206 @@ public class IntervalSetTests
         // Assert
         result.Should().ContainInOrder(expected);
     }
+
+    /// <summary>
+    /// Intersection interval:
+    ///                   [--------]
+    /// Set:
+    ///    [--------------]
+    ///    (--------------)        (--------]
+    /// (--------)     (--------)  [--------------)
+    /// Expected set:
+    /// (--------)
+    ///    (--------------)        (--------]
+    /// 2--3-----5-----7--8-----10-11-------14----16-
+    /// </summary>
+    [Fact]
+    public void Except_GivenIntervalHasAnyIntersection_ShouldReturnExceptedIntervals()
+    {
+        // Arrange
+        var expected = new Interval<int>[] {
+            (2, 5),
+            (3, 8, IntervalType.Open),
+            (11, 14, IntervalType.EndClosed)
+        };
+
+        var intervalSet = new IntervalSet<int>
+        {
+            (2, 5), // (2, 5)
+            (7, 10), // (7, 10)
+            (3, 8, IntervalType.Open), // (3, 8)
+            (3, 8, IntervalType.Closed), // [3, 8]
+            (11, 16, IntervalType.StartClosed), // [11, 16)
+            (11, 14, IntervalType.EndClosed) // (11, 14]
+        };
+
+        // Act
+        var result = intervalSet.Except((8, 11, IntervalType.Closed));
+
+        // Assert
+        result.Should().BeEquivalentTo(expected);
+    }
+
+    /// <summary>
+    /// Intersection interval:
+    ///    (--------------------------------)
+    /// Set:
+    ///    [--------------]
+    ///    (--------------)        (--------]
+    /// (--------)                 [--------------)
+    /// Expected set:
+    ///
+    /// 2--3-----5--------8--------11-------14----16-
+    /// </summary>
+    [Fact]
+    public void Except_GivenIntervalHasAllIntersected_ShouldReturnEmptyCollection()
+    {
+        // Arrange
+        var intervalSet = new IntervalSet<int>
+        {
+            (2, 5), // (2, 5)
+            (3, 8, IntervalType.Open), // (3, 8)
+            (3, 8, IntervalType.Closed), // [3, 8]
+            (11, 16, IntervalType.StartClosed), // [11, 16)
+            (11, 14, IntervalType.EndClosed) // (11, 14]
+        };
+
+        // Act
+        var result = intervalSet.Except((3, 14));
+
+        // Assert
+        result.Should().BeEmpty();
+    }
+
+    /// <summary>
+    /// Intersection interval:
+    ///          [--------------------------------]
+    /// Set:
+    ///    [--------------------------]
+    /// (--------)
+    ///          [--------------)  (--------]
+    /// Expected set:
+    ///    [--------------------------]
+    /// (--------)
+    /// 2--3-----5--------------10-11-12----14----16-
+    /// </summary>
+    [Fact]
+    public void Except_GivenIntervalHasCoveringIntersection_ShouldReturnExceptedIntervals()
+    {
+        // Arrange
+        var expected = new Interval<int>[] {
+            (2, 5),
+            (3, 12, IntervalType.Closed)
+        };
+
+        var intervalSet = new IntervalSet<int>
+        {
+            (2, 5),
+            (5, 10, IntervalType.StartClosed),
+            (3, 12, IntervalType.Closed),
+            (11, 14, IntervalType.EndClosed)
+        };
+
+        // Act
+        var result = intervalSet.Except((5, 16, IntervalType.Closed), IntersectionType.Cover);
+
+        // Assert
+        result.Should().BeEquivalentTo(expected);
+    }
+
+    /// <summary>
+    /// Intersection interval:
+    /// [-----------------------------------------)
+    /// Set:
+    ///    [--------------------------]
+    /// (--------)
+    ///          [--------------)  (--------]
+    /// Expected set:
+    ///
+    /// 2--3-----5--------------10-11-12----14----16-
+    /// </summary>
+    [Fact]
+    public void Except_GivenIntervalHasAllCoveringIntersection_ShouldReturnEmptyCollection()
+    {
+        // Arrange
+        var intervalSet = new IntervalSet<int>
+        {
+            (2, 5),
+            (5, 10, IntervalType.StartClosed),
+            (3, 12, IntervalType.Closed),
+            (11, 16, IntervalType.StartClosed)
+        };
+
+        // Act
+        var result = intervalSet.Except((2, 16, IntervalType.StartClosed), IntersectionType.Cover);
+
+        // Assert
+        result.Should().BeEmpty();
+    }
+
+    /// <summary>
+    /// Intersection interval:
+    ///          [-----------------]
+    /// Set:
+    ///    [--------------------------]
+    /// (--------)
+    ///          [--------------)  (--------]
+    /// Expected set:
+    /// (--------)
+    ///          [--------------)  (--------]
+    /// 2--3-----5--------------10-11-12----14----16-
+    /// </summary>
+    [Fact]
+    public void Except_GivenIntervalHasWithinIntersection_ShouldReturnExceptedIntervals()
+    {
+        // Arrange
+        var expected = new Interval<int>[] {
+            (2, 5),
+            (5, 10, IntervalType.StartClosed),
+            (11, 14, IntervalType.StartClosed)
+        };
+
+        var intervalSet = new IntervalSet<int>
+        {
+            (2, 5),
+            (5, 10, IntervalType.StartClosed),
+            (3, 12, IntervalType.Closed),
+            (11, 14, IntervalType.StartClosed)
+        };
+
+        // Act
+        var result = intervalSet.Except((5, 11, IntervalType.Closed), IntersectionType.Within);
+
+        // Assert
+        result.Should().BeEquivalentTo(expected);
+    }
+
+    /// <summary>
+    /// Intersection interval:
+    ///          (--------------)
+    /// Set:
+    ///    [--------------------------]
+    /// (-----------------------)
+    ///          [--------------)
+    /// Expected set:
+    ///
+    /// 2--3-----5--------------10-11-12----14----16-
+    /// </summary>
+    [Fact]
+    public void Except_GivenIntervalHasAllWithinIntersection_ShouldReturnEmptyCollection()
+    {
+        // Arrange
+        var intervalSet = new IntervalSet<int>
+        {
+            (2, 10),
+            (5, 10, IntervalType.StartClosed),
+            (3, 12, IntervalType.Closed)
+        };
+
+        // Act
+        var result = intervalSet.Except((5, 10), IntersectionType.Within);
+
+        // Assert
+        result.Should().BeEmpty();
+    }
 }

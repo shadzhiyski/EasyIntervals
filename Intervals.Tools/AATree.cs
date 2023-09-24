@@ -6,7 +6,7 @@ using System.Collections.Generic;
 
 /// <summary>
 /// AATree is a self balancing binary search tree that stores and retrieves ordered items efficiently.
-/// More information can be found here: https://en.wikipedia.org/wiki/AA_tree
+/// More information can be found here: <see href="https://en.wikipedia.org/wiki/AA_tree">AA Tree</see>
 /// </summary>
 /// <typeparam name="T"></typeparam>
 internal class AATree<T> : IEnumerable<T>
