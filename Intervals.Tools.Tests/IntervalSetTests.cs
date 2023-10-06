@@ -899,4 +899,316 @@ public class IntervalSetTests
         // Assert
         result.Should().BeEmpty();
     }
+
+    [Fact]
+    public void SymmetricExceptWith_HasIntersection_ShouldExceptIntervalSet()
+    {
+        // Arrange
+        var intervalSet = new IntervalSet<int>
+        {
+            (2, 10),
+            (5, 10, IntervalType.StartClosed),
+            (3, 12, IntervalType.Closed)
+        };
+
+        var exceptIntervalSet = new IntervalSet<int>
+        {
+            (5, 10, IntervalType.StartClosed),
+            (25, 30),
+            (33, 35)
+        };
+
+        var expectedIntervals = new Interval<int>[]
+        {
+            (2, 10),
+            (3, 12, IntervalType.Closed)
+        };
+
+        // Act
+        intervalSet.SymmetricExceptWith(exceptIntervalSet);
+
+        // Assert
+        intervalSet.Should().BeEquivalentTo(expectedIntervals);
+    }
+
+    [Fact]
+    public void IntersectWith_HasIntersection_ShouldIntersectIntervalSet()
+    {
+        // Arrange
+        var intervalSet = new IntervalSet<int>
+        {
+            (2, 10),
+            (5, 10, IntervalType.StartClosed),
+            (3, 12, IntervalType.Closed)
+        };
+
+        var exceptIntervalSet = new IntervalSet<int>
+        {
+            (5, 10, IntervalType.StartClosed),
+            (25, 30),
+            (33, 35)
+        };
+
+        var expectedIntervals = new Interval<int>[]
+        {
+            (5, 10, IntervalType.StartClosed),
+        };
+
+        // Act
+        intervalSet.IntersectWith(exceptIntervalSet);
+
+        // Assert
+        intervalSet.Should().BeEquivalentTo(expectedIntervals);
+    }
+
+    [Fact]
+    public void UnionWith_OtherIntervalSetWithDifferentIntervals_ShouldUnionIntervalSet()
+    {
+        // Arrange
+        var intervalSet = new IntervalSet<int>
+        {
+            (2, 10),
+            (5, 10, IntervalType.StartClosed),
+            (3, 12, IntervalType.Closed)
+        };
+
+        var otherIntervalSet = new IntervalSet<int>
+        {
+            (25, 30),
+            (33, 35)
+        };
+
+        var expectedIntervals = new Interval<int>[]
+        {
+            (2, 10),
+            (5, 10, IntervalType.StartClosed),
+            (3, 12, IntervalType.Closed),
+            (25, 30),
+            (33, 35)
+        };
+
+        // Act
+        intervalSet.UnionWith(otherIntervalSet);
+
+        // Assert
+        intervalSet.Should().BeEquivalentTo(expectedIntervals);
+    }
+
+    [Fact]
+    public void IsSubsetOf_AllElementsAreInOtherIntervalSet_ShouldReturnTrue()
+    {
+        // Arrange
+        var intervalSet = new IntervalSet<int>
+        {
+            (2, 10),
+            (5, 10, IntervalType.StartClosed),
+            (3, 12, IntervalType.Closed)
+        };
+
+        var otherIntervalSet = new IntervalSet<int>
+        {
+            (2, 10),
+            (5, 10, IntervalType.StartClosed),
+            (3, 12, IntervalType.Closed),
+            (25, 30),
+            (33, 35)
+        };
+
+        // Act
+        var result = intervalSet.IsSubsetOf(otherIntervalSet);
+
+        // Assert
+        result.Should().BeTrue();
+    }
+
+    [Fact]
+    public void IsSubsetOf_NotAllElementsAreInOtherIntervalSet_ShouldReturnFalse()
+    {
+        // Arrange
+        var intervalSet = new IntervalSet<int>
+        {
+            (2, 10),
+            (5, 10, IntervalType.StartClosed),
+            (3, 12, IntervalType.Closed)
+        };
+
+        var otherIntervalSet = new IntervalSet<int>
+        {
+            (2, 10),
+            (5, 10, IntervalType.StartClosed),
+            (25, 30),
+            (33, 35)
+        };
+
+        // Act
+        var result = intervalSet.IsSubsetOf(otherIntervalSet);
+
+        // Assert
+        result.Should().BeFalse();
+    }
+
+    [Fact]
+    public void IsSupersetOf_AllOtherElementsAreInIntervalSet_ShouldReturnTrue()
+    {
+        // Arrange
+        var intervalSet = new IntervalSet<int>
+        {
+            (2, 10),
+            (5, 10, IntervalType.StartClosed),
+            (3, 12, IntervalType.Closed),
+            (25, 30),
+            (33, 35)
+        };
+
+        var otherIntervalSet = new IntervalSet<int>
+        {
+            (2, 10),
+            (5, 10, IntervalType.StartClosed),
+            (3, 12, IntervalType.Closed)
+        };
+
+        // Act
+        var result = intervalSet.IsSupersetOf(otherIntervalSet);
+
+        // Assert
+        result.Should().BeTrue();
+    }
+
+    [Fact]
+    public void IsSupersetOf_NotAllOtherElementsAreInIntervalSet_ShouldReturnFalse()
+    {
+        // Arrange
+        var intervalSet = new IntervalSet<int>
+        {
+            (2, 10),
+            (5, 10, IntervalType.StartClosed),
+            (25, 30),
+            (33, 35)
+        };
+
+        var otherIntervalSet = new IntervalSet<int>
+        {
+            (2, 10),
+            (5, 10, IntervalType.StartClosed),
+            (3, 12, IntervalType.Closed)
+        };
+
+        // Act
+        var result = intervalSet.IsSupersetOf(otherIntervalSet);
+
+        // Assert
+        result.Should().BeFalse();
+    }
+
+    [Fact]
+    public void Overlaps_HasMatchingIntervals_ShouldReturnTrue()
+    {
+        // Arrange
+        var intervalSet = new IntervalSet<int>
+        {
+            (2, 10),
+            (5, 10, IntervalType.StartClosed),
+            (3, 12, IntervalType.Closed),
+            (25, 30),
+            (33, 35)
+        };
+
+        var otherIntervalSet = new IntervalSet<int>
+        {
+            (2, 10),
+            (5, 10, IntervalType.StartClosed),
+            (8, 14, IntervalType.Closed)
+        };
+
+        // Act
+        var result = intervalSet.Overlaps(otherIntervalSet);
+
+        // Assert
+        result.Should().BeTrue();
+    }
+
+    [Fact]
+    public void Overlaps_HasNoMatchingIntervals_ShouldReturnFalse()
+    {
+        // Arrange
+        var intervalSet = new IntervalSet<int>
+        {
+            (2, 10),
+            (5, 10, IntervalType.StartClosed),
+            (3, 12, IntervalType.Closed),
+            (25, 30),
+            (33, 35)
+        };
+
+        var otherIntervalSet = new IntervalSet<int>
+        {
+            (5, 10),
+            (5, 10, IntervalType.EndClosed),
+            (8, 14, IntervalType.Closed)
+        };
+
+        // Act
+        var result = intervalSet.Overlaps(otherIntervalSet);
+
+        // Assert
+        result.Should().BeFalse();
+    }
+
+    [Fact]
+    public void SetEquals_HasSameIntervals_ShouldReturnTrue()
+    {
+        // Arrange
+        var intervalSet = new IntervalSet<int>
+        {
+            (2, 10),
+            (5, 10, IntervalType.StartClosed),
+            (3, 12, IntervalType.Closed),
+            (25, 30),
+            (33, 35)
+        };
+
+        var otherIntervalSet = new IntervalSet<int>
+        {
+            (2, 10),
+            (5, 10, IntervalType.StartClosed),
+            (3, 12, IntervalType.Closed),
+            (25, 30),
+            (33, 35)
+        };
+
+        // Act
+        var result = intervalSet.SetEquals(otherIntervalSet);
+
+        // Assert
+        result.Should().BeTrue();
+    }
+
+    [Fact]
+    public void SetEquals_HasNotSameIntervals_ShouldReturnFalse()
+    {
+        // Arrange
+        var intervalSet = new IntervalSet<int>
+        {
+            (2, 10),
+            (5, 10, IntervalType.StartClosed),
+            (3, 12, IntervalType.Closed),
+            (25, 30),
+            (33, 35)
+        };
+
+        var otherIntervalSet = new IntervalSet<int>
+        {
+            (2, 10),
+            (5, 10),
+            (3, 12, IntervalType.Closed),
+            (25, 30, IntervalType.StartClosed),
+            (33, 35)
+        };
+
+        // Act
+        var result = intervalSet.SetEquals(otherIntervalSet);
+
+        // Assert
+        result.Should().BeFalse();
+    }
 }

@@ -1,6 +1,5 @@
 namespace Intervals.Tools;
 
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -36,7 +35,7 @@ public enum IntersectionType
 /// It provides functionalities for add, remove, intersect, except, union and merge of intervals.
 /// </remarks>
 /// <typeparam name="TLimit">Represents the limit type of start and end of interval</typeparam>
-public class IntervalSet<TLimit> : ICollection<Interval<TLimit>>
+public class IntervalSet<TLimit> : ISet<Interval<TLimit>>
 {
     private readonly IComparer<TLimit> _comparer;
     private readonly AATree<Interval<TLimit>> _aaTree;
@@ -91,38 +90,38 @@ public class IntervalSet<TLimit> : ICollection<Interval<TLimit>>
 
     private void OnChildChanged(AATree<Interval<TLimit>>.Node parent)
     {
-        var isLeftNull = parent.Left is null;
-        var isRightNull = parent.Right is null;
         var parentValue = parent.Value;
+        parentValue.MaxEnd = GetMaxValue(in parentValue, parent.Left, parent.Right);
+        parent.Value = parentValue;
+    }
+
+    private TLimit GetMaxValue(
+        in Interval<TLimit> nodeValue, AATree<Interval<TLimit>>.Node? leftNode, AATree<Interval<TLimit>>.Node? rightNode)
+    {
+        var isLeftNull = leftNode is null;
+        var isRightNull = rightNode is null;
         if (!isLeftNull && isRightNull)
         {
-            var comparison = _comparer.Compare(parent.Value.End, parent.Left!.Value.MaxEnd);
-            parentValue.MaxEnd = comparison > 0 ? parent.Value.End : parent.Left!.Value.MaxEnd;
-            parent.Value = parentValue;
-            return;
+            var comparison = _comparer.Compare(nodeValue.End, leftNode!.Value.MaxEnd);
+            return comparison > 0 ? nodeValue.End : leftNode!.Value.MaxEnd;
         }
 
         if (isLeftNull && !isRightNull)
         {
-            var comparison = _comparer.Compare(parent.Value.End, parent.Right!.Value.MaxEnd);
-            parentValue.MaxEnd = comparison > 0 ? parent.Value.End : parent.Right!.Value.MaxEnd;
-            parent.Value = parentValue;
-            return;
+            var comparison = _comparer.Compare(nodeValue.End, rightNode!.Value.MaxEnd);
+            return comparison > 0 ? nodeValue.End : rightNode!.Value.MaxEnd;
         }
 
         if (isLeftNull && isRightNull)
         {
-            parentValue.MaxEnd = parent.Value.End;
-            parent.Value = parentValue;
-            return;
+            return nodeValue.End;
         }
 
-        var leftRightComparison = _comparer.Compare(parent.Left!.Value.MaxEnd, parent.Right!.Value.MaxEnd);
-        var childMaxEnd = leftRightComparison > 0 ? parent.Left!.Value.MaxEnd : parent.Right!.Value.MaxEnd;
+        var leftRightComparison = _comparer.Compare(leftNode!.Value.MaxEnd, rightNode!.Value.MaxEnd);
+        var childMaxEnd = leftRightComparison > 0 ? leftNode!.Value.MaxEnd : rightNode!.Value.MaxEnd;
 
-        var maxChildComparison = _comparer.Compare(parent.Value.End, childMaxEnd);
-        parentValue.MaxEnd = maxChildComparison > 0 ? parent.Value.End : childMaxEnd;
-        parent.Value = parentValue;
+        var maxChildComparison = _comparer.Compare(nodeValue.End, childMaxEnd);
+        return maxChildComparison > 0 ? nodeValue.End : childMaxEnd;
     }
 
     /// <summary>
@@ -367,4 +366,45 @@ public class IntervalSet<TLimit> : ICollection<Interval<TLimit>>
             array[arrayIndex++] = interval;
         }
     }
+
+    public void ExceptWith(IEnumerable<Interval<TLimit>> other) => Remove(other);
+
+    public void IntersectWith(IEnumerable<Interval<TLimit>> other) => _aaTree.Reset(
+        other.Where(interval => Contains(interval)),
+        areElementsSorted: true);
+
+    public bool IsProperSubsetOf(IEnumerable<Interval<TLimit>> other)
+    {
+        if (Count > other.Count())
+        {
+            return false;
+        }
+
+        var matchesCount = 0;
+        foreach (var interval in other)
+        {
+            if (Contains(interval))
+            {
+                matchesCount++;
+            }
+        }
+
+        return Count == matchesCount;
+    }
+
+    public bool IsProperSupersetOf(IEnumerable<Interval<TLimit>> other) =>
+        Count >= other.Count() && !other.Any(interval => !Contains(interval));
+
+    public bool IsSubsetOf(IEnumerable<Interval<TLimit>> other) => IsProperSubsetOf(other);
+
+    public bool IsSupersetOf(IEnumerable<Interval<TLimit>> other) => IsProperSupersetOf(other);
+
+    public bool Overlaps(IEnumerable<Interval<TLimit>> other) => other.Any(interval => Contains(interval));
+
+    public bool SetEquals(IEnumerable<Interval<TLimit>> other) =>
+        Count == other.Count() && !other.Any(interval => !Contains(interval));
+
+    public void SymmetricExceptWith(IEnumerable<Interval<TLimit>> other) => ExceptWith(other);
+
+    public void UnionWith(IEnumerable<Interval<TLimit>> other) => AddRange(other);
 }

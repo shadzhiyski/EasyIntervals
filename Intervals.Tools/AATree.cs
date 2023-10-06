@@ -99,13 +99,18 @@ internal class AATree<T> : IEnumerable<T>
     {
         _comparer = comparer;
         _onChildChanged = onChildChanged;
-        _root = AATreeInitializer.InitializeTree(elements, areElementsSorted, _comparer, _onChildChanged);
-        Count = elements.Count();
+        Reset(elements, areElementsSorted);
     }
 
     internal Node? Root => _root;
 
     public int Count { get; private set; }
+
+    public void Reset(IEnumerable<T> elements, bool areElementsSorted)
+    {
+        _root = AATreeInitializer.InitializeTree(elements, areElementsSorted, _comparer, _onChildChanged);
+        Count = elements.Count();
+    }
 
     public bool Add(T element)
     {
