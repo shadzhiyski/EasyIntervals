@@ -369,9 +369,10 @@ public class IntervalSet<TLimit> : ISet<Interval<TLimit>>
 
     public void ExceptWith(IEnumerable<Interval<TLimit>> other) => Remove(other);
 
-    public void IntersectWith(IEnumerable<Interval<TLimit>> other) => _aaTree.Reset(
-        other.Where(interval => Contains(interval)),
-        areElementsSorted: true);
+    public void IntersectWith(IEnumerable<Interval<TLimit>> other) => _aaTree
+        .Reset(
+            other.Where(interval => Contains(interval))
+        );
 
     public bool IsProperSubsetOf(IEnumerable<Interval<TLimit>> other)
     {

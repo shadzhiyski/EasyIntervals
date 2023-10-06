@@ -106,7 +106,7 @@ internal class AATree<T> : IEnumerable<T>
 
     public int Count { get; private set; }
 
-    public void Reset(IEnumerable<T> elements, bool areElementsSorted)
+    public void Reset(IEnumerable<T> elements, bool areElementsSorted = false)
     {
         _root = AATreeInitializer.InitializeTree(elements, areElementsSorted, _comparer, _onChildChanged);
         Count = elements.Count();
