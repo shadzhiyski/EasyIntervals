@@ -37,14 +37,14 @@ public enum IntersectionType
 /// <typeparam name="TLimit">Represents the limit type of start and end of interval</typeparam>
 public class IntervalSet<TLimit> : ISet<Interval<TLimit>>
 {
-    private readonly IComparer<TLimit> _comparer;
     private readonly AATree<Interval<TLimit>> _aaTree;
+    private readonly IComparer<TLimit> _comparer;
 
     /// <summary>
     /// Creates an empty IntervalSet.
     /// </summary>
     public IntervalSet()
-        : this(Comparer<TLimit>.Default, Enumerable.Empty<Interval<TLimit>>().ToHashSet())
+        : this(Enumerable.Empty<Interval<TLimit>>().ToHashSet(), Comparer<TLimit>.Default)
     { }
 
     /// <summary>
@@ -52,7 +52,7 @@ public class IntervalSet<TLimit> : ISet<Interval<TLimit>>
     /// </summary>
     /// <param name="comparer">comparer</param>
     public IntervalSet(IComparer<TLimit> comparer)
-        : this(comparer, Enumerable.Empty<Interval<TLimit>>().ToHashSet())
+        : this(Enumerable.Empty<Interval<TLimit>>().ToHashSet(), comparer)
     { }
 
     /// <summary>
@@ -60,7 +60,7 @@ public class IntervalSet<TLimit> : ISet<Interval<TLimit>>
     /// </summary>
     /// <param name="intervals">intervals</param>
     public IntervalSet(ISet<Interval<TLimit>> intervals)
-        : this(Comparer<TLimit>.Default, intervals)
+        : this(intervals, Comparer<TLimit>.Default)
     { }
 
     /// <summary>
@@ -68,8 +68,8 @@ public class IntervalSet<TLimit> : ISet<Interval<TLimit>>
     /// </summary>
     /// <param name="comparer">comparer</param>
     /// <param name="intervals">intervals</param>
-    public IntervalSet(IComparer<TLimit> comparer, ISet<Interval<TLimit>> intervals)
-        : this(comparer, intervals, areIntervalsSorted: false)
+    public IntervalSet(ISet<Interval<TLimit>> intervals, IComparer<TLimit> comparer)
+        : this(intervals, areIntervalsSorted: false, comparer)
     { }
 
     /// <summary>
@@ -77,14 +77,14 @@ public class IntervalSet<TLimit> : ISet<Interval<TLimit>>
     /// </summary>
     /// <param name="comparer">comparer</param>
     /// <param name="intervals">intervals</param>
-    private IntervalSet(IComparer<TLimit> comparer, IEnumerable<Interval<TLimit>> intervals, bool areIntervalsSorted)
+    private IntervalSet(IEnumerable<Interval<TLimit>> intervals, bool areIntervalsSorted, IComparer<TLimit> comparer)
     {
         _comparer = comparer;
 
         _aaTree = new AATree<Interval<TLimit>>(
-            IntervalComparer<TLimit>.Create(comparer),
             intervals,
             areIntervalsSorted,
+            IntervalComparer<TLimit>.Create(comparer),
             OnChildChanged);
     }
 
@@ -204,7 +204,7 @@ public class IntervalSet<TLimit> : ISet<Interval<TLimit>>
     {
         var intersectedIntervals = new List<Interval<TLimit>>();
         IntersectRecursive(_aaTree.Root, interval, intersectionType, intersectedIntervals);
-        return new IntervalSet<TLimit>(_comparer, intersectedIntervals, areIntervalsSorted: true);
+        return new IntervalSet<TLimit>(intersectedIntervals, areIntervalsSorted: true, _comparer);
     }
 
     /// <summary>
@@ -251,7 +251,7 @@ public class IntervalSet<TLimit> : ISet<Interval<TLimit>>
     {
         var intersectedIntervals = new List<Interval<TLimit>>();
         ExceptRecursive(_aaTree.Root, interval, intersectionType, intersectedIntervals);
-        return new IntervalSet<TLimit>(_comparer, intersectedIntervals, areIntervalsSorted: true);
+        return new IntervalSet<TLimit>(intersectedIntervals, areIntervalsSorted: true, _comparer);
     }
 
     private void ExceptRecursive(AATree<Interval<TLimit>>.Node? node,
@@ -288,7 +288,7 @@ public class IntervalSet<TLimit> : ISet<Interval<TLimit>>
     /// <returns>interval set with united intervals.</returns>
     public IntervalSet<TLimit> Union(IntervalSet<TLimit> other)
     {
-        var result = new IntervalSet<TLimit>(_comparer, this, areIntervalsSorted: true);
+        var result = new IntervalSet<TLimit>(this, areIntervalsSorted: true, _comparer);
         result.AddRange(other);
 
         return result;
@@ -303,7 +303,7 @@ public class IntervalSet<TLimit> : ISet<Interval<TLimit>>
         var result = new List<Interval<TLimit>>();
         Merge(_aaTree.Root, result);
 
-        return new IntervalSet<TLimit>(_comparer, result, areIntervalsSorted: true);
+        return new IntervalSet<TLimit>(result, areIntervalsSorted: true, _comparer);
     }
 
     private void Merge(
