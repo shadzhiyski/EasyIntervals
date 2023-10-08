@@ -23,7 +23,13 @@ public class IntervalCollectionsInitializationBenchmarks
     [Benchmark]
     public void Initialize_IntervalSet()
     {
-        var intervalSet = new IntervalSet<int>(_intervals);
+        var _ = new IntervalSet<int>(_intervals);
+    }
+
+    [Benchmark]
+    public void Initialize_SortedSet()
+    {
+        var _ = new SortedSet<Interval<int>>(_intervals, IntervalComparer<int>.Create(Comparer<int>.Default));
     }
 
     [Benchmark]
