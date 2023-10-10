@@ -13,7 +13,32 @@ There aren't many packages available on [NuGet](https://www.nuget.org/), providi
 
 ## Usage
 
-### IntervalSet
+### Interval\<TLimit\>
+
+**Interval** represents an interval with `Start` and `End` limits and `Type` of interval. There are four interval types - **Open**, **StartClosed**, **EndClosed**, **Closed**. Here are examples for each interval type:
+
+```
+(2, 5) - Open - open on both limits;
+[2, 5) - StartClosed - closed on Start and open on end;
+(2, 5] - EndClosed - open on Start and closed on end;
+[2, 5] - Closed - closed on both limits;
+```
+
+An **Interval** can be created with `start` and `end` input parameters. By default `type` of interval is **Open**.
+
+```CSharp
+var interval = new Interval<int>(10, 50); // open (10, 50)
+var intervalWithCustomType = new Interval<int>(10, 50, IntervalType.Closed); // closed [10, 50]
+```
+
+Intervals can be created from value tuple:
+
+```CSharp
+Interval<double> interval1 = (0.1d, 0.5d);
+Interval<double> interval2 = (0.1d, 0.5d, IntervalType.Closed);
+```
+
+### IntervalSet\<TLimit\>
 
 **IntervalSet** is a collection for storing large amount of unique intervals where multiple add, remove and search operations can be done in efficient time. It's inspired by [IntervalTree](https://github.com/mbuchetics/RangeTree) and has similarities with [System.Collections.Generic.SortedSet\<T\>](https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.sortedset-1).
 
@@ -169,34 +194,34 @@ displayMode: compact
 ---
 gantt
     title Example Intervals
-    dateFormat  X
-    axisFormat %s
+    dateFormat  YYYY-MM-DD
+    axisFormat %Y-%m-%d
 
     section Intervals
-    (2, 5)     : 2, 5
-    [5, 10)    : 5, 10
-    [12, 16]   : 12, 16
-    [14, 26)   : 14, 26
+    (2.9.2023 - 5.9.2023)     : 2023-09-02, 2023-09-05
+    [5.9.2023 - 10.9.2023)    : 2023-09-05, 2023-09-10
+    [12.9.2023 - 16.9.2023]   : 2023-09-12, 2023-09-16
+    [14.9.2023 - 26.9.2023)   : 2023-09-14, 2023-09-26
 
     section Merged Intervals
-    (2, 10)    : 2, 10
-    [12, 26)   : 12, 26
+    (2.9.2023 - 10.9.2023)    : 2023-09-02, 2023-09-10
+    [12.9.2023 - 26.9.2023)   : 2023-09-12, 2023-09-26
 ```
 
 Code:
 
 ```CSharp
-var intervalSet = new IntervalSet<int>
+var intervalSet = new IntervalSet<DateOnly>
 {
-    (2, 5), // (2, 5)
-    (5, 10, IntervalType.StartClosed), // [5, 10)
-    (12, 16, IntervalType.Closed), // [12, 16]
-    (14, 26, IntervalType.StartClosed) // [14, 26)
+    (new DateOnly(2023, 09, 2), new DateOnly(2023, 09, 5)), // (2 - 5)
+    (new DateOnly(2023, 09, 5), new DateOnly(2023, 09, 10), IntervalType.StartClosed), // [5 - 10)
+    (new DateOnly(2023, 09, 12), new DateOnly(2023, 09, 16), IntervalType.Closed), // [12 - 16]
+    (new DateOnly(2023, 09, 14), new DateOnly(2023, 09, 26), IntervalType.StartClosed) // [14 - 26)
 };
 
 var mergedIntervalSet = intervalSet.Merge();
-Console.WriteLine($"[{string.Join(", ", intersectedIntervalSet3)}]");
-// [(2, 10), [12, 26)]
+Console.WriteLine($"[{string.Join(", ", mergedIntervalSet)}]");
+// [(9/2/2023, 9/10/2023), [9/12/2023, 9/26/2023)]
 ```
 
 ## License
