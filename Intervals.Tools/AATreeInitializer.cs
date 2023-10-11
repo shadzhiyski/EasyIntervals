@@ -3,25 +3,28 @@ namespace Intervals.Tools;
 internal static class AATreeInitializer
 {
     public static AATree<T>.Node? InitializeTree<T>(
-        IEnumerable<T> elements, bool areSorted, bool areUnique, IComparer<T> _comparer, Action<AATree<T>.Node> _onChildChanged)
+        IEnumerable<T> elements, bool areSorted, bool areUnique, IComparer<T> comparer, Action<AATree<T>.Node> onChildChanged)
     {
         if (elements.Count() == 0)
         {
             return default;
         }
 
-        if (!areUnique)
-        {
-            elements = elements.Distinct();
-        }
-
         var orderedElements = elements.ToArray();
         if (!areSorted)
         {
-            Array.Sort(orderedElements, _comparer);
+            Array.Sort(orderedElements, comparer);
         }
 
-        var orderedNodes = orderedElements.Select(n => new AATree<T>.Node(n, _onChildChanged)).ToArray();
+        var uniqueElementsCount = orderedElements.Length;
+        if (!areUnique)
+        {
+            uniqueElementsCount = ShiftUniqueElementsToBeginning(orderedElements, comparer);
+        }
+
+        var orderedNodes = orderedElements.Take(uniqueElementsCount)
+            .Select(n => new AATree<T>.Node(n, onChildChanged))
+            .ToArray();
 
         if (orderedNodes.Length % 2 == 0)
         {
@@ -67,5 +70,19 @@ internal static class AATreeInitializer
         orderedNodes[index].Level = iteration;
         orderedNodes[index].Left = orderedNodes[index - childStep];
         orderedNodes[index].Right = orderedNodes[index + childStep];
+    }
+
+    private static int ShiftUniqueElementsToBeginning<T>(T[] orderedElements, IComparer<T> comparer)
+    {
+        var index = 1;
+        for (int i = 1; i < orderedElements.Length; i++)
+        {
+            if (comparer.Compare(orderedElements[i], orderedElements[i - 1]) != 0)
+            {
+                orderedElements[index++] = orderedElements[i];
+            }
+        }
+
+        return index;
     }
 }
