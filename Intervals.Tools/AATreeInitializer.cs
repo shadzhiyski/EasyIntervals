@@ -3,11 +3,16 @@ namespace Intervals.Tools;
 internal static class AATreeInitializer
 {
     public static AATree<T>.Node? InitializeTree<T>(
-        IEnumerable<T> elements, bool areSorted, IComparer<T> _comparer, Action<AATree<T>.Node> _onChildChanged)
+        IEnumerable<T> elements, bool areSorted, bool areUnique, IComparer<T> _comparer, Action<AATree<T>.Node> _onChildChanged)
     {
         if (elements.Count() == 0)
         {
             return default;
+        }
+
+        if (!areUnique)
+        {
+            elements = elements.Distinct();
         }
 
         var orderedElements = elements.ToArray();

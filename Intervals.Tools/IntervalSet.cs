@@ -44,7 +44,7 @@ public class IntervalSet<TLimit> : ISet<Interval<TLimit>>
     /// Creates an empty IntervalSet.
     /// </summary>
     public IntervalSet()
-        : this(Enumerable.Empty<Interval<TLimit>>().ToHashSet(), Comparer<TLimit>.Default)
+        : this(Enumerable.Empty<Interval<TLimit>>(), Comparer<TLimit>.Default)
     { }
 
     /// <summary>
@@ -52,14 +52,14 @@ public class IntervalSet<TLimit> : ISet<Interval<TLimit>>
     /// </summary>
     /// <param name="comparer">comparer</param>
     public IntervalSet(IComparer<TLimit> comparer)
-        : this(Enumerable.Empty<Interval<TLimit>>().ToHashSet(), comparer)
+        : this(Enumerable.Empty<Interval<TLimit>>(), comparer)
     { }
 
     /// <summary>
     /// Creates IntervalSet with <c>intervals</c>.
     /// </summary>
     /// <param name="intervals">intervals</param>
-    public IntervalSet(ISet<Interval<TLimit>> intervals)
+    public IntervalSet(IEnumerable<Interval<TLimit>> intervals)
         : this(intervals, Comparer<TLimit>.Default)
     { }
 
@@ -68,8 +68,8 @@ public class IntervalSet<TLimit> : ISet<Interval<TLimit>>
     /// </summary>
     /// <param name="comparer">comparer</param>
     /// <param name="intervals">intervals</param>
-    public IntervalSet(ISet<Interval<TLimit>> intervals, IComparer<TLimit> comparer)
-        : this(intervals, areIntervalsSorted: false, comparer)
+    public IntervalSet(IEnumerable<Interval<TLimit>> intervals, IComparer<TLimit> comparer)
+        : this(intervals, areIntervalsSorted: false, areIntervalsUnique: false, comparer)
     { }
 
     /// <summary>
@@ -77,13 +77,15 @@ public class IntervalSet<TLimit> : ISet<Interval<TLimit>>
     /// </summary>
     /// <param name="comparer">comparer</param>
     /// <param name="intervals">intervals</param>
-    private IntervalSet(IEnumerable<Interval<TLimit>> intervals, bool areIntervalsSorted, IComparer<TLimit> comparer)
+    private IntervalSet(
+        IEnumerable<Interval<TLimit>> intervals, bool areIntervalsSorted, bool areIntervalsUnique, IComparer<TLimit> comparer)
     {
         _comparer = comparer;
 
         _aaTree = new AATree<Interval<TLimit>>(
             intervals,
             areIntervalsSorted,
+            areIntervalsUnique,
             IntervalComparer<TLimit>.Create(comparer),
             OnChildChanged);
     }
@@ -204,7 +206,7 @@ public class IntervalSet<TLimit> : ISet<Interval<TLimit>>
     {
         var intersectedIntervals = new List<Interval<TLimit>>();
         IntersectRecursive(_aaTree.Root, interval, intersectionType, intersectedIntervals);
-        return new IntervalSet<TLimit>(intersectedIntervals, areIntervalsSorted: true, _comparer);
+        return new IntervalSet<TLimit>(intersectedIntervals, areIntervalsSorted: true, areIntervalsUnique: true, _comparer);
     }
 
     /// <summary>
@@ -251,7 +253,7 @@ public class IntervalSet<TLimit> : ISet<Interval<TLimit>>
     {
         var intersectedIntervals = new List<Interval<TLimit>>();
         ExceptRecursive(_aaTree.Root, interval, intersectionType, intersectedIntervals);
-        return new IntervalSet<TLimit>(intersectedIntervals, areIntervalsSorted: true, _comparer);
+        return new IntervalSet<TLimit>(intersectedIntervals, areIntervalsSorted: true, areIntervalsUnique: true, _comparer);
     }
 
     private void ExceptRecursive(AATree<Interval<TLimit>>.Node? node,
@@ -288,7 +290,7 @@ public class IntervalSet<TLimit> : ISet<Interval<TLimit>>
     /// <returns>interval set with united intervals.</returns>
     public IntervalSet<TLimit> Union(IntervalSet<TLimit> other)
     {
-        var result = new IntervalSet<TLimit>(this, areIntervalsSorted: true, _comparer);
+        var result = new IntervalSet<TLimit>(this, areIntervalsSorted: true, areIntervalsUnique: true, _comparer);
         result.AddRange(other);
 
         return result;
@@ -303,7 +305,7 @@ public class IntervalSet<TLimit> : ISet<Interval<TLimit>>
         var result = new List<Interval<TLimit>>();
         Merge(_aaTree.Root, result);
 
-        return new IntervalSet<TLimit>(result, areIntervalsSorted: true, _comparer);
+        return new IntervalSet<TLimit>(result, areIntervalsSorted: true, areIntervalsUnique: true, _comparer);
     }
 
     private void Merge(

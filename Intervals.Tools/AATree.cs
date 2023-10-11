@@ -88,27 +88,27 @@ internal class AATree<T> : IEnumerable<T>
     /// </summary>
     /// <param name="comparer"></param>
     public AATree(IEnumerable<T> elements, IComparer<T> comparer, Action<Node> onChildChanged)
-        : this(elements, areElementsSorted: false, comparer, onChildChanged)
+        : this(elements, areElementsSorted: false, false, comparer, onChildChanged)
     { }
 
     /// <summary>
     /// Creates AATree with comparer and elements and flag if elements are sorted.
     /// </summary>
     /// <param name="comparer"></param>
-    internal AATree(IEnumerable<T> elements, bool areElementsSorted, IComparer<T> comparer, Action<Node> onChildChanged)
+    internal AATree(IEnumerable<T> elements, bool areElementsSorted, bool areElementsUnique, IComparer<T> comparer, Action<Node> onChildChanged)
     {
         _comparer = comparer;
         _onChildChanged = onChildChanged;
-        Reset(elements, areElementsSorted);
+        Reset(elements, areElementsSorted, areElementsUnique);
     }
 
     internal Node? Root => _root;
 
     public int Count { get; private set; }
 
-    public void Reset(IEnumerable<T> elements, bool areElementsSorted = false)
+    public void Reset(IEnumerable<T> elements, bool areElementsSorted = false, bool areElementsUnique = false)
     {
-        _root = AATreeInitializer.InitializeTree(elements, areElementsSorted, _comparer, _onChildChanged);
+        _root = AATreeInitializer.InitializeTree(elements, areElementsSorted, areElementsUnique, _comparer, _onChildChanged);
         Count = elements.Count();
     }
 
