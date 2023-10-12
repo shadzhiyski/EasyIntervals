@@ -313,32 +313,27 @@ internal class AATree<T> : IEnumerable<T>
 
     public IEnumerator<T> GetEnumerator()
     {
-        return GetEnumerator(_root);
+        if (_root is null)
+        {
+            yield break;
+        }
+
+        var stack = new Stack<Node>(2 * (int)Math.Log2(Count + 1));
+        var node = _root;
+        do
+        {
+            while (node is not null)
+            {
+                stack.Push(node);
+                node = node.Left;
+            }
+
+            node = stack.Pop();
+            yield return node.Value;
+
+            node = node.Right;
+        } while (stack.Count != 0 || node is not null);
     }
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-
-    private IEnumerator<T> GetEnumerator(Node? root)
-    {
-        var elements = new List<T>(Count);
-        GetEnumerator(root, elements);
-        foreach (var element in elements)
-        {
-            yield return element;
-        }
-    }
-
-    private static void GetEnumerator(Node? root, ICollection<T> elements)
-    {
-        if (root is null)
-        {
-            return;
-        }
-
-        GetEnumerator(root.Left, elements);
-
-        elements.Add(root.Value);
-
-        GetEnumerator(root.Right, elements);
-    }
 }
