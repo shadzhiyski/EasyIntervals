@@ -48,6 +48,14 @@ public class IntervalSet<TLimit> : ISet<Interval<TLimit>>
     { }
 
     /// <summary>
+    /// Creates an IntervalSet with limit <c>comparison</c>.
+    /// </summary>
+    /// <param name="comparison">comparison</param>
+    public IntervalSet(Comparison<TLimit> comparison)
+        : this(Enumerable.Empty<Interval<TLimit>>(), Comparer<TLimit>.Create(comparison))
+    { }
+
+    /// <summary>
     /// Creates an IntervalSet with limit <c>comparer</c>.
     /// </summary>
     /// <param name="comparer">comparer</param>
@@ -290,10 +298,76 @@ public class IntervalSet<TLimit> : ISet<Interval<TLimit>>
     /// <returns>interval set with united intervals.</returns>
     public IntervalSet<TLimit> Union(IntervalSet<TLimit> other)
     {
-        var result = new IntervalSet<TLimit>(this, areIntervalsSorted: true, areIntervalsUnique: true, _comparer);
-        result.AddRange(other);
+        if (_comparer.GetType() != other._comparer.GetType())
+        {
+            throw new ArgumentException("Limit comparers differ.");
+        }
 
-        return result;
+        var otherCount = other.Count;
+        if (otherCount < Count / 2)
+        {
+            var result = new IntervalSet<TLimit>(this, areIntervalsSorted: true, areIntervalsUnique: true, _comparer);
+            result.AddRange(other);
+            return result;
+        }
+
+        var unionIntervals = UnionSortedIntervals(this, other, _comparer);
+        return new IntervalSet<TLimit>(unionIntervals, areIntervalsSorted: true, areIntervalsUnique: true, _comparer);
+    }
+
+    private static IEnumerable<Interval<TLimit>> UnionSortedIntervals(
+        IEnumerable<Interval<TLimit>> current, IEnumerable<Interval<TLimit>> other, IComparer<TLimit> comparer)
+    {
+        Interval<TLimit>? GetNextIntervalOrNull(IEnumerator<Interval<TLimit>> enumerator) =>
+            enumerator.MoveNext()
+                ? enumerator.Current
+                : null;
+
+        var currentEnumerator = current.GetEnumerator();
+        var otherEnumerator = other.GetEnumerator();
+        var currentInterval = GetNextIntervalOrNull(currentEnumerator);
+        var otherInterval = GetNextIntervalOrNull(otherEnumerator);
+
+        var currentCount = current.Count();
+        var otherCount = other.Count();
+        var unionIntervalsCount = otherCount + currentCount;
+        var intervalComparer = IntervalComparer<TLimit>.Create(comparer);
+        for (int i = 0; i < unionIntervalsCount; i++)
+        {
+            if (currentInterval is null)
+            {
+                yield return otherInterval!.Value;
+                otherInterval = GetNextIntervalOrNull(otherEnumerator);
+                continue;
+            }
+
+            if (otherInterval is null)
+            {
+                yield return currentInterval!.Value;
+                currentInterval = GetNextIntervalOrNull(currentEnumerator);
+                continue;
+            }
+
+            var currentOtherComparison = intervalComparer.Compare(currentInterval!.Value, otherInterval!.Value);
+            if (currentOtherComparison < 0)
+            {
+                yield return currentInterval!.Value;
+                currentInterval = GetNextIntervalOrNull(currentEnumerator);
+            }
+            else if (currentOtherComparison > 0)
+            {
+                yield return otherInterval!.Value;
+                otherInterval = GetNextIntervalOrNull(otherEnumerator);
+            }
+            else
+            {
+                yield return currentInterval!.Value;
+                currentInterval = GetNextIntervalOrNull(currentEnumerator);
+                otherInterval = GetNextIntervalOrNull(otherEnumerator);
+
+                unionIntervalsCount--;
+            }
+        }
     }
 
     /// <summary>
@@ -409,5 +483,18 @@ public class IntervalSet<TLimit> : ISet<Interval<TLimit>>
 
     public void SymmetricExceptWith(IEnumerable<Interval<TLimit>> other) => ExceptWith(other);
 
-    public void UnionWith(IEnumerable<Interval<TLimit>> other) => AddRange(other);
+    public void UnionWith(IEnumerable<Interval<TLimit>> other)
+    {
+        var otherCount = other.Count();
+        if (otherCount < Count / 2)
+        {
+            AddRange(other);
+            return;
+        }
+
+        var orderedOther = other.Distinct()
+            .OrderBy(interval => interval, IntervalComparer<TLimit>.Create(_comparer));
+        var unionIntervals = UnionSortedIntervals(this, orderedOther, _comparer);
+        _aaTree.Reset(unionIntervals, areElementsSorted: true, areElementsUnique: true);
+    }
 }

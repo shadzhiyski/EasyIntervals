@@ -901,6 +901,142 @@ public class IntervalSetTests
     }
 
     [Fact]
+    public void Union_OtherHasMatchingIntervals_ShouldUnionIntervalSetsWithoutRepetition()
+    {
+        // Arrange
+        var intervalSet = new IntervalSet<int>
+        {
+            (2, 10),
+            (5, 10, IntervalType.StartClosed),
+            (3, 12, IntervalType.Closed)
+        };
+
+        var otherIntervalSet = new IntervalSet<int>
+        {
+            (3, 12, IntervalType.Closed),
+            (25, 30),
+            (33, 35)
+        };
+
+        var expectedIntervals = new Interval<int>[]
+        {
+            (2, 10),
+            (3, 12, IntervalType.Closed),
+            (5, 10, IntervalType.StartClosed),
+            (25, 30),
+            (33, 35)
+        };
+
+        // Act
+        var result = intervalSet.Union(otherIntervalSet);
+
+        // Assert
+        result.Should().BeEquivalentTo(expectedIntervals);
+    }
+
+    [Fact]
+    public void Union_IntervalSetsHasIntervalsInBetween_ShouldUnionIntervalSets()
+    {
+        // Arrange
+        var intervalSet = new IntervalSet<int>
+        {
+            (2, 10),
+            (3, 12, IntervalType.Closed),
+            (25, 30),
+        };
+
+        var otherIntervalSet = new IntervalSet<int>
+        {
+            (5, 10, IntervalType.StartClosed),
+            (33, 35)
+        };
+
+        var expectedIntervals = new Interval<int>[]
+        {
+            (2, 10),
+            (3, 12, IntervalType.Closed),
+            (5, 10, IntervalType.StartClosed),
+            (25, 30),
+            (33, 35)
+        };
+
+        // Act
+        var result = intervalSet.Union(otherIntervalSet);
+
+        // Assert
+        result.Should().BeEquivalentTo(expectedIntervals);
+    }
+
+    [Fact]
+    public void Union_OtherEmpty_ShouldUnionOnlyIntervalSet()
+    {
+        // Arrange
+        var intervalSet = new IntervalSet<int>
+        {
+            (2, 10),
+            (3, 12, IntervalType.Closed),
+            (5, 10, IntervalType.StartClosed)
+        };
+
+        var otherIntervalSet = new IntervalSet<int>();
+
+        var expectedIntervals = new Interval<int>[]
+        {
+            (2, 10),
+            (3, 12, IntervalType.Closed),
+            (5, 10, IntervalType.StartClosed)
+        };
+
+        // Act
+        var result = intervalSet.Union(otherIntervalSet);
+
+        // Assert
+        result.Should().BeEquivalentTo(expectedIntervals);
+    }
+
+    [Fact]
+    public void Union_CurrentEmpty_ShouldUnionOnlyOtherIntervalSet()
+    {
+        // Arrange
+        var intervalSet = new IntervalSet<int>();
+
+        var otherIntervalSet = new IntervalSet<int>
+        {
+            (2, 10),
+            (3, 12, IntervalType.Closed),
+            (5, 10, IntervalType.StartClosed)
+        };
+
+        var expectedIntervals = new Interval<int>[]
+        {
+            (2, 10),
+            (3, 12, IntervalType.Closed),
+            (5, 10, IntervalType.StartClosed)
+        };
+
+        // Act
+        var result = intervalSet.Union(otherIntervalSet);
+
+        // Assert
+        result.Should().BeEquivalentTo(expectedIntervals);
+    }
+
+    [Fact]
+    public void Union_DifferentComparers_ShouldThrowArgumentException()
+    {
+        // Arrange
+        var intervalSet = new IntervalSet<int>();
+
+        var otherIntervalSet = new IntervalSet<int>((a, b) => b - a);
+
+        // Act
+        Action act = () => intervalSet.Union(otherIntervalSet);
+
+        // Assert
+        act.Should().Throw<ArgumentException>();
+    }
+
+    [Fact]
     public void SymmetricExceptWith_HasIntersection_ShouldExceptIntervalSet()
     {
         // Arrange
@@ -962,7 +1098,7 @@ public class IntervalSetTests
     }
 
     [Fact]
-    public void UnionWith_OtherIntervalSetWithDifferentIntervals_ShouldUnionIntervalSet()
+    public void UnionWith_OtherWithDifferentIntervals_ShouldUnionIntervalSet()
     {
         // Arrange
         var intervalSet = new IntervalSet<int>
@@ -981,8 +1117,42 @@ public class IntervalSetTests
         var expectedIntervals = new Interval<int>[]
         {
             (2, 10),
-            (5, 10, IntervalType.StartClosed),
             (3, 12, IntervalType.Closed),
+            (5, 10, IntervalType.StartClosed),
+            (25, 30),
+            (33, 35)
+        };
+
+        // Act
+        intervalSet.UnionWith(otherIntervalSet);
+
+        // Assert
+        intervalSet.Should().BeEquivalentTo(expectedIntervals);
+    }
+
+    [Fact]
+    public void UnionWith_OtherWithRepeatingIntervals_ShouldUnionIntervalSetWithoutRepetition()
+    {
+        // Arrange
+        var intervalSet = new IntervalSet<int>
+        {
+            (2, 10),
+            (5, 10, IntervalType.StartClosed),
+            (3, 12, IntervalType.Closed)
+        };
+
+        var otherIntervalSet = new IntervalSet<int>
+        {
+            (25, 30),
+            (25, 30),
+            (33, 35)
+        };
+
+        var expectedIntervals = new Interval<int>[]
+        {
+            (2, 10),
+            (3, 12, IntervalType.Closed),
+            (5, 10, IntervalType.StartClosed),
             (25, 30),
             (33, 35)
         };
