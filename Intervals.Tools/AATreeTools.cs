@@ -1,6 +1,6 @@
 namespace Intervals.Tools;
 
-internal static class AATreeInitializer
+internal static class AATreeTools
 {
     public static AATree<T>.Node? InitializeTree<T>(
         IEnumerable<T> elements, bool areSorted, bool areUnique, IComparer<T> comparer, Action<AATree<T>.Node> onChildChanged)
@@ -72,7 +72,7 @@ internal static class AATreeInitializer
         orderedNodes[index].Right = orderedNodes[index + childStep];
     }
 
-    private static int ShiftUniqueElementsToBeginning<T>(T[] orderedElements, IComparer<T> comparer)
+    public static int ShiftUniqueElementsToBeginning<T>(T[] orderedElements, IComparer<T> comparer)
     {
         var index = 1;
         for (int i = 1; i < orderedElements.Length; i++)

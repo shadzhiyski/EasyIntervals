@@ -160,10 +160,24 @@ public class IntervalSet<TLimit> : ISet<Interval<TLimit>>
     /// <param name="intervals">intervals</param>
     public void AddRange(IEnumerable<Interval<TLimit>> intervals)
     {
-        foreach (var interval in intervals)
+        var otherCount = intervals.Count();
+        if (otherCount < Count / 2)
         {
-            Add(interval);
+            foreach (var interval in intervals)
+            {
+                Add(interval);
+            }
+
+            return;
         }
+
+        var intervalsComparer = IntervalComparer<TLimit>.Create(_comparer);
+        var orderedOther = intervals.ToArray();
+        Array.Sort(orderedOther, intervalsComparer);
+        var otherUniqueCount = AATreeTools.ShiftUniqueElementsToBeginning(orderedOther, intervalsComparer);
+
+        var unionIntervals = UnionSortedIntervals(this, orderedOther.Take(otherUniqueCount), _comparer);
+        _aaTree.Reset(unionIntervals, areElementsSorted: true, areElementsUnique: true);
     }
 
     /// <summary>
@@ -315,61 +329,6 @@ public class IntervalSet<TLimit> : ISet<Interval<TLimit>>
         return new IntervalSet<TLimit>(unionIntervals, areIntervalsSorted: true, areIntervalsUnique: true, _comparer);
     }
 
-    private static IEnumerable<Interval<TLimit>> UnionSortedIntervals(
-        IEnumerable<Interval<TLimit>> current, IEnumerable<Interval<TLimit>> other, IComparer<TLimit> comparer)
-    {
-        Interval<TLimit>? GetNextIntervalOrNull(IEnumerator<Interval<TLimit>> enumerator) =>
-            enumerator.MoveNext()
-                ? enumerator.Current
-                : null;
-
-        var currentEnumerator = current.GetEnumerator();
-        var otherEnumerator = other.GetEnumerator();
-        var currentInterval = GetNextIntervalOrNull(currentEnumerator);
-        var otherInterval = GetNextIntervalOrNull(otherEnumerator);
-
-        var currentCount = current.Count();
-        var otherCount = other.Count();
-        var unionIntervalsCount = otherCount + currentCount;
-        var intervalComparer = IntervalComparer<TLimit>.Create(comparer);
-        for (int i = 0; i < unionIntervalsCount; i++)
-        {
-            if (currentInterval is null)
-            {
-                yield return otherInterval!.Value;
-                otherInterval = GetNextIntervalOrNull(otherEnumerator);
-                continue;
-            }
-
-            if (otherInterval is null)
-            {
-                yield return currentInterval!.Value;
-                currentInterval = GetNextIntervalOrNull(currentEnumerator);
-                continue;
-            }
-
-            var currentOtherComparison = intervalComparer.Compare(currentInterval!.Value, otherInterval!.Value);
-            if (currentOtherComparison < 0)
-            {
-                yield return currentInterval!.Value;
-                currentInterval = GetNextIntervalOrNull(currentEnumerator);
-            }
-            else if (currentOtherComparison > 0)
-            {
-                yield return otherInterval!.Value;
-                otherInterval = GetNextIntervalOrNull(otherEnumerator);
-            }
-            else
-            {
-                yield return currentInterval!.Value;
-                currentInterval = GetNextIntervalOrNull(currentEnumerator);
-                otherInterval = GetNextIntervalOrNull(otherEnumerator);
-
-                unionIntervalsCount--;
-            }
-        }
-    }
-
     /// <summary>
     /// Merges intersecting intervals.
     /// </summary>
@@ -483,18 +442,63 @@ public class IntervalSet<TLimit> : ISet<Interval<TLimit>>
 
     public void SymmetricExceptWith(IEnumerable<Interval<TLimit>> other) => ExceptWith(other);
 
-    public void UnionWith(IEnumerable<Interval<TLimit>> other)
+    public void UnionWith(IEnumerable<Interval<TLimit>> other) => AddRange(other);
+
+    private static IEnumerable<Interval<TLimit>> UnionSortedIntervals(
+        IEnumerable<Interval<TLimit>> current, IEnumerable<Interval<TLimit>> other, IComparer<TLimit> comparer)
     {
+        Interval<TLimit>? GetNextIntervalOrNull(IEnumerator<Interval<TLimit>> enumerator) =>
+            enumerator.MoveNext()
+                ? enumerator.Current
+                : null;
+
+        var currentEnumerator = current.GetEnumerator();
+        var otherEnumerator = other.GetEnumerator();
+        var currentInterval = GetNextIntervalOrNull(currentEnumerator);
+        var otherInterval = GetNextIntervalOrNull(otherEnumerator);
+
+        var currentCount = current.Count();
         var otherCount = other.Count();
-        if (otherCount < Count / 2)
+        var unionIntervalsCount = otherCount + currentCount;
+        var unionIntervals = new List<Interval<TLimit>>(unionIntervalsCount);
+        var intervalComparer = IntervalComparer<TLimit>.Create(comparer);
+        for (int i = 0; i < unionIntervalsCount; i++)
         {
-            AddRange(other);
-            return;
+            if (currentInterval is null)
+            {
+                unionIntervals.Add(otherInterval!.Value);
+                otherInterval = GetNextIntervalOrNull(otherEnumerator);
+                continue;
+            }
+
+            if (otherInterval is null)
+            {
+                unionIntervals.Add(currentInterval!.Value);
+                currentInterval = GetNextIntervalOrNull(currentEnumerator);
+                continue;
+            }
+
+            var currentOtherComparison = intervalComparer.Compare(currentInterval!.Value, otherInterval!.Value);
+            if (currentOtherComparison < 0)
+            {
+                unionIntervals.Add(currentInterval!.Value);
+                currentInterval = GetNextIntervalOrNull(currentEnumerator);
+            }
+            else if (currentOtherComparison > 0)
+            {
+                unionIntervals.Add(otherInterval!.Value);
+                otherInterval = GetNextIntervalOrNull(otherEnumerator);
+            }
+            else
+            {
+                unionIntervals.Add(currentInterval!.Value);
+                currentInterval = GetNextIntervalOrNull(currentEnumerator);
+                otherInterval = GetNextIntervalOrNull(otherEnumerator);
+
+                unionIntervalsCount--;
+            }
         }
 
-        var orderedOther = other.Distinct()
-            .OrderBy(interval => interval, IntervalComparer<TLimit>.Create(_comparer));
-        var unionIntervals = UnionSortedIntervals(this, orderedOther, _comparer);
-        _aaTree.Reset(unionIntervals, areElementsSorted: true, areElementsUnique: true);
+        return unionIntervals;
     }
 }
