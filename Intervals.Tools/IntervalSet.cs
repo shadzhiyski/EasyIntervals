@@ -38,7 +38,8 @@ public enum IntersectionType
 public class IntervalSet<TLimit> : ISet<Interval<TLimit>>
 {
     private readonly AATree<Interval<TLimit>> _aaTree;
-    private readonly IComparer<TLimit> _comparer;
+    private readonly IComparer<TLimit> _limitComparer;
+    private readonly IComparer<Interval<TLimit>> _comparer;
 
     /// <summary>
     /// Creates an empty IntervalSet.
@@ -88,13 +89,14 @@ public class IntervalSet<TLimit> : ISet<Interval<TLimit>>
     private IntervalSet(
         IEnumerable<Interval<TLimit>> intervals, bool areIntervalsSorted, bool areIntervalsUnique, IComparer<TLimit> comparer)
     {
-        _comparer = comparer;
+        _limitComparer = comparer;
+        _comparer = IntervalComparer<TLimit>.Create(comparer);
 
         _aaTree = new AATree<Interval<TLimit>>(
             intervals,
             areIntervalsSorted,
             areIntervalsUnique,
-            IntervalComparer<TLimit>.Create(comparer),
+            _comparer,
             OnChildChanged);
     }
 
@@ -112,13 +114,13 @@ public class IntervalSet<TLimit> : ISet<Interval<TLimit>>
         var isRightNull = rightNode is null;
         if (!isLeftNull && isRightNull)
         {
-            var comparison = _comparer.Compare(nodeValue.End, leftNode!.Value.MaxEnd);
+            var comparison = _limitComparer.Compare(nodeValue.End, leftNode!.Value.MaxEnd);
             return comparison > 0 ? nodeValue.End : leftNode!.Value.MaxEnd;
         }
 
         if (isLeftNull && !isRightNull)
         {
-            var comparison = _comparer.Compare(nodeValue.End, rightNode!.Value.MaxEnd);
+            var comparison = _limitComparer.Compare(nodeValue.End, rightNode!.Value.MaxEnd);
             return comparison > 0 ? nodeValue.End : rightNode!.Value.MaxEnd;
         }
 
@@ -127,10 +129,10 @@ public class IntervalSet<TLimit> : ISet<Interval<TLimit>>
             return nodeValue.End;
         }
 
-        var leftRightComparison = _comparer.Compare(leftNode!.Value.MaxEnd, rightNode!.Value.MaxEnd);
+        var leftRightComparison = _limitComparer.Compare(leftNode!.Value.MaxEnd, rightNode!.Value.MaxEnd);
         var childMaxEnd = leftRightComparison > 0 ? leftNode!.Value.MaxEnd : rightNode!.Value.MaxEnd;
 
-        var maxChildComparison = _comparer.Compare(nodeValue.End, childMaxEnd);
+        var maxChildComparison = _limitComparer.Compare(nodeValue.End, childMaxEnd);
         return maxChildComparison > 0 ? nodeValue.End : childMaxEnd;
     }
 
@@ -171,10 +173,9 @@ public class IntervalSet<TLimit> : ISet<Interval<TLimit>>
             return;
         }
 
-        var intervalsComparer = IntervalComparer<TLimit>.Create(_comparer);
         var orderedOther = intervals.ToArray();
-        Array.Sort(orderedOther, intervalsComparer);
-        var otherUniqueCount = AATreeTools.ShiftUniqueElementsToBeginning(orderedOther, intervalsComparer);
+        Array.Sort(orderedOther, _comparer);
+        var otherUniqueCount = AATreeTools.ShiftUniqueElementsToBeginning(orderedOther, _comparer);
 
         var unionIntervals = UnionSortedIntervals(this, orderedOther.Take(otherUniqueCount), _comparer);
         _aaTree.Reset(unionIntervals, areElementsSorted: true, areElementsUnique: true);
@@ -228,7 +229,7 @@ public class IntervalSet<TLimit> : ISet<Interval<TLimit>>
     {
         var intersectedIntervals = new List<Interval<TLimit>>();
         IntersectRecursive(_aaTree.Root, interval, intersectionType, intersectedIntervals);
-        return new IntervalSet<TLimit>(intersectedIntervals, areIntervalsSorted: true, areIntervalsUnique: true, _comparer);
+        return new IntervalSet<TLimit>(intersectedIntervals, areIntervalsSorted: true, areIntervalsUnique: true, _limitComparer);
     }
 
     /// <summary>
@@ -243,21 +244,21 @@ public class IntervalSet<TLimit> : ISet<Interval<TLimit>>
         Interval<TLimit> interval, IntersectionType intersectionType, IList<Interval<TLimit>> result)
     {
         if (node is null
-            || _comparer.Compare(interval.Start, node.Value.MaxEnd) > 0)
+            || _limitComparer.Compare(interval.Start, node.Value.MaxEnd) > 0)
         {
             return;
         }
 
         IntersectRecursive(node.Left, interval, intersectionType, result);
 
-        if ((intersectionType == IntersectionType.Any && IntervalTools.HasAnyIntersection(interval, node!.Value, _comparer))
-            || (intersectionType == IntersectionType.Cover && IntervalTools.Covers(interval, node!.Value, _comparer))
-            || (intersectionType == IntersectionType.Within && IntervalTools.Covers(node!.Value, interval, _comparer)))
+        if ((intersectionType == IntersectionType.Any && IntervalTools.HasAnyIntersection(interval, node!.Value, _limitComparer))
+            || (intersectionType == IntersectionType.Cover && IntervalTools.Covers(interval, node!.Value, _limitComparer))
+            || (intersectionType == IntersectionType.Within && IntervalTools.Covers(node!.Value, interval, _limitComparer)))
         {
             result.Add(node.Value);
         }
 
-        var endStartComparison = _comparer.Compare(interval.End, node!.Value.Start);
+        var endStartComparison = _limitComparer.Compare(interval.End, node!.Value.Start);
         if (endStartComparison >= 0)
         {
             IntersectRecursive(node.Right, interval, intersectionType, result);
@@ -275,7 +276,7 @@ public class IntervalSet<TLimit> : ISet<Interval<TLimit>>
     {
         var intersectedIntervals = new List<Interval<TLimit>>();
         ExceptRecursive(_aaTree.Root, interval, intersectionType, intersectedIntervals);
-        return new IntervalSet<TLimit>(intersectedIntervals, areIntervalsSorted: true, areIntervalsUnique: true, _comparer);
+        return new IntervalSet<TLimit>(intersectedIntervals, areIntervalsSorted: true, areIntervalsUnique: true, _limitComparer);
     }
 
     private void ExceptRecursive(AATree<Interval<TLimit>>.Node? node,
@@ -288,18 +289,18 @@ public class IntervalSet<TLimit> : ISet<Interval<TLimit>>
 
         ExceptRecursive(node.Left, interval, intersectionType, result);
 
-        if (!((intersectionType == IntersectionType.Any && IntervalTools.HasAnyIntersection(interval, node!.Value, _comparer))
-            || (intersectionType == IntersectionType.Cover && IntervalTools.Covers(interval, node!.Value, _comparer))
-            || (intersectionType == IntersectionType.Within && IntervalTools.Covers(node!.Value, interval, _comparer))))
+        if (!((intersectionType == IntersectionType.Any && IntervalTools.HasAnyIntersection(interval, node!.Value, _limitComparer))
+            || (intersectionType == IntersectionType.Cover && IntervalTools.Covers(interval, node!.Value, _limitComparer))
+            || (intersectionType == IntersectionType.Within && IntervalTools.Covers(node!.Value, interval, _limitComparer))))
         {
             result.Add(node.Value);
         }
 
-        var startComparison = _comparer.Compare(interval.Start, node!.Value.Start);
+        var startComparison = _limitComparer.Compare(interval.Start, node!.Value.Start);
         if (node!.Right is not null
             && !(intersectionType != IntersectionType.Within
                 && startComparison <= 0
-                && _comparer.Compare(interval.End, node!.Right.Value.MaxEnd) >= 0))
+                && _limitComparer.Compare(interval.End, node!.Right.Value.MaxEnd) >= 0))
         {
             ExceptRecursive(node.Right, interval, intersectionType, result);
         }
@@ -312,21 +313,21 @@ public class IntervalSet<TLimit> : ISet<Interval<TLimit>>
     /// <returns>interval set with united intervals.</returns>
     public IntervalSet<TLimit> Union(IntervalSet<TLimit> other)
     {
-        if (_comparer.GetType() != other._comparer.GetType())
+        if (_limitComparer.GetType() != other._limitComparer.GetType())
         {
-            throw new ArgumentException("Limit comparers differ.");
+            throw new ArgumentException("Comparers types differ.");
         }
 
         var otherCount = other.Count;
         if (otherCount < Count / 2)
         {
-            var result = new IntervalSet<TLimit>(this, areIntervalsSorted: true, areIntervalsUnique: true, _comparer);
+            var result = new IntervalSet<TLimit>(this, areIntervalsSorted: true, areIntervalsUnique: true, _limitComparer);
             result.AddRange(other);
             return result;
         }
 
         var unionIntervals = UnionSortedIntervals(this, other, _comparer);
-        return new IntervalSet<TLimit>(unionIntervals, areIntervalsSorted: true, areIntervalsUnique: true, _comparer);
+        return new IntervalSet<TLimit>(unionIntervals, areIntervalsSorted: true, areIntervalsUnique: true, _limitComparer);
     }
 
     /// <summary>
@@ -338,7 +339,7 @@ public class IntervalSet<TLimit> : ISet<Interval<TLimit>>
         var result = new List<Interval<TLimit>>();
         Merge(_aaTree.Root, result);
 
-        return new IntervalSet<TLimit>(result, areIntervalsSorted: true, areIntervalsUnique: true, _comparer);
+        return new IntervalSet<TLimit>(result, areIntervalsSorted: true, areIntervalsUnique: true, _limitComparer);
     }
 
     private void Merge(
@@ -377,10 +378,10 @@ public class IntervalSet<TLimit> : ISet<Interval<TLimit>>
     private bool TryMerge(
         Interval<TLimit> precedingInterval, Interval<TLimit> followingInterval, out Interval<TLimit> result)
     {
-        if (IntervalTools.HasAnyIntersection(precedingInterval, followingInterval, _comparer)
-                || IntervalTools.Touch(precedingInterval, followingInterval, _comparer))
+        if (IntervalTools.HasAnyIntersection(precedingInterval, followingInterval, _limitComparer)
+                || IntervalTools.Touch(precedingInterval, followingInterval, _limitComparer))
         {
-            result = IntervalTools.Merge(precedingInterval, followingInterval, _comparer);
+            result = IntervalTools.Merge(precedingInterval, followingInterval, _limitComparer);
             return true;
         }
 
@@ -445,7 +446,9 @@ public class IntervalSet<TLimit> : ISet<Interval<TLimit>>
     public void UnionWith(IEnumerable<Interval<TLimit>> other) => AddRange(other);
 
     private static IEnumerable<Interval<TLimit>> UnionSortedIntervals(
-        IEnumerable<Interval<TLimit>> current, IEnumerable<Interval<TLimit>> other, IComparer<TLimit> comparer)
+        IEnumerable<Interval<TLimit>> current,
+        IEnumerable<Interval<TLimit>> other,
+        IComparer<Interval<TLimit>> intervalComparer)
     {
         Interval<TLimit>? GetNextIntervalOrNull(IEnumerator<Interval<TLimit>> enumerator) =>
             enumerator.MoveNext()
@@ -461,7 +464,6 @@ public class IntervalSet<TLimit> : ISet<Interval<TLimit>>
         var otherCount = other.Count();
         var unionIntervalsCount = otherCount + currentCount;
         var unionIntervals = new List<Interval<TLimit>>(unionIntervalsCount);
-        var intervalComparer = IntervalComparer<TLimit>.Create(comparer);
         for (int i = 0; i < unionIntervalsCount; i++)
         {
             if (currentInterval is null)
