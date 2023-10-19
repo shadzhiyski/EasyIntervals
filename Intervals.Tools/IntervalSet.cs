@@ -241,7 +241,7 @@ public class IntervalSet<TLimit> : ISet<Interval<TLimit>>
         Intersect((limit, limit, IntervalType.Closed), IntersectionType.Any);
 
     private void IntersectRecursive(AATree<Interval<TLimit>>.Node? node,
-        Interval<TLimit> interval, IntersectionType intersectionType, IList<Interval<TLimit>> result)
+        in Interval<TLimit> interval, IntersectionType intersectionType, IList<Interval<TLimit>> result)
     {
         if (node is null
             || _limitComparer.Compare(interval.Start, node.Value.MaxEnd) > 0)
@@ -280,7 +280,7 @@ public class IntervalSet<TLimit> : ISet<Interval<TLimit>>
     }
 
     private void ExceptRecursive(AATree<Interval<TLimit>>.Node? node,
-        Interval<TLimit> interval, IntersectionType intersectionType, IList<Interval<TLimit>> result)
+        in Interval<TLimit> interval, IntersectionType intersectionType, IList<Interval<TLimit>> result)
     {
         if (node is null)
         {
@@ -378,10 +378,10 @@ public class IntervalSet<TLimit> : ISet<Interval<TLimit>>
     private bool TryMerge(
         in Interval<TLimit> precedingInterval, in Interval<TLimit> followingInterval, out Interval<TLimit> result)
     {
-        if (IntervalTools.HasAnyIntersection(in precedingInterval, in followingInterval, _limitComparer)
-                || IntervalTools.Touch(in precedingInterval, in followingInterval, _limitComparer))
+        if (IntervalTools.HasAnyIntersection(precedingInterval, followingInterval, _limitComparer)
+                || IntervalTools.Touch(precedingInterval, followingInterval, _limitComparer))
         {
-            result = IntervalTools.Merge(in precedingInterval, in followingInterval, _limitComparer);
+            result = IntervalTools.Merge(precedingInterval, followingInterval, _limitComparer);
             return true;
         }
 
