@@ -11,7 +11,7 @@ public static class IntervalTools
     /// <param name="comparer"></param>
     /// <returns></returns>
     public static bool HasAnyIntersection<TLimit>(
-        Interval<TLimit> interval1, Interval<TLimit> interval2, IComparer<TLimit> comparer)
+        in Interval<TLimit> interval1, in Interval<TLimit> interval2, IComparer<TLimit> comparer)
     {
         var startEndComparison = comparer.Compare(interval1.Start, interval2.End);
         var endStartComparison = comparer.Compare(interval1.End, interval2.Start);
@@ -39,7 +39,7 @@ public static class IntervalTools
     /// <param name="other"></param>
     /// <param name="comparer"></param>
     /// <returns></returns>
-    public static bool Covers<TLimit>(Interval<TLimit> interval, Interval<TLimit> other, IComparer<TLimit> comparer)
+    public static bool Covers<TLimit>(in Interval<TLimit> interval, in Interval<TLimit> other, IComparer<TLimit> comparer)
     {
         var startsComparison = comparer.Compare(interval.Start, other.Start);
         var endsComparison = comparer.Compare(interval.End, other.End);
@@ -60,7 +60,7 @@ public static class IntervalTools
     /// <param name="followingInterval"></param>
     /// <param name="comparer"></param>
     /// <returns></returns>
-    internal static bool Touch<TLimit>(Interval<TLimit> precedingInterval, Interval<TLimit> followingInterval, IComparer<TLimit> comparer) =>
+    internal static bool Touch<TLimit>(in Interval<TLimit> precedingInterval, in Interval<TLimit> followingInterval, IComparer<TLimit> comparer) =>
         comparer.Compare(precedingInterval.End, followingInterval.Start) == 0
             && ((precedingInterval.Type & IntervalType.EndClosed) | (followingInterval.Type & IntervalType.StartClosed)) > 0;
 
@@ -75,7 +75,7 @@ public static class IntervalTools
     /// <param name="followingInterval"></param>
     /// <param name="comparer"></param>
     /// <returns></returns>
-    internal static Interval<TLimit> Merge<TLimit>(Interval<TLimit> precedingInterval, Interval<TLimit> followingInterval, IComparer<TLimit> comparer)
+    internal static Interval<TLimit> Merge<TLimit>(in Interval<TLimit> precedingInterval, in Interval<TLimit> followingInterval, IComparer<TLimit> comparer)
     {
         var startComparison = comparer.Compare(followingInterval.Start, precedingInterval.Start);
         var startIntervalType = startComparison == 0

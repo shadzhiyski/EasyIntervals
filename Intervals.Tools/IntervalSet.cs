@@ -376,12 +376,12 @@ public class IntervalSet<TLimit> : ISet<Interval<TLimit>>
     }
 
     private bool TryMerge(
-        Interval<TLimit> precedingInterval, Interval<TLimit> followingInterval, out Interval<TLimit> result)
+        in Interval<TLimit> precedingInterval, in Interval<TLimit> followingInterval, out Interval<TLimit> result)
     {
-        if (IntervalTools.HasAnyIntersection(precedingInterval, followingInterval, _limitComparer)
-                || IntervalTools.Touch(precedingInterval, followingInterval, _limitComparer))
+        if (IntervalTools.HasAnyIntersection(in precedingInterval, in followingInterval, _limitComparer)
+                || IntervalTools.Touch(in precedingInterval, in followingInterval, _limitComparer))
         {
-            result = IntervalTools.Merge(precedingInterval, followingInterval, _limitComparer);
+            result = IntervalTools.Merge(in precedingInterval, in followingInterval, _limitComparer);
             return true;
         }
 
