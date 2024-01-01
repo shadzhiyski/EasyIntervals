@@ -1,6 +1,5 @@
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Order;
-using IntervalTree;
 
 namespace Intervals.Tools.Playground;
 
@@ -30,16 +29,6 @@ public class IntervalCollectionsInitializationBenchmarks
     public void Initialize_SortedSet()
     {
         var _ = new SortedSet<Interval<int>>(_intervals, IntervalComparer<int>.Create(Comparer<int>.Default));
-    }
-
-    [Benchmark]
-    public void Initialize_IntervalTree()
-    {
-        var intervalTree = new IntervalTree<int, string>();
-        foreach (var itv in _intervals)
-        {
-            intervalTree.Add(itv.Start, itv.End, $"{itv.Start}, {itv.End}");
-        }
     }
 
     [Benchmark]

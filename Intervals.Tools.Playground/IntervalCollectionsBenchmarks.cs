@@ -1,6 +1,5 @@
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Order;
-using IntervalTree;
 
 namespace Intervals.Tools.Playground;
 
@@ -62,21 +61,6 @@ public class IntervalCollectionsBenchmarks
     }
 
     [Benchmark]
-    public void TestManyConsecutiveIntersections_IntervalTree()
-    {
-        var intervalTree = new IntervalTree<int, string>();
-        foreach (var interval in _intervals)
-        {
-            intervalTree.Add(interval.Start, interval.End, $"{interval.Start}, {interval.End}");
-        }
-
-        foreach (var intersectionInterval in _seededIntersectionIntervals)
-        {
-            var _ = intervalTree.Query(intersectionInterval.Start, intersectionInterval.End);
-        }
-    }
-
-    [Benchmark]
     public void Test100XMoreIntersectionsThanInserts_IntervalSet()
     {
         var seededIntervals = _intervals.Take(1_000);
@@ -107,22 +91,6 @@ public class IntervalCollectionsBenchmarks
                         (intersectionInterval.Start, intersectionInterval.Start, IntervalType.Closed),
                         (intersectionInterval.End, intersectionInterval.End, IntervalType.Closed)),
                         intervalSet.Comparer);
-            }
-        }
-    }
-
-    [Benchmark]
-    public void Test100XMoreIntersectionsThanInserts_IntervalTree()
-    {
-        var seededIntervals = _intervals.Take(1_000);
-        var intervalTree = new IntervalTree<int, string>();
-        foreach (var interval in seededIntervals)
-        {
-            intervalTree.Add(interval.Start, interval.End, $"{interval.Start}, {interval.End}");
-            var intersectionIntervals = _seededIntersectionIntervals.Take(100);
-            foreach (var intersectionInterval in intersectionIntervals)
-            {
-                var _ = intervalTree.Query(intersectionInterval.Start, intersectionInterval.End);
             }
         }
     }
