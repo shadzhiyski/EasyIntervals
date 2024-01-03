@@ -30,7 +30,33 @@ Interval<double> interval1 = (0.1d, 0.5d); // open (0.1, 0.5)
 Interval<double> interval2 = (0.1d, 0.5d, IntervalType.Closed); // closed [0.1, 0.5]
 ```
 
-Manipulation on intervals is done with **IntervalSet** collection. You can do all basic operations on intervals - Intersect, Except, Merge.
+Operations over specific intervals is done through the functions of **IntervalTools** class.
+
+Here is an example how to check if 2 intervals intersect:
+
+```CSharp
+var result1 = IntervalTools.HasAnyIntersection((10, 20), (18, 30));
+Console.WriteLine(result1);
+// True
+
+var result2 = IntervalTools.HasAnyIntersection((10, 20), (22, 30));
+Console.WriteLine(result2);
+// False
+```
+
+Here is an example how to check if an interval covers another interval:
+
+```CSharp
+var result1 = IntervalTools.Covers(interval: (10, 20), other: (12, 18));
+Console.WriteLine(result1);
+// True
+
+var result2 = IntervalTools.HasAnyIntersection(interval: (10, 20), other: (10, 30));
+Console.WriteLine(result2);
+// False
+```
+
+Manipulation on sets of intervals is done with **IntervalSet** collection. You can do all basic operations on intervals set - **AddRange**, **Union**, **Intersect**, **Except**, **Merge**.
 
 ### Add Range
 
@@ -39,7 +65,7 @@ Adds all unique intervals from given input enumeration of intervals:
 ```CSharp
 var intervalSet = new IntervalSet<int>
 {
-    (2, 5), // (2, 5) - if interval type is not specified, interval is open by default
+    (2, 5), // (2, 5)
     (3, 8, IntervalType.Open), // (3, 8)
     (7, 10), // (7, 10)
 };
@@ -64,7 +90,7 @@ Unions all unique intervals from the current and input interval set:
 ```CSharp
 var intervalSet1 = new IntervalSet<int>
 {
-    (2, 5), // (2, 5) - if interval type is not specified, interval is open by default
+    (2, 5), // (2, 5)
     (3, 8, IntervalType.Open), // (3, 8)
     (7, 10), // (7, 10)
 };
@@ -107,7 +133,7 @@ Code:
 ```CSharp
 var intervalSet = new IntervalSet<int>
 {
-    (2, 5), // (2, 5) - if interval type is not specified, interval is open by default
+    (2, 5), // (2, 5)
     (3, 8, IntervalType.Open), // (3, 8)
     (3, 8, IntervalType.Closed), // [3, 8]
     (7, 10), // (7, 10)
