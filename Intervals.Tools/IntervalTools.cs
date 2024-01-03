@@ -8,6 +8,16 @@ public static class IntervalTools
     /// <typeparam name="TLimit"></typeparam>
     /// <param name="interval1"></param>
     /// <param name="interval2"></param>
+    /// <returns></returns>
+    public static bool HasAnyIntersection<TLimit>(
+        in Interval<TLimit> interval1, in Interval<TLimit> interval2) => HasAnyIntersection(interval1, interval2, Comparer<TLimit>.Default);
+
+    /// <summary>
+    /// Checks if <c>interval1</c> has any intersection with <c>interval2</c>.
+    /// </summary>
+    /// <typeparam name="TLimit"></typeparam>
+    /// <param name="interval1"></param>
+    /// <param name="interval2"></param>
     /// <param name="comparer"></param>
     /// <returns></returns>
     public static bool HasAnyIntersection<TLimit>(
@@ -30,6 +40,15 @@ public static class IntervalTools
                 && endStartComparison == 0);
         return overlapsStartEnd && overlapsEndStart;
     }
+
+    /// <summary>
+    /// Checks if <c>interval</c> covers <c>other</c>.
+    /// </summary>
+    /// <typeparam name="TLimit"></typeparam>
+    /// <param name="interval"></param>
+    /// <param name="other"></param>
+    /// <returns></returns>
+    public static bool Covers<TLimit>(in Interval<TLimit> interval, in Interval<TLimit> other) => Covers(interval, other, Comparer<TLimit>.Default);
 
     /// <summary>
     /// Checks if <c>interval</c> covers <c>other</c>.
