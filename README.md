@@ -1,6 +1,8 @@
+![Components Relationships](/assets/img/logo/logo160x105.png)
+
 # EasyIntervals
 
-A .NET package intended to simplify the work with sets of generic intervals, especially in use cases with large sets requiring often mutation (add, remove).
+A .NET package intended to simplify the work with sets of generic intervals, especially in use cases requiring often mutation (add, remove). This is done with **IntervalSet** collection. It provides main operations like **Add**, **Remove**, **Union**, **Intersect**, **Except**, **Merge**.
 
 ## Get Started
 
