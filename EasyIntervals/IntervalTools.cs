@@ -1,4 +1,4 @@
-namespace Intervals.Tools;
+namespace EasyIntervals;
 
 public static class IntervalTools
 {

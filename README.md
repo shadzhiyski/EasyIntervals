@@ -1,13 +1,13 @@
-# Intervals.Tools
+# EasyIntervals
 
 A .NET package intended to simplify the work with sets of generic intervals, especially in use cases with large sets requiring often mutation (add, remove).
 
 ## Get Started
 
-Intervals.Tools can be installed using the Nuget package manager or the `dotnet` CLI.
+EasyIntervals can be installed using the Nuget package manager or the `dotnet` CLI.
 
 ```Shell
-dotnet add package Intervals.Tools
+dotnet add package EasyIntervals
 ```
 
 ## Usage

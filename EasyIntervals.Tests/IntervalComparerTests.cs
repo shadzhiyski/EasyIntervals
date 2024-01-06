@@ -1,4 +1,4 @@
-namespace Intervals.Tools.Tests;
+namespace EasyIntervals.Tests;
 
 public class IntervalComparerTests
 {

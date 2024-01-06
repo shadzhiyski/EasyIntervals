@@ -12,7 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Intervals.Tools\Intervals.Tools.csproj" />
+    <ProjectReference Include="..\EasyIntervals\EasyIntervals.csproj" />
   </ItemGroup>
 
 </Project>

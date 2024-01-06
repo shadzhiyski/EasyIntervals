@@ -1,7 +1,7 @@
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Order;
 
-namespace Intervals.Tools.Playground;
+namespace EasyIntervals.Playground;
 
 [ShortRunJob]
 [MemoryDiagnoser]

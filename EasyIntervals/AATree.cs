@@ -1,4 +1,4 @@
-﻿namespace Intervals.Tools;
+﻿namespace EasyIntervals;
 
 using System;
 using System.Collections;
