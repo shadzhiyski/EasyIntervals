@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 width="710px" height="465px" viewBox="0 0 710 465" style="enable-background:new 0 0 710 465;"
+	 xml:space="preserve">
+<g>
+    <g>
+        <path d="M40 40 L470 40" fill="#088" stroke-width="80px" stroke="#088" stroke-linecap="round" />
+        <path d="M55 218 L361 218" fill="#f80" stroke-width="80px" stroke="#f80" />
+        <path d="M0 420 L550 420" fill="#CC8" stroke-width="80px" stroke="#CC8" />
+
+        <path d="M634 40 L685 40" fill="#088" stroke-width="80px" stroke="#088" />
+        <path d="M605 141 L685 141" fill="#f80" stroke-width="80px" stroke="#f80" />
+        <path d="M593 234 L664 234" fill="#CC8" stroke-width="80px" stroke="#CC8" />
+        <path d="M605 327 L664 327" fill="#CC8" stroke-width="80px" stroke="#CC8" />
+        <path d="M605 420 L706 420" fill="#f80" stroke-width="80px" stroke="#f80" />
+    </g>
+</g>
+</svg>

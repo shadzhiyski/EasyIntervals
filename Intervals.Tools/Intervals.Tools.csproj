@@ -4,7 +4,25 @@
     <TargetFramework>net6.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <PackageId>Intervals.Tools</PackageId>
+    <PackageVersion>1.0.0-preview</PackageVersion>
+    <Authors>Stoyan Hadzhiyski</Authors>
+    <Description>A .NET package intended to simplify the work with sets of generic intervals, especially in use cases requiring often mutation (add, remove). This is done with **IntervalSet** collection. It provides main operations like **Add**, **Remove**, **Union**, **Intersect**, **Except**, **Merge**.</Description>
+    <Copyright>Copyright (c) Stoyan Hadzhiyski 2024</Copyright>
+    <PackageProjectUrl>https://github.com/shadzhiyski/Intervals.Tools</PackageProjectUrl>
+    <PackageIcon>logo160x105.png</PackageIcon>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <RepositoryUrl>https://github.com/shadzhiyski/Intervals.Tools</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>interval;set;collection</PackageTags>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="../README.md" Pack="true" PackagePath=""/>
+    <None Include="../LICENSE" Pack="true" PackagePath=""/>
+    <None Include="../assets/img/logo/logo160x105.png" Pack="true" PackagePath="\"/>
+  </ItemGroup>
 
   <ItemGroup>
     <InternalsVisibleTo Include="Intervals.Tools.Tests" />
