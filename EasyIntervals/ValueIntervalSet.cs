@@ -1,29 +1,7 @@
 namespace EasyIntervals;
 
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-
-/// <summary>
-/// Represents intersection type between two intervals.
-/// </summary>
-public enum IntersectionType
-{
-    /// <summary>
-    /// Given interval intersects in any way another interval.
-    /// </summary>
-    Any,
-
-    /// <summary>
-    /// Given interval covers another interval.
-    /// </summary>
-    Cover,
-
-    /// <summary>
-    /// Given interval is within another interval.
-    /// </summary>
-    Within,
-}
 
 /// <summary>
 /// IntervalSet is a collection for storing large amount of unique intervals
@@ -35,13 +13,15 @@ public enum IntersectionType
 /// It provides functionalities for add, remove, intersect, except, union and merge of intervals.
 /// </remarks>
 /// <typeparam name="TLimit">Represents the limit type of start and end of interval</typeparam>
-public class IntervalSet<TLimit> : BaseIntervalSet<IntervalSet<TLimit>, Interval<TLimit>, TLimit>
+/// <typeparam name="TValue">Represents the value type of the value of interval</typeparam>
+public class IntervalSet<TLimit, TValue> : BaseIntervalSet<IntervalSet<TLimit, TValue>, Interval<TLimit, TValue>, TLimit>
 {
+
     /// <summary>
     /// Creates an empty IntervalSet.
     /// </summary>
     public IntervalSet()
-        : this(Enumerable.Empty<Interval<TLimit>>(), Comparer<TLimit>.Default)
+        : this(Enumerable.Empty<Interval<TLimit, TValue>>(), Comparer<TLimit>.Default)
     { }
 
     /// <summary>
@@ -49,7 +29,7 @@ public class IntervalSet<TLimit> : BaseIntervalSet<IntervalSet<TLimit>, Interval
     /// </summary>
     /// <param name="comparison">comparison</param>
     public IntervalSet(Comparison<TLimit> comparison)
-        : this(Enumerable.Empty<Interval<TLimit>>(), Comparer<TLimit>.Create(comparison))
+        : this(Enumerable.Empty<Interval<TLimit, TValue>>(), Comparer<TLimit>.Create(comparison))
     { }
 
     /// <summary>
@@ -57,14 +37,14 @@ public class IntervalSet<TLimit> : BaseIntervalSet<IntervalSet<TLimit>, Interval
     /// </summary>
     /// <param name="comparer">comparer</param>
     public IntervalSet(IComparer<TLimit> comparer)
-        : this(Enumerable.Empty<Interval<TLimit>>(), comparer)
+        : this(Enumerable.Empty<Interval<TLimit, TValue>>(), comparer)
     { }
 
     /// <summary>
     /// Creates IntervalSet with <c>intervals</c>.
     /// </summary>
     /// <param name="intervals">intervals</param>
-    public IntervalSet(IEnumerable<Interval<TLimit>> intervals)
+    public IntervalSet(IEnumerable<Interval<TLimit, TValue>> intervals)
         : this(intervals, Comparer<TLimit>.Default)
     { }
 
@@ -73,7 +53,7 @@ public class IntervalSet<TLimit> : BaseIntervalSet<IntervalSet<TLimit>, Interval
     /// </summary>
     /// <param name="comparer">comparer</param>
     /// <param name="intervals">intervals</param>
-    public IntervalSet(IEnumerable<Interval<TLimit>> intervals, IComparer<TLimit> comparer)
+    public IntervalSet(IEnumerable<Interval<TLimit, TValue>> intervals, IComparer<TLimit> comparer)
         : this(intervals, areIntervalsSorted: false, areIntervalsUnique: false, comparer)
     { }
 
@@ -83,15 +63,15 @@ public class IntervalSet<TLimit> : BaseIntervalSet<IntervalSet<TLimit>, Interval
     /// <param name="comparer">comparer</param>
     /// <param name="intervals">intervals</param>
     private IntervalSet(
-        IEnumerable<Interval<TLimit>> intervals, bool areIntervalsSorted, bool areIntervalsUnique, IComparer<TLimit> comparer)
-        : base(intervals, areIntervalsSorted, areIntervalsUnique, IntervalComparer<TLimit>.Create(comparer), comparer)
+        IEnumerable<Interval<TLimit, TValue>> intervals, bool areIntervalsSorted, bool areIntervalsUnique, IComparer<TLimit> comparer)
+        : base(intervals, areIntervalsSorted, areIntervalsUnique, IntervalComparer<TLimit, TValue>.Create(comparer), comparer)
     { }
 
-    protected override IntervalSet<TLimit> CreateInstance(
-        IEnumerable<Interval<TLimit>> intervals,
+    protected override IntervalSet<TLimit, TValue> CreateInstance(
+        IEnumerable<Interval<TLimit, TValue>> intervals,
         bool areIntervalsSorted,
         bool areIntervalsUnique,
-        IComparer<TLimit> limitComparer) => new IntervalSet<TLimit>(intervals, areIntervalsSorted: true, areIntervalsUnique: true, limitComparer);
+        IComparer<TLimit> limitComparer) => new IntervalSet<TLimit, TValue>(intervals, areIntervalsSorted: true, areIntervalsUnique: true, limitComparer);
 
     /// <summary>
     /// Removes intervals intersecting <c>limit</c>.
@@ -109,43 +89,48 @@ public class IntervalSet<TLimit> : BaseIntervalSet<IntervalSet<TLimit>, Interval
     /// </summary>
     /// <param name="limit"></param>
     /// <returns>interval set with intersected intervals.</returns>
-    public IntervalSet<TLimit> Intersect(TLimit limit) =>
-        Intersect((limit, limit, IntervalType.Closed), IntersectionType.Any);
+    public IntervalSet<TLimit, TValue> Intersect(TLimit limit) =>
+        Intersect((limit, limit, default, IntervalType.Closed), IntersectionType.Any);
 
     /// <summary>
     /// Merges intersecting intervals.
     /// </summary>
     /// <returns>interval set with merged intervals.</returns>
-    public IntervalSet<TLimit> Merge()
+    public IntervalSet<TLimit, TValue> Merge(Func<Interval<TLimit, TValue>, Interval<TLimit, TValue>, TValue> mergeFunction)
     {
-        var result = new List<Interval<TLimit>>();
-        Merge(_aaTree.Root, result);
+        var result = new List<Interval<TLimit, TValue>>();
+        Merge(_aaTree.Root, result, mergeFunction);
 
-        return new IntervalSet<TLimit>(result, areIntervalsSorted: true, areIntervalsUnique: true, _limitComparer);
+        return new IntervalSet<TLimit, TValue>(result, areIntervalsSorted: true, areIntervalsUnique: true, _limitComparer);
     }
 
     private void Merge(
-        AATree<Interval<TLimit>>.Node? node, IList<Interval<TLimit>> intervals)
+        AATree<Interval<TLimit, TValue>>.Node? node,
+        IList<Interval<TLimit, TValue>> intervals,
+        Func<Interval<TLimit, TValue>, Interval<TLimit, TValue>, TValue> mergeFunction)
     {
         if (node is null)
         {
             return;
         }
 
-        Merge(node.Left, intervals);
+        Merge(node.Left, intervals, mergeFunction);
 
-        MergeCurrent(node, intervals);
+        MergeCurrent(node, intervals, mergeFunction);
 
-        Merge(node.Right, intervals);
+        Merge(node.Right, intervals, mergeFunction);
     }
 
-    private void MergeCurrent(AATree<Interval<TLimit>>.Node? node, IList<Interval<TLimit>> intervals)
+    private void MergeCurrent(
+        AATree<Interval<TLimit, TValue>>.Node? node,
+        IList<Interval<TLimit, TValue>> intervals,
+        Func<Interval<TLimit, TValue>, Interval<TLimit, TValue>, TValue> mergeFunction)
     {
         if (intervals.Count > 0)
         {
             var lastIndex = intervals.Count - 1;
             var precedingInterval = intervals[lastIndex];
-            var isMerged = TryMerge(precedingInterval, node!.Value, out Interval<TLimit> mergedInterval);
+            var isMerged = TryMerge(precedingInterval, node!.Value, mergeFunction, out Interval<TLimit, TValue> mergedInterval);
 
             if (isMerged)
             {
@@ -158,12 +143,15 @@ public class IntervalSet<TLimit> : BaseIntervalSet<IntervalSet<TLimit>, Interval
     }
 
     private bool TryMerge(
-        in Interval<TLimit> precedingInterval, in Interval<TLimit> followingInterval, out Interval<TLimit> result)
+        in Interval<TLimit, TValue> precedingInterval,
+        in Interval<TLimit, TValue> followingInterval,
+        Func<Interval<TLimit, TValue>, Interval<TLimit, TValue>, TValue> mergeFunction,
+        out Interval<TLimit, TValue> result)
     {
         if (IntervalTools.HasAnyIntersection(precedingInterval, followingInterval, _limitComparer)
                 || IntervalTools.Touch(precedingInterval, followingInterval, _limitComparer))
         {
-            result = IntervalTools.Merge(precedingInterval, followingInterval, _limitComparer);
+            result = IntervalTools.Merge(precedingInterval, followingInterval, mergeFunction, _limitComparer);
             return true;
         }
 
