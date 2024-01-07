@@ -5,8 +5,8 @@ public class IntervalToolsTests
     [Fact]
     public void HasAnyIntersection_IntersectingIntervals_ShouldReturnTrue()
     {
-        var start = (2, 5);
-        var end = (4, 8);
+        var start = new Interval<int>(2, 5);
+        var end = new Interval<int>(4, 8);
 
         var result = IntervalTools.HasAnyIntersection(start, end, Comparer<int>.Default);
 
@@ -16,8 +16,8 @@ public class IntervalToolsTests
     [Fact]
     public void HasAnyIntersection_NotIntersectingIntervals_ShouldReturnFalse()
     {
-        var start = (2, 5);
-        var end = (6, 8);
+        var start = new Interval<int>(2, 5);
+        var end = new Interval<int>(6, 8);
 
         var result = IntervalTools.HasAnyIntersection(start, end, Comparer<int>.Default);
 
@@ -32,8 +32,8 @@ public class IntervalToolsTests
         int intervalStart, int intervalEnd, IntervalType intervalType,
         int otherIntervalStart, int otherIntervalEnd, IntervalType otherIntervalType)
     {
-        var interval = (intervalStart, intervalEnd, intervalType);
-        var other = (otherIntervalStart, otherIntervalEnd, otherIntervalType);
+        var interval = new Interval<int>(intervalStart, intervalEnd, intervalType);
+        var other = new Interval<int>(otherIntervalStart, otherIntervalEnd, otherIntervalType);
 
         var result = IntervalTools.Covers(interval, other, Comparer<int>.Default);
 
@@ -48,8 +48,8 @@ public class IntervalToolsTests
         int intervalStart, int intervalEnd, IntervalType intervalType,
         int otherIntervalStart, int otherIntervalEnd, IntervalType otherIntervalType)
     {
-        var interval = (intervalStart, intervalEnd, intervalType);
-        var other = (otherIntervalStart, otherIntervalEnd, otherIntervalType);
+        var interval = new Interval<int>(intervalStart, intervalEnd, intervalType);
+        var other = new Interval<int>(otherIntervalStart, otherIntervalEnd, otherIntervalType);
 
         var result = IntervalTools.Covers(interval, other, Comparer<int>.Default);
 
