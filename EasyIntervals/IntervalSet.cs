@@ -157,31 +157,6 @@ public class IntervalSet<TLimit> : ISet<Interval<TLimit>>
     public bool Add(Interval<TLimit> interval) => _aaTree.Add(interval);
 
     /// <summary>
-    /// Adds collection of <c>intervals</c>.
-    /// </summary>
-    /// <param name="intervals">intervals</param>
-    public void AddRange(IEnumerable<Interval<TLimit>> intervals)
-    {
-        var otherCount = intervals.Count();
-        if (otherCount < Count / 2)
-        {
-            foreach (var interval in intervals)
-            {
-                Add(interval);
-            }
-
-            return;
-        }
-
-        var orderedOther = intervals.ToArray();
-        Array.Sort(orderedOther, _comparer);
-        var otherUniqueCount = AATreeTools.ShiftUniqueElementsToBeginning(orderedOther, _comparer);
-
-        var unionIntervals = UnionSortedIntervals(this, orderedOther.Take(otherUniqueCount), _comparer);
-        _aaTree.Reset(unionIntervals, areElementsSorted: true, areElementsUnique: true);
-    }
-
-    /// <summary>
     /// Checks if <c>interval</c> is present.
     /// </summary>
     /// <param name="interval"></param>
@@ -322,7 +297,7 @@ public class IntervalSet<TLimit> : ISet<Interval<TLimit>>
         if (otherCount < Count / 2)
         {
             var result = new IntervalSet<TLimit>(this, areIntervalsSorted: true, areIntervalsUnique: true, _limitComparer);
-            result.AddRange(other);
+            result.UnionWith(other);
             return result;
         }
 
@@ -443,7 +418,26 @@ public class IntervalSet<TLimit> : ISet<Interval<TLimit>>
 
     public void SymmetricExceptWith(IEnumerable<Interval<TLimit>> other) => ExceptWith(other);
 
-    public void UnionWith(IEnumerable<Interval<TLimit>> other) => AddRange(other);
+    public void UnionWith(IEnumerable<Interval<TLimit>> others)
+    {
+        var otherCount = others.Count();
+        if (otherCount < Count / 2)
+        {
+            foreach (var interval in others)
+            {
+                Add(interval);
+            }
+
+            return;
+        }
+
+        var orderedOther = others.ToArray();
+        Array.Sort(orderedOther, _comparer);
+        var otherUniqueCount = AATreeTools.ShiftUniqueElementsToBeginning(orderedOther, _comparer);
+
+        var unionIntervals = UnionSortedIntervals(this, orderedOther.Take(otherUniqueCount), _comparer);
+        _aaTree.Reset(unionIntervals, areElementsSorted: true, areElementsUnique: true);
+    }
 
     private static IEnumerable<Interval<TLimit>> UnionSortedIntervals(
         IEnumerable<Interval<TLimit>> current,
