@@ -60,31 +60,6 @@ Console.WriteLine(result2);
 
 Manipulation on sets of intervals is done with **IntervalSet** collection. You can do all basic operations on intervals set - **AddRange**, **Union**, **Intersect**, **Except**, **Merge**.
 
-### Add Range
-
-Adds all unique intervals from given input enumeration of intervals:
-
-```CSharp
-var intervalSet = new IntervalSet<int>
-{
-    (2, 5), // (2, 5)
-    (3, 8, IntervalType.Open), // (3, 8)
-    (7, 10), // (7, 10)
-};
-
-var inputIntervals = new List<Interval<int>>
-{
-    (3, 8, IntervalType.Closed), // [3, 8]
-    (7, 10), // (7, 10)
-    (11, 16, IntervalType.StartClosed), // [11, 16)
-    (11, 14, IntervalType.EndClosed), // (11, 14]
-};
-
-intervalSet.AddRange(inputIntervals);
-Console.WriteLine($"[{string.Join(", ", intervalSet)}]");
-// [(2, 5), [3, 8], (3, 8), (7, 10), [11, 16), (11, 14]]
-```
-
 ### Union
 
 Unions all unique intervals from the current and input interval set:
@@ -107,6 +82,31 @@ var intervalSet2 = new IntervalSet<int>
 
 var unionIntervalSet = intervalSet1.Union(intervalSet2);
 Console.WriteLine($"[{string.Join(", ", unionIntervalSet)}]");
+// [(2, 5), [3, 8], (3, 8), (7, 10), [11, 16), (11, 14]]
+```
+
+### UnionWith
+
+Adds all unique intervals from given input enumeration of intervals:
+
+```CSharp
+var intervalSet = new IntervalSet<int>
+{
+    (2, 5), // (2, 5)
+    (3, 8, IntervalType.Open), // (3, 8)
+    (7, 10), // (7, 10)
+};
+
+var inputIntervals = new List<Interval<int>>
+{
+    (3, 8, IntervalType.Closed), // [3, 8]
+    (7, 10), // (7, 10)
+    (11, 16, IntervalType.StartClosed), // [11, 16)
+    (11, 14, IntervalType.EndClosed), // (11, 14]
+};
+
+intervalSet.UnionWith(inputIntervals);
+Console.WriteLine($"[{string.Join(", ", intervalSet)}]");
 // [(2, 5), [3, 8], (3, 8), (7, 10), [11, 16), (11, 14]]
 ```
 
