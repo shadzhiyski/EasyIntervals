@@ -73,6 +73,15 @@ public class IntervalSet<TLimit> : ISet<Interval<TLimit>>
     { }
 
     /// <summary>
+    /// Creates IntervalSet with limit <c>comparison</c> and <c>intervals</c>.
+    /// </summary>
+    /// <param name="comparison">comparison</param>
+    /// <param name="intervals">intervals</param>
+    public IntervalSet(IEnumerable<Interval<TLimit>> intervals, Comparison<TLimit> comparison)
+        : this(intervals, areIntervalsSorted: false, areIntervalsUnique: false, Comparer<TLimit>.Create(comparison))
+    { }
+
+    /// <summary>
     /// Creates IntervalSet with limit <c>comparer</c> and <c>intervals</c>.
     /// </summary>
     /// <param name="comparer">comparer</param>
@@ -89,6 +98,12 @@ public class IntervalSet<TLimit> : ISet<Interval<TLimit>>
     private IntervalSet(
         IEnumerable<Interval<TLimit>> intervals, bool areIntervalsSorted, bool areIntervalsUnique, IComparer<TLimit> comparer)
     {
+        if (intervals is IntervalSet<TLimit> inputIntervalSet
+            && !AreEqualComparers(comparer, inputIntervalSet._limitComparer))
+        {
+            throw new ArgumentException("The given comparer argument must be of the same type as the comparer of the given intervals argument.");
+        }
+
         _limitComparer = comparer;
         _comparer = IntervalComparer<TLimit>.Create(comparer);
 
@@ -99,6 +114,8 @@ public class IntervalSet<TLimit> : ISet<Interval<TLimit>>
             _comparer,
             OnChildChanged);
     }
+
+    private static bool AreEqualComparers(IComparer<TLimit> comparer1, IComparer<TLimit> comparer2) => comparer1 == comparer2 || comparer1.Equals(comparer2);
 
     private void OnChildChanged(AATree<Interval<TLimit>>.Node parent)
     {
