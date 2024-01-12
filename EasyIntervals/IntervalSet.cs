@@ -91,7 +91,8 @@ public class IntervalSet<TLimit> : ISet<Interval<TLimit>>
     { }
 
     /// <summary>
-    /// Creates IntervalSet with limit <c>comparer</c>, <c>intervals</c> and flag if intervals are sorted.
+    /// Creates IntervalSet with limit <c>comparer</c>, <c>intervals</c>,
+    /// <c>areIntervalsSorted</c> and <c>areIntervalsUnique</c> flags defining if intervals are sorted or unique.
     /// </summary>
     /// <param name="comparer">comparer</param>
     /// <param name="intervals">intervals</param>
