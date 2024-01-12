@@ -33,6 +33,18 @@ public class IntervalSetTests
     }
 
     [Fact]
+    public void Initialize_FromAnotherIntervalSetWithDifferentComparer_ShouldThrowArgumentException()
+    {
+        var intervals = new IntervalSet<int>(input);
+
+        // Act
+        Action act = () => new IntervalSet<int>(intervals, (a, b) => b - a);
+
+        // Assert
+        act.Should().Throw<ArgumentException>();
+    }
+
+    [Fact]
     public void Add_NonExistingInterval_ShouldIncreaseCount()
     {
         var intervalSet = new IntervalSet<int>
