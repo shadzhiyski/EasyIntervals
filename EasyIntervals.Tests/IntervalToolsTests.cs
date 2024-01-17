@@ -8,7 +8,7 @@ public class IntervalToolsTests
         var start = (2, 5);
         var end = (4, 8);
 
-        var result = IntervalTools.HasAnyIntersection(start, end, Comparer<int>.Default);
+        var result = IntervalTools.HasAnyIntersection<int, int?>(start, end, Comparer<int>.Default);
 
         result.Should().BeTrue();
     }
@@ -19,7 +19,7 @@ public class IntervalToolsTests
         var start = (2, 5);
         var end = (6, 8);
 
-        var result = IntervalTools.HasAnyIntersection(start, end, Comparer<int>.Default);
+        var result = IntervalTools.HasAnyIntersection<int, int?>(start, end, Comparer<int>.Default);
 
         result.Should().BeFalse();
     }
@@ -35,7 +35,7 @@ public class IntervalToolsTests
         var interval = (intervalStart, intervalEnd, intervalType);
         var other = (otherIntervalStart, otherIntervalEnd, otherIntervalType);
 
-        var result = IntervalTools.Covers(interval, other, Comparer<int>.Default);
+        var result = IntervalTools.Covers<int, int?>(interval, other, Comparer<int>.Default);
 
         result.Should().BeTrue();
     }
@@ -51,7 +51,7 @@ public class IntervalToolsTests
         var interval = (intervalStart, intervalEnd, intervalType);
         var other = (otherIntervalStart, otherIntervalEnd, otherIntervalType);
 
-        var result = IntervalTools.Covers(interval, other, Comparer<int>.Default);
+        var result = IntervalTools.Covers<int, int?>(interval, other, Comparer<int>.Default);
 
         result.Should().BeFalse();
     }

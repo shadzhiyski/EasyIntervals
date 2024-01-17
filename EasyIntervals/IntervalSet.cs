@@ -35,17 +35,17 @@ public enum IntersectionType
 /// It provides functionalities for add, remove, intersect, except, union and merge of intervals.
 /// </remarks>
 /// <typeparam name="TLimit">Represents the limit type of start and end of interval</typeparam>
-public class IntervalSet<TLimit> : ISet<Interval<TLimit>>
+public class IntervalSet<TLimit, TValue> : ISet<Interval<TLimit, TValue>>
 {
-    private readonly AATree<Interval<TLimit>> _aaTree;
+    private readonly AATree<Interval<TLimit, TValue>> _aaTree;
     private readonly IComparer<TLimit> _limitComparer;
-    private readonly IComparer<Interval<TLimit>> _comparer;
+    private readonly IComparer<Interval<TLimit, TValue>> _comparer;
 
     /// <summary>
     /// Creates an empty IntervalSet.
     /// </summary>
     public IntervalSet()
-        : this(Enumerable.Empty<Interval<TLimit>>(), Comparer<TLimit>.Default)
+        : this(Enumerable.Empty<Interval<TLimit, TValue>>(), Comparer<TLimit>.Default)
     { }
 
     /// <summary>
@@ -53,7 +53,7 @@ public class IntervalSet<TLimit> : ISet<Interval<TLimit>>
     /// </summary>
     /// <param name="comparison">comparison</param>
     public IntervalSet(Comparison<TLimit> comparison)
-        : this(Enumerable.Empty<Interval<TLimit>>(), Comparer<TLimit>.Create(comparison))
+        : this(Enumerable.Empty<Interval<TLimit, TValue>>(), Comparer<TLimit>.Create(comparison))
     { }
 
     /// <summary>
@@ -61,14 +61,14 @@ public class IntervalSet<TLimit> : ISet<Interval<TLimit>>
     /// </summary>
     /// <param name="comparer">comparer</param>
     public IntervalSet(IComparer<TLimit> comparer)
-        : this(Enumerable.Empty<Interval<TLimit>>(), comparer)
+        : this(Enumerable.Empty<Interval<TLimit, TValue>>(), comparer)
     { }
 
     /// <summary>
     /// Creates IntervalSet with <c>intervals</c>.
     /// </summary>
     /// <param name="intervals">intervals</param>
-    public IntervalSet(IEnumerable<Interval<TLimit>> intervals)
+    public IntervalSet(IEnumerable<Interval<TLimit, TValue>> intervals)
         : this(intervals, Comparer<TLimit>.Default)
     { }
 
@@ -77,7 +77,7 @@ public class IntervalSet<TLimit> : ISet<Interval<TLimit>>
     /// </summary>
     /// <param name="comparison">comparison</param>
     /// <param name="intervals">intervals</param>
-    public IntervalSet(IEnumerable<Interval<TLimit>> intervals, Comparison<TLimit> comparison)
+    public IntervalSet(IEnumerable<Interval<TLimit, TValue>> intervals, Comparison<TLimit> comparison)
         : this(intervals, areIntervalsSorted: false, areIntervalsUnique: false, Comparer<TLimit>.Create(comparison))
     { }
 
@@ -86,7 +86,7 @@ public class IntervalSet<TLimit> : ISet<Interval<TLimit>>
     /// </summary>
     /// <param name="comparer">comparer</param>
     /// <param name="intervals">intervals</param>
-    public IntervalSet(IEnumerable<Interval<TLimit>> intervals, IComparer<TLimit> comparer)
+    public IntervalSet(IEnumerable<Interval<TLimit, TValue>> intervals, IComparer<TLimit> comparer)
         : this(intervals, areIntervalsSorted: false, areIntervalsUnique: false, comparer)
     { }
 
@@ -97,18 +97,18 @@ public class IntervalSet<TLimit> : ISet<Interval<TLimit>>
     /// <param name="comparer">comparer</param>
     /// <param name="intervals">intervals</param>
     private IntervalSet(
-        IEnumerable<Interval<TLimit>> intervals, bool areIntervalsSorted, bool areIntervalsUnique, IComparer<TLimit> comparer)
+        IEnumerable<Interval<TLimit, TValue>> intervals, bool areIntervalsSorted, bool areIntervalsUnique, IComparer<TLimit> comparer)
     {
-        if (intervals is IntervalSet<TLimit> inputIntervalSet
+        if (intervals is IntervalSet<TLimit, TValue> inputIntervalSet
             && !AreEqualComparers(comparer, inputIntervalSet._limitComparer))
         {
             throw new ArgumentException("The given comparer argument must be of the same type as the comparer of the given intervals argument.");
         }
 
         _limitComparer = comparer;
-        _comparer = IntervalComparer<TLimit>.Create(comparer);
+        _comparer = IntervalComparer<TLimit, TValue>.Create(comparer);
 
-        _aaTree = new AATree<Interval<TLimit>>(
+        _aaTree = new AATree<Interval<TLimit, TValue>>(
             intervals,
             areIntervalsSorted,
             areIntervalsUnique,
@@ -118,7 +118,7 @@ public class IntervalSet<TLimit> : ISet<Interval<TLimit>>
 
     private static bool AreEqualComparers(IComparer<TLimit> comparer1, IComparer<TLimit> comparer2) => comparer1 == comparer2 || comparer1.Equals(comparer2);
 
-    private void OnChildChanged(AATree<Interval<TLimit>>.Node parent)
+    private void OnChildChanged(AATree<Interval<TLimit, TValue>>.Node parent)
     {
         var parentValue = parent.Value;
         parentValue.MaxEnd = GetMaxValue(in parentValue, parent.Left, parent.Right);
@@ -126,7 +126,7 @@ public class IntervalSet<TLimit> : ISet<Interval<TLimit>>
     }
 
     private TLimit GetMaxValue(
-        in Interval<TLimit> nodeValue, AATree<Interval<TLimit>>.Node? leftNode, AATree<Interval<TLimit>>.Node? rightNode)
+        in Interval<TLimit, TValue> nodeValue, AATree<Interval<TLimit, TValue>>.Node? leftNode, AATree<Interval<TLimit, TValue>>.Node? rightNode)
     {
         var isLeftNull = leftNode is null;
         var isRightNull = rightNode is null;
@@ -165,28 +165,28 @@ public class IntervalSet<TLimit> : ISet<Interval<TLimit>>
     /// Adds <c>interval</c>.
     /// </summary>
     /// <param name="interval">interval</param>
-    void ICollection<Interval<TLimit>>.Add(Interval<TLimit> interval) => Add(interval);
+    void ICollection<Interval<TLimit, TValue>>.Add(Interval<TLimit, TValue> interval) => Add(interval);
 
     /// <summary>
     /// Adds <c>interval</c>.
     /// </summary>
     /// <param name="interval">interval</param>
     /// <returns>true if interval is successfully added; otherwise, false.</returns>
-    public bool Add(Interval<TLimit> interval) => _aaTree.Add(interval);
+    public bool Add(Interval<TLimit, TValue> interval) => _aaTree.Add(interval);
 
     /// <summary>
     /// Checks if <c>interval</c> is present.
     /// </summary>
     /// <param name="interval"></param>
     /// <returns>true if contains interval; otherwise, false.</returns>
-    public bool Contains(Interval<TLimit> interval) => _aaTree.Contains(interval);
+    public bool Contains(Interval<TLimit, TValue> interval) => _aaTree.Contains(interval);
 
     /// <summary>
     /// Removes <c>interval</c>.
     /// </summary>
     /// <param name="interval"></param>
     /// <returns>true if interval is successfully removed; otherwise, false.</returns>
-    public bool Remove(Interval<TLimit> interval)
+    public bool Remove(Interval<TLimit, TValue> interval)
     {
         return _aaTree.Remove(interval);
     }
@@ -196,7 +196,7 @@ public class IntervalSet<TLimit> : ISet<Interval<TLimit>>
     /// </summary>
     /// <param name="intervals"></param>
     /// <returns>true if all intervals are successfully removed; If any interval is not removed, false.</returns>
-    public bool Remove(IEnumerable<Interval<TLimit>> intervals) => intervals
+    public bool Remove(IEnumerable<Interval<TLimit, TValue>> intervals) => intervals
         .Select(item => Remove(item))
         .All(result => result);
 
@@ -217,12 +217,12 @@ public class IntervalSet<TLimit> : ISet<Interval<TLimit>>
     /// <param name="interval">interval</param>
     /// <param name="intersectionType">intersectionType</param>
     /// <returns>interval set with intersected intervals.</returns>
-    public IntervalSet<TLimit> Intersect(
-        Interval<TLimit> interval, IntersectionType intersectionType = IntersectionType.Any)
+    public IntervalSet<TLimit, TValue> Intersect(
+        Interval<TLimit, TValue> interval, IntersectionType intersectionType = IntersectionType.Any)
     {
-        var intersectedIntervals = new List<Interval<TLimit>>();
+        var intersectedIntervals = new List<Interval<TLimit, TValue>>();
         IntersectRecursive(_aaTree.Root, interval, intersectionType, intersectedIntervals);
-        return new IntervalSet<TLimit>(intersectedIntervals, areIntervalsSorted: true, areIntervalsUnique: true, _limitComparer);
+        return new IntervalSet<TLimit, TValue>(intersectedIntervals, areIntervalsSorted: true, areIntervalsUnique: true, _limitComparer);
     }
 
     /// <summary>
@@ -230,11 +230,11 @@ public class IntervalSet<TLimit> : ISet<Interval<TLimit>>
     /// </summary>
     /// <param name="limit"></param>
     /// <returns>interval set with intersected intervals.</returns>
-    public IntervalSet<TLimit> Intersect(TLimit limit) =>
+    public IntervalSet<TLimit, TValue> Intersect(TLimit limit) =>
         Intersect((limit, limit, IntervalType.Closed), IntersectionType.Any);
 
-    private void IntersectRecursive(AATree<Interval<TLimit>>.Node? node,
-        in Interval<TLimit> interval, IntersectionType intersectionType, IList<Interval<TLimit>> result)
+    private void IntersectRecursive(AATree<Interval<TLimit, TValue>>.Node? node,
+        in Interval<TLimit, TValue> interval, IntersectionType intersectionType, IList<Interval<TLimit, TValue>> result)
     {
         if (node is null
             || _limitComparer.Compare(interval.Start, node.Value.MaxEnd) > 0)
@@ -264,16 +264,16 @@ public class IntervalSet<TLimit> : ISet<Interval<TLimit>>
     /// <param name="interval">interval</param>
     /// <param name="intersectionType">intersectionType</param>
     /// <returns>interval set with excepted intervals.</returns>
-    public IntervalSet<TLimit> Except(
-        Interval<TLimit> interval, IntersectionType intersectionType = IntersectionType.Any)
+    public IntervalSet<TLimit, TValue> Except(
+        Interval<TLimit, TValue> interval, IntersectionType intersectionType = IntersectionType.Any)
     {
-        var intersectedIntervals = new List<Interval<TLimit>>();
+        var intersectedIntervals = new List<Interval<TLimit, TValue>>();
         ExceptRecursive(_aaTree.Root, interval, intersectionType, intersectedIntervals);
-        return new IntervalSet<TLimit>(intersectedIntervals, areIntervalsSorted: true, areIntervalsUnique: true, _limitComparer);
+        return new IntervalSet<TLimit, TValue>(intersectedIntervals, areIntervalsSorted: true, areIntervalsUnique: true, _limitComparer);
     }
 
-    private void ExceptRecursive(AATree<Interval<TLimit>>.Node? node,
-        in Interval<TLimit> interval, IntersectionType intersectionType, IList<Interval<TLimit>> result)
+    private void ExceptRecursive(AATree<Interval<TLimit, TValue>>.Node? node,
+        in Interval<TLimit, TValue> interval, IntersectionType intersectionType, IList<Interval<TLimit, TValue>> result)
     {
         if (node is null)
         {
@@ -304,7 +304,7 @@ public class IntervalSet<TLimit> : ISet<Interval<TLimit>>
     /// </summary>
     /// <param name="other"></param>
     /// <returns>interval set with united intervals.</returns>
-    public IntervalSet<TLimit> Union(IntervalSet<TLimit> other)
+    public IntervalSet<TLimit, TValue> Union(IntervalSet<TLimit, TValue> other)
     {
         if (_limitComparer.GetType() != other._limitComparer.GetType())
         {
@@ -314,29 +314,29 @@ public class IntervalSet<TLimit> : ISet<Interval<TLimit>>
         var otherCount = other.Count;
         if (otherCount < Count / 2)
         {
-            var result = new IntervalSet<TLimit>(this, areIntervalsSorted: true, areIntervalsUnique: true, _limitComparer);
+            var result = new IntervalSet<TLimit, TValue>(this, areIntervalsSorted: true, areIntervalsUnique: true, _limitComparer);
             result.UnionWith(other);
             return result;
         }
 
         var unionIntervals = UnionSortedIntervals(this, other, _comparer);
-        return new IntervalSet<TLimit>(unionIntervals, areIntervalsSorted: true, areIntervalsUnique: true, _limitComparer);
+        return new IntervalSet<TLimit, TValue>(unionIntervals, areIntervalsSorted: true, areIntervalsUnique: true, _limitComparer);
     }
 
     /// <summary>
     /// Merges intersecting intervals.
     /// </summary>
     /// <returns>interval set with merged intervals.</returns>
-    public IntervalSet<TLimit> Merge()
+    public IntervalSet<TLimit, TValue> Merge()
     {
-        var result = new List<Interval<TLimit>>();
+        var result = new List<Interval<TLimit, TValue>>();
         Merge(_aaTree.Root, result);
 
-        return new IntervalSet<TLimit>(result, areIntervalsSorted: true, areIntervalsUnique: true, _limitComparer);
+        return new IntervalSet<TLimit, TValue>(result, areIntervalsSorted: true, areIntervalsUnique: true, _limitComparer);
     }
 
     private void Merge(
-        AATree<Interval<TLimit>>.Node? node, IList<Interval<TLimit>> intervals)
+        AATree<Interval<TLimit, TValue>>.Node? node, IList<Interval<TLimit, TValue>> intervals)
     {
         if (node is null)
         {
@@ -350,13 +350,13 @@ public class IntervalSet<TLimit> : ISet<Interval<TLimit>>
         Merge(node.Right, intervals);
     }
 
-    private void MergeCurrent(AATree<Interval<TLimit>>.Node? node, IList<Interval<TLimit>> intervals)
+    private void MergeCurrent(AATree<Interval<TLimit, TValue>>.Node? node, IList<Interval<TLimit, TValue>> intervals)
     {
         if (intervals.Count > 0)
         {
             var lastIndex = intervals.Count - 1;
             var precedingInterval = intervals[lastIndex];
-            var isMerged = TryMerge(precedingInterval, node!.Value, out Interval<TLimit> mergedInterval);
+            var isMerged = TryMerge(precedingInterval, node!.Value, out Interval<TLimit, TValue> mergedInterval);
 
             if (isMerged)
             {
@@ -369,7 +369,7 @@ public class IntervalSet<TLimit> : ISet<Interval<TLimit>>
     }
 
     private bool TryMerge(
-        in Interval<TLimit> precedingInterval, in Interval<TLimit> followingInterval, out Interval<TLimit> result)
+        in Interval<TLimit, TValue> precedingInterval, in Interval<TLimit, TValue> followingInterval, out Interval<TLimit, TValue> result)
     {
         if (IntervalTools.HasAnyIntersection(precedingInterval, followingInterval, _limitComparer)
                 || IntervalTools.Touch(precedingInterval, followingInterval, _limitComparer))
@@ -382,13 +382,13 @@ public class IntervalSet<TLimit> : ISet<Interval<TLimit>>
         return false;
     }
 
-    public IEnumerator<Interval<TLimit>> GetEnumerator() => _aaTree.GetEnumerator();
+    public IEnumerator<Interval<TLimit, TValue>> GetEnumerator() => _aaTree.GetEnumerator();
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     public void Clear() => _aaTree.Clear();
 
-    public void CopyTo(Interval<TLimit>[] array, int arrayIndex)
+    public void CopyTo(Interval<TLimit, TValue>[] array, int arrayIndex)
     {
         foreach (var interval in this)
         {
@@ -396,14 +396,14 @@ public class IntervalSet<TLimit> : ISet<Interval<TLimit>>
         }
     }
 
-    public void ExceptWith(IEnumerable<Interval<TLimit>> other) => Remove(other);
+    public void ExceptWith(IEnumerable<Interval<TLimit, TValue>> other) => Remove(other);
 
-    public void IntersectWith(IEnumerable<Interval<TLimit>> other) => _aaTree
+    public void IntersectWith(IEnumerable<Interval<TLimit, TValue>> other) => _aaTree
         .Reset(
             other.Where(interval => Contains(interval))
         );
 
-    public bool IsProperSubsetOf(IEnumerable<Interval<TLimit>> other)
+    public bool IsProperSubsetOf(IEnumerable<Interval<TLimit, TValue>> other)
     {
         if (Count > other.Count())
         {
@@ -422,21 +422,21 @@ public class IntervalSet<TLimit> : ISet<Interval<TLimit>>
         return Count == matchesCount;
     }
 
-    public bool IsProperSupersetOf(IEnumerable<Interval<TLimit>> other) =>
+    public bool IsProperSupersetOf(IEnumerable<Interval<TLimit, TValue>> other) =>
         Count >= other.Count() && !other.Any(interval => !Contains(interval));
 
-    public bool IsSubsetOf(IEnumerable<Interval<TLimit>> other) => IsProperSubsetOf(other);
+    public bool IsSubsetOf(IEnumerable<Interval<TLimit, TValue>> other) => IsProperSubsetOf(other);
 
-    public bool IsSupersetOf(IEnumerable<Interval<TLimit>> other) => IsProperSupersetOf(other);
+    public bool IsSupersetOf(IEnumerable<Interval<TLimit, TValue>> other) => IsProperSupersetOf(other);
 
-    public bool Overlaps(IEnumerable<Interval<TLimit>> other) => other.Any(interval => Contains(interval));
+    public bool Overlaps(IEnumerable<Interval<TLimit, TValue>> other) => other.Any(interval => Contains(interval));
 
-    public bool SetEquals(IEnumerable<Interval<TLimit>> other) =>
+    public bool SetEquals(IEnumerable<Interval<TLimit, TValue>> other) =>
         Count == other.Count() && !other.Any(interval => !Contains(interval));
 
-    public void SymmetricExceptWith(IEnumerable<Interval<TLimit>> other) => ExceptWith(other);
+    public void SymmetricExceptWith(IEnumerable<Interval<TLimit, TValue>> other) => ExceptWith(other);
 
-    public void UnionWith(IEnumerable<Interval<TLimit>> others)
+    public void UnionWith(IEnumerable<Interval<TLimit, TValue>> others)
     {
         var otherCount = others.Count();
         if (otherCount < Count / 2)
@@ -457,12 +457,12 @@ public class IntervalSet<TLimit> : ISet<Interval<TLimit>>
         _aaTree.Reset(unionIntervals, areElementsSorted: true, areElementsUnique: true);
     }
 
-    private static IEnumerable<Interval<TLimit>> UnionSortedIntervals(
-        IEnumerable<Interval<TLimit>> current,
-        IEnumerable<Interval<TLimit>> other,
-        IComparer<Interval<TLimit>> intervalComparer)
+    private static IEnumerable<Interval<TLimit, TValue>> UnionSortedIntervals(
+        IEnumerable<Interval<TLimit, TValue>> current,
+        IEnumerable<Interval<TLimit, TValue>> other,
+        IComparer<Interval<TLimit, TValue>> intervalComparer)
     {
-        Interval<TLimit>? GetNextIntervalOrNull(IEnumerator<Interval<TLimit>> enumerator) =>
+        Interval<TLimit, TValue>? GetNextIntervalOrNull(IEnumerator<Interval<TLimit, TValue>> enumerator) =>
             enumerator.MoveNext()
                 ? enumerator.Current
                 : null;
@@ -475,7 +475,7 @@ public class IntervalSet<TLimit> : ISet<Interval<TLimit>>
         var currentCount = current.Count();
         var otherCount = other.Count();
         var unionIntervalsCount = otherCount + currentCount;
-        var unionIntervals = new List<Interval<TLimit>>(unionIntervalsCount);
+        var unionIntervals = new List<Interval<TLimit, TValue>>(unionIntervalsCount);
         for (int i = 0; i < unionIntervalsCount; i++)
         {
             if (currentInterval is null)

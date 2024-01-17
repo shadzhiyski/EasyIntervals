@@ -8,7 +8,7 @@ public class IntervalTests
         var start = 5;
         var end = 2;
 
-        var act = () => new Interval<int>(start, end);
+        var act = () => new Interval<int, int?>(start, end);
 
         act.Should().Throw<ArgumentException>().WithMessage("Start must not be greater than end.");
     }
@@ -22,7 +22,7 @@ public class IntervalTests
         var start = 5;
         var end = 5;
 
-        var act = () => new Interval<int>(start, end, intervalType);
+        var act = () => new Interval<int, int?>(start, end, intervalType);
 
         act.Should().Throw<ArgumentException>().WithMessage("Equal limits must be combined only with Closed interval type.");
     }
@@ -33,7 +33,7 @@ public class IntervalTests
         var start = 2;
         var end = 5;
 
-        var act = () => new Interval<int>(start, end);
+        var act = () => new Interval<int, int?>(start, end);
 
         act.Should().NotThrow<ArgumentException>();
     }
@@ -41,8 +41,8 @@ public class IntervalTests
     [Fact]
     public void Equals_DifferentIntervals_ShouldBeFalse()
     {
-        var interval1 = new Interval<int>(10, 20, IntervalType.Open);
-        var interval2 = new Interval<int>(1, 2, IntervalType.Open);
+        var interval1 = new Interval<int, int?>(10, 20, IntervalType.Open);
+        var interval2 = new Interval<int, int?>(1, 2, IntervalType.Open);
 
         var result = interval1.Equals(interval2);
 
@@ -52,8 +52,8 @@ public class IntervalTests
     [Fact]
     public void Equals_SameIntervals_ShouldBeTrue()
     {
-        var interval1 = new Interval<int>(1, 2, IntervalType.Open);
-        var interval2 = new Interval<int>(1, 2, IntervalType.Open);
+        var interval1 = new Interval<int, int?>(1, 2, IntervalType.Open);
+        var interval2 = new Interval<int, int?>(1, 2, IntervalType.Open);
 
         var result = interval1.Equals(interval2);
 
@@ -63,8 +63,8 @@ public class IntervalTests
     [Fact]
     public void Equals_SameIntervalsDifferentMaxEnd_ShouldBeTrue()
     {
-        var interval1 = new Interval<int>(1, 2, IntervalType.Open);
-        var interval2 = new Interval<int>(1, 2, IntervalType.Open);
+        var interval1 = new Interval<int, int?>(1, 2, IntervalType.Open);
+        var interval2 = new Interval<int, int?>(1, 2, IntervalType.Open);
         interval2.MaxEnd = 22;
 
         var result = interval1.Equals(interval2);
@@ -79,7 +79,7 @@ public class IntervalTests
     [InlineData(2, 5, IntervalType.StartClosed, "[2, 5)")]
     public void ToString_ShouldPrintCorrect(int start, int end, IntervalType intervalType, string expectedValue)
     {
-        var interval = new Interval<int>(start, end, intervalType);
+        var interval = new Interval<int, int?>(start, end, intervalType);
 
         interval.ToString().Should().BeEquivalentTo(expectedValue);
     }

@@ -16,8 +16,8 @@ public class IntervalCollectionsBenchmarks
 
     private const int MaxIntersectionIntervalLength = 100_000;
 
-    private readonly ISet<Interval<int>> _intervals;
-    private readonly List<Interval<int>> _seededIntersectionIntervals;
+    private readonly ISet<Interval<int, int?>> _intervals;
+    private readonly List<Interval<int, int?>> _seededIntersectionIntervals;
 
     public IntervalCollectionsBenchmarks()
     {
@@ -30,7 +30,7 @@ public class IntervalCollectionsBenchmarks
     [Benchmark]
     public void TestManyConsecutiveIntersections_IntervalSet()
     {
-        var intervalSet = new IntervalSet<int>(_intervals);
+        var intervalSet = new IntervalSet<int, int?>(_intervals);
         foreach (var intersectionInterval in _seededIntersectionIntervals)
         {
             var _ = intervalSet.Intersect(intersectionInterval);
@@ -40,7 +40,7 @@ public class IntervalCollectionsBenchmarks
     [Benchmark]
     public void TestManyConsecutiveIntersections_IntervalSet_AfterIntervalsMerge()
     {
-        var intervalSet = new IntervalSet<int>(_intervals).Merge();
+        var intervalSet = new IntervalSet<int, int?>(_intervals).Merge();
         foreach (var intersectionInterval in _seededIntersectionIntervals)
         {
             var _ = intervalSet.Intersect(intersectionInterval);
@@ -50,10 +50,10 @@ public class IntervalCollectionsBenchmarks
     [Benchmark]
     public void TestManyConsecutiveIntersections_SortedSet()
     {
-        var intervalSet = new SortedSet<Interval<int>>(_intervals, IntervalComparer<int>.Create(Comparer<int>.Default));
+        var intervalSet = new SortedSet<Interval<int, int?>>(_intervals, IntervalComparer<int, int?>.Create(Comparer<int>.Default));
         foreach (var intersectionInterval in _seededIntersectionIntervals)
         {
-            var _ = new SortedSet<Interval<int>>(intervalSet.GetViewBetween(
+            var _ = new SortedSet<Interval<int, int?>>(intervalSet.GetViewBetween(
                     (intersectionInterval.Start, intersectionInterval.Start, IntervalType.Closed),
                     (intersectionInterval.End, intersectionInterval.End, IntervalType.Closed)),
                     intervalSet.Comparer);
@@ -64,7 +64,7 @@ public class IntervalCollectionsBenchmarks
     public void Test100XMoreIntersectionsThanInserts_IntervalSet()
     {
         var seededIntervals = _intervals.Take(1_000);
-        var intervalSet = new IntervalSet<int>();
+        var intervalSet = new IntervalSet<int, int?>();
         foreach (var interval in seededIntervals)
         {
             intervalSet.Add(interval);
@@ -79,7 +79,7 @@ public class IntervalCollectionsBenchmarks
     [Benchmark]
     public void Test100XMoreIntersectionsThanInserts_SortedSet()
     {
-        var intervalSet = new SortedSet<Interval<int>>(IntervalComparer<int>.Create(Comparer<int>.Default));
+        var intervalSet = new SortedSet<Interval<int, int?>>(IntervalComparer<int, int?>.Create(Comparer<int>.Default));
         var seededIntervals = _intervals.Take(1_000);
         foreach (var itv in seededIntervals)
         {
@@ -87,7 +87,7 @@ public class IntervalCollectionsBenchmarks
             var intersectionIntervals = _seededIntersectionIntervals.Take(100);
             foreach (var intersectionInterval in intersectionIntervals)
             {
-                var _ = new SortedSet<Interval<int>>(intervalSet.GetViewBetween(
+                var _ = new SortedSet<Interval<int, int?>>(intervalSet.GetViewBetween(
                         (intersectionInterval.Start, intersectionInterval.Start, IntervalType.Closed),
                         (intersectionInterval.End, intersectionInterval.End, IntervalType.Closed)),
                         intervalSet.Comparer);

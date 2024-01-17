@@ -9,7 +9,7 @@ public class IntervalSetTests
     /// [2]:     (2, 4)           [18, 13]                (56, 65) --> (73, 90)
     ///         /     \          /       \               /            /       \
     /// [1]:  (1, 2) (6, 11)  [13, 18] (24, 56)    (55, 58)        (69, 92) (74, 80)
-    private ISet<Interval<int>> input = new HashSet<Interval<int>> {
+    private ISet<Interval<int, int?>> input = new HashSet<Interval<int, int?>> {
             (18, 34, IntervalType.Closed),
             (13, 18, IntervalType.Closed),
             (1, 2),
@@ -25,9 +25,9 @@ public class IntervalSetTests
             (55, 58)
         };
 
-    private IntervalSet<int> CreateIntervalSet(ISet<Interval<int>> input)
+    private IntervalSet<int, int?> CreateIntervalSet(ISet<Interval<int, int?>> input)
     {
-        var intervalSet = new IntervalSet<int>(input);
+        var intervalSet = new IntervalSet<int, int?>(input);
 
         return intervalSet;
     }
@@ -35,10 +35,10 @@ public class IntervalSetTests
     [Fact]
     public void Initialize_FromAnotherIntervalSetWithDifferentComparer_ShouldThrowArgumentException()
     {
-        var intervals = new IntervalSet<int>(input);
+        var intervals = new IntervalSet<int, int?>(input);
 
         // Act
-        Action act = () => new IntervalSet<int>(intervals, (a, b) => b - a);
+        Action act = () => new IntervalSet<int, int?>(intervals, (a, b) => b - a);
 
         // Assert
         act.Should().Throw<ArgumentException>();
@@ -47,7 +47,7 @@ public class IntervalSetTests
     [Fact]
     public void Add_NonExistingInterval_ShouldIncreaseCount()
     {
-        var intervalSet = new IntervalSet<int>
+        var intervalSet = new IntervalSet<int, int?>
         {
             (5, 10)
         };
@@ -58,7 +58,7 @@ public class IntervalSetTests
     [Fact]
     public void Add_ExistingInterval_ShouldNotIncreaseCount()
     {
-        var intervalSet = new IntervalSet<int>
+        var intervalSet = new IntervalSet<int, int?>
         {
             (5, 10),
             (5, 10)
@@ -92,7 +92,7 @@ public class IntervalSetTests
     {
         // Arrange
         var intervalSet = CreateIntervalSet(input);
-        var expected = new Interval<int>[] {
+        var expected = new Interval<int, int?>[] {
             (1, 2),
             (2, 4),
             (6, 12, IntervalType.EndClosed),
@@ -112,7 +112,7 @@ public class IntervalSetTests
     {
         // Arrange
         var intervalSet = CreateIntervalSet(input);
-        var expected = new Interval<int>[] {
+        var expected = new Interval<int, int?>[] {
             (1, 2),
             (2, 4),
             (6, 12, IntervalType.EndClosed),
@@ -131,7 +131,7 @@ public class IntervalSetTests
     public void Merge_EmptyCollection_ShouldReturnEmptyIntervalSet()
     {
         // Arrange
-        var intervalSet = new IntervalSet<int>();
+        var intervalSet = new IntervalSet<int, int?>();
 
         // Act
         var result = intervalSet.Merge();
@@ -152,12 +152,12 @@ public class IntervalSetTests
     public void Merge_PrecedingClosedFollowingStartClosed_ShouldReturnCorrectStartClosed()
     {
         // Arrange
-        var intervalSet = new IntervalSet<int>
+        var intervalSet = new IntervalSet<int, int?>
         {
             (6, 11, IntervalType.Closed),
             (7, 12, IntervalType.StartClosed)
         };
-        var expected = new Interval<int>(6, 12, IntervalType.StartClosed);
+        var expected = new Interval<int, int?>(6, 12, IntervalType.StartClosed);
 
         // Act
         var result = intervalSet.Merge();
@@ -178,12 +178,12 @@ public class IntervalSetTests
     public void Merge_PrecedingStartClosedFollowingEndClosed_ShouldReturnCorrectClosed()
     {
         // Arrange
-        var intervalSet = new IntervalSet<int>
+        var intervalSet = new IntervalSet<int, int?>
         {
             (6, 11, IntervalType.StartClosed),
             (7, 12, IntervalType.EndClosed)
         };
-        var expected = new Interval<int>(6, 12, IntervalType.Closed);
+        var expected = new Interval<int, int?>(6, 12, IntervalType.Closed);
 
         // Act
         var result = intervalSet.Merge();
@@ -204,12 +204,12 @@ public class IntervalSetTests
     public void Merge_PrecedingOpenFollowingEndClosed_ShouldReturnCorrectEndClosed()
     {
         // Arrange
-        var intervalSet = new IntervalSet<int>
+        var intervalSet = new IntervalSet<int, int?>
         {
             (6, 11, IntervalType.Open),
             (7, 12, IntervalType.EndClosed)
         };
-        var expected = new Interval<int>(6, 12, IntervalType.EndClosed);
+        var expected = new Interval<int, int?>(6, 12, IntervalType.EndClosed);
 
         // Act
         var result = intervalSet.Merge();
@@ -230,12 +230,12 @@ public class IntervalSetTests
     public void Merge_PrecedingOpenFollowingStartClosed_ShouldReturnCorrectOpen()
     {
         // Arrange
-        var intervalSet = new IntervalSet<int>
+        var intervalSet = new IntervalSet<int, int?>
         {
             (6, 11, IntervalType.Open),
             (7, 12, IntervalType.StartClosed)
         };
-        var expected = new Interval<int>(6, 12, IntervalType.Open);
+        var expected = new Interval<int, int?>(6, 12, IntervalType.Open);
 
         // Act
         var result = intervalSet.Merge();
@@ -256,12 +256,12 @@ public class IntervalSetTests
     public void Merge_SameStartPrecedingOpenFollowingEndClosed_ShouldReturnCorrectEndClosed()
     {
         // Arrange
-        var intervalSet = new IntervalSet<int>
+        var intervalSet = new IntervalSet<int, int?>
         {
             (7, 11, IntervalType.Open),
             (7, 12, IntervalType.EndClosed)
         };
-        var expected = new Interval<int>(7, 12, IntervalType.EndClosed);
+        var expected = new Interval<int, int?>(7, 12, IntervalType.EndClosed);
 
         // Act
         var result = intervalSet.Merge();
@@ -282,12 +282,12 @@ public class IntervalSetTests
     public void Merge_SameStartPrecedingStartClosedFollowingEndClosed_ShouldReturnCorrectClosed()
     {
         // Arrange
-        var intervalSet = new IntervalSet<int>
+        var intervalSet = new IntervalSet<int, int?>
         {
             (7, 11, IntervalType.StartClosed),
             (7, 12, IntervalType.EndClosed)
         };
-        var expected = new Interval<int>(7, 12, IntervalType.Closed);
+        var expected = new Interval<int, int?>(7, 12, IntervalType.Closed);
 
         // Act
         var result = intervalSet.Merge();
@@ -308,12 +308,12 @@ public class IntervalSetTests
     public void Merge_SameStartPrecedingStartClosedFollowingClosed_ShouldReturnCorrectClosed()
     {
         // Arrange
-        var intervalSet = new IntervalSet<int>
+        var intervalSet = new IntervalSet<int, int?>
         {
             (7, 11, IntervalType.StartClosed),
             (7, 12, IntervalType.Closed)
         };
-        var expected = new Interval<int>(7, 12, IntervalType.Closed);
+        var expected = new Interval<int, int?>(7, 12, IntervalType.Closed);
 
         // Act
         var result = intervalSet.Merge();
@@ -334,12 +334,12 @@ public class IntervalSetTests
     public void Merge_SameEndPrecedingOpenFollowingEndClosed_ShouldReturnCorrectEndClosed()
     {
         // Arrange
-        var intervalSet = new IntervalSet<int>
+        var intervalSet = new IntervalSet<int, int?>
         {
             (6, 12, IntervalType.Open),
             (7, 12, IntervalType.EndClosed)
         };
-        var expected = new Interval<int>(6, 12, IntervalType.EndClosed);
+        var expected = new Interval<int, int?>(6, 12, IntervalType.EndClosed);
 
         // Act
         var result = intervalSet.Merge();
@@ -360,12 +360,12 @@ public class IntervalSetTests
     public void Merge_SameEndPrecedingStartClosedFollowingEndClosed_ShouldReturnCorrectClosed()
     {
         // Arrange
-        var intervalSet = new IntervalSet<int>
+        var intervalSet = new IntervalSet<int, int?>
         {
             (6, 12, IntervalType.StartClosed),
             (7, 12, IntervalType.EndClosed)
         };
-        var expected = new Interval<int>(6, 12, IntervalType.Closed);
+        var expected = new Interval<int, int?>(6, 12, IntervalType.Closed);
 
         // Act
         var result = intervalSet.Merge();
@@ -386,12 +386,12 @@ public class IntervalSetTests
     public void Merge_SameEndPrecedingStartClosedFollowingOpen_ShouldReturnCorrectStartClosed()
     {
         // Arrange
-        var intervalSet = new IntervalSet<int>
+        var intervalSet = new IntervalSet<int, int?>
         {
             (6, 12, IntervalType.StartClosed),
             (7, 12, IntervalType.Open)
         };
-        var expected = new Interval<int>(6, 12, IntervalType.StartClosed);
+        var expected = new Interval<int, int?>(6, 12, IntervalType.StartClosed);
 
         // Act
         var result = intervalSet.Merge();
@@ -413,9 +413,9 @@ public class IntervalSetTests
     public void Merge_TouchingIntervalsPrecedingOpenFollowingOpen_ShouldNotMergeIntervals()
     {
         // Arrange
-        var intervalSet = new IntervalSet<int>();
-        var precedingInterval = new Interval<int>(6, 8, IntervalType.Open);
-        var followingInterval = new Interval<int>(8, 12, IntervalType.Open);
+        var intervalSet = new IntervalSet<int, int?>();
+        var precedingInterval = new Interval<int, int?>(6, 8, IntervalType.Open);
+        var followingInterval = new Interval<int, int?>(8, 12, IntervalType.Open);
         intervalSet.Add(precedingInterval);
         intervalSet.Add(followingInterval);
 
@@ -438,12 +438,12 @@ public class IntervalSetTests
     public void Merge_TouchingIntervalsPrecedingEndClosedFollowingOpen_ShouldMergeIntervals()
     {
         // Arrange
-        var intervalSet = new IntervalSet<int>();
-        var precedingInterval = new Interval<int>(6, 8, IntervalType.EndClosed);
-        var followingInterval = new Interval<int>(8, 12, IntervalType.Open);
+        var intervalSet = new IntervalSet<int, int?>();
+        var precedingInterval = new Interval<int, int?>(6, 8, IntervalType.EndClosed);
+        var followingInterval = new Interval<int, int?>(8, 12, IntervalType.Open);
         intervalSet.Add(precedingInterval);
         intervalSet.Add(followingInterval);
-        var expected = new Interval<int>(6, 12, IntervalType.Open);
+        var expected = new Interval<int, int?>(6, 12, IntervalType.Open);
 
         // Act
         var result = intervalSet.Merge();
@@ -464,12 +464,12 @@ public class IntervalSetTests
     public void Merge_TouchingIntervalsPrecedingOpenFollowingStartClosed_ShouldMergeIntervals()
     {
         // Arrange
-        var intervalSet = new IntervalSet<int>();
-        var precedingInterval = new Interval<int>(6, 8, IntervalType.Open);
-        var followingInterval = new Interval<int>(8, 12, IntervalType.StartClosed);
+        var intervalSet = new IntervalSet<int, int?>();
+        var precedingInterval = new Interval<int, int?>(6, 8, IntervalType.Open);
+        var followingInterval = new Interval<int, int?>(8, 12, IntervalType.StartClosed);
         intervalSet.Add(precedingInterval);
         intervalSet.Add(followingInterval);
-        var expected = new Interval<int>(6, 12, IntervalType.Open);
+        var expected = new Interval<int, int?>(6, 12, IntervalType.Open);
 
         // Act
         var result = intervalSet.Merge();
@@ -494,13 +494,13 @@ public class IntervalSetTests
     public void Intersect_GivenIntervalHasAnyIntersection_ShouldReturnIntersectedIntervals()
     {
         // Arrange
-        var expected = new Interval<int>[] {
+        var expected = new Interval<int, int?>[] {
             (3, 8, IntervalType.Closed),
             (11, 16, IntervalType.StartClosed),
             (7, 10),
         };
 
-        var intervalSet = new IntervalSet<int>
+        var intervalSet = new IntervalSet<int, int?>
         {
             (2, 5), // (2, 5)
             (7, 10), // (7, 10)
@@ -532,7 +532,7 @@ public class IntervalSetTests
     public void Intersect_GivenIntervalHasNoIntersection_ShouldReturnEmptyCollection()
     {
         // Arrange
-        var intervalSet = new IntervalSet<int>
+        var intervalSet = new IntervalSet<int, int?>
         {
             (2, 5), // (2, 5)
             (3, 8, IntervalType.Open), // (3, 8)
@@ -563,12 +563,12 @@ public class IntervalSetTests
     public void Intersect_GivenIntervalHasCoveringIntersection_ShouldReturnIntersectedIntervals()
     {
         // Arrange
-        var expected = new Interval<int>[] {
+        var expected = new Interval<int, int?>[] {
             (5, 10, IntervalType.StartClosed),
             (11, 14, IntervalType.EndClosed)
         };
 
-        var intervalSet = new IntervalSet<int>
+        var intervalSet = new IntervalSet<int, int?>
         {
             (2, 5),
             (5, 10, IntervalType.StartClosed),
@@ -598,7 +598,7 @@ public class IntervalSetTests
     public void Intersect_GivenIntervalHasNoCoveringIntersection_ShouldReturnEmptyCollection()
     {
         // Arrange
-        var intervalSet = new IntervalSet<int>
+        var intervalSet = new IntervalSet<int, int?>
         {
             (2, 5),
             (5, 10, IntervalType.StartClosed),
@@ -628,11 +628,11 @@ public class IntervalSetTests
     public void Intersect_GivenIntervalHasWithinIntersection_ShouldReturnIntersectedIntervals()
     {
         // Arrange
-        var expected = new Interval<int>[] {
+        var expected = new Interval<int, int?>[] {
             (3, 12, IntervalType.Closed)
         };
 
-        var intervalSet = new IntervalSet<int>
+        var intervalSet = new IntervalSet<int, int?>
         {
             (2, 5),
             (5, 10, IntervalType.StartClosed),
@@ -662,7 +662,7 @@ public class IntervalSetTests
     public void Intersect_GivenIntervalHasNoWithinIntersection_ShouldReturnEmptyCollection()
     {
         // Arrange
-        var intervalSet = new IntervalSet<int>
+        var intervalSet = new IntervalSet<int, int?>
         {
             (2, 5),
             (5, 10, IntervalType.StartClosed),
@@ -681,7 +681,7 @@ public class IntervalSetTests
     public void Intersect_GivenIntervalHasManyIntersectedIntervals_ShouldReturnIntersectedIntervalsSorted()
     {
         // Arrange
-        var expected = new Interval<int>[] {
+        var expected = new Interval<int, int?>[] {
             (3, 8, IntervalType.Closed),
             (11, 16, IntervalType.StartClosed),
             (11, 14, IntervalType.EndClosed),
@@ -690,7 +690,7 @@ public class IntervalSetTests
             (22, 25, IntervalType.Closed)
         };
 
-        var intervalSet = new IntervalSet<int>
+        var intervalSet = new IntervalSet<int, int?>
         {
             (2, 5), // (2, 5)
             (3, 8, IntervalType.Open), // (3, 8)
@@ -726,13 +726,13 @@ public class IntervalSetTests
     public void Except_GivenIntervalHasAnyIntersection_ShouldReturnExceptedIntervals()
     {
         // Arrange
-        var expected = new Interval<int>[] {
+        var expected = new Interval<int, int?>[] {
             (2, 5),
             (3, 8, IntervalType.Open),
             (11, 14, IntervalType.EndClosed)
         };
 
-        var intervalSet = new IntervalSet<int>
+        var intervalSet = new IntervalSet<int, int?>
         {
             (2, 5), // (2, 5)
             (7, 10), // (7, 10)
@@ -764,7 +764,7 @@ public class IntervalSetTests
     public void Except_GivenIntervalHasAllIntersected_ShouldReturnEmptyCollection()
     {
         // Arrange
-        var intervalSet = new IntervalSet<int>
+        var intervalSet = new IntervalSet<int, int?>
         {
             (2, 5), // (2, 5)
             (3, 8, IntervalType.Open), // (3, 8)
@@ -796,12 +796,12 @@ public class IntervalSetTests
     public void Except_GivenIntervalHasCoveringIntersection_ShouldReturnExceptedIntervals()
     {
         // Arrange
-        var expected = new Interval<int>[] {
+        var expected = new Interval<int, int?>[] {
             (2, 5),
             (3, 12, IntervalType.Closed)
         };
 
-        var intervalSet = new IntervalSet<int>
+        var intervalSet = new IntervalSet<int, int?>
         {
             (2, 5),
             (5, 10, IntervalType.StartClosed),
@@ -831,7 +831,7 @@ public class IntervalSetTests
     public void Except_GivenIntervalHasAllCoveringIntersection_ShouldReturnEmptyCollection()
     {
         // Arrange
-        var intervalSet = new IntervalSet<int>
+        var intervalSet = new IntervalSet<int, int?>
         {
             (2, 5),
             (5, 10, IntervalType.StartClosed),
@@ -862,13 +862,13 @@ public class IntervalSetTests
     public void Except_GivenIntervalHasWithinIntersection_ShouldReturnExceptedIntervals()
     {
         // Arrange
-        var expected = new Interval<int>[] {
+        var expected = new Interval<int, int?>[] {
             (2, 5),
             (5, 10, IntervalType.StartClosed),
             (11, 14, IntervalType.StartClosed)
         };
 
-        var intervalSet = new IntervalSet<int>
+        var intervalSet = new IntervalSet<int, int?>
         {
             (2, 5),
             (5, 10, IntervalType.StartClosed),
@@ -898,7 +898,7 @@ public class IntervalSetTests
     public void Except_GivenIntervalHasAllWithinIntersection_ShouldReturnEmptyCollection()
     {
         // Arrange
-        var intervalSet = new IntervalSet<int>
+        var intervalSet = new IntervalSet<int, int?>
         {
             (2, 10),
             (5, 10, IntervalType.StartClosed),
@@ -916,21 +916,21 @@ public class IntervalSetTests
     public void Union_OtherHasMatchingIntervals_ShouldUnionIntervalSetsWithoutRepetition()
     {
         // Arrange
-        var intervalSet = new IntervalSet<int>
+        var intervalSet = new IntervalSet<int, int?>
         {
             (2, 10),
             (5, 10, IntervalType.StartClosed),
             (3, 12, IntervalType.Closed)
         };
 
-        var otherIntervalSet = new IntervalSet<int>
+        var otherIntervalSet = new IntervalSet<int, int?>
         {
             (3, 12, IntervalType.Closed),
             (25, 30),
             (33, 35)
         };
 
-        var expectedIntervals = new Interval<int>[]
+        var expectedIntervals = new Interval<int, int?>[]
         {
             (2, 10),
             (3, 12, IntervalType.Closed),
@@ -950,20 +950,20 @@ public class IntervalSetTests
     public void Union_IntervalSetsHasIntervalsInBetween_ShouldUnionIntervalSets()
     {
         // Arrange
-        var intervalSet = new IntervalSet<int>
+        var intervalSet = new IntervalSet<int, int?>
         {
             (2, 10),
             (3, 12, IntervalType.Closed),
             (25, 30),
         };
 
-        var otherIntervalSet = new IntervalSet<int>
+        var otherIntervalSet = new IntervalSet<int, int?>
         {
             (5, 10, IntervalType.StartClosed),
             (33, 35)
         };
 
-        var expectedIntervals = new Interval<int>[]
+        var expectedIntervals = new Interval<int, int?>[]
         {
             (2, 10),
             (3, 12, IntervalType.Closed),
@@ -983,16 +983,16 @@ public class IntervalSetTests
     public void Union_OtherEmpty_ShouldUnionOnlyIntervalSet()
     {
         // Arrange
-        var intervalSet = new IntervalSet<int>
+        var intervalSet = new IntervalSet<int, int?>
         {
             (2, 10),
             (3, 12, IntervalType.Closed),
             (5, 10, IntervalType.StartClosed)
         };
 
-        var otherIntervalSet = new IntervalSet<int>();
+        var otherIntervalSet = new IntervalSet<int, int?>();
 
-        var expectedIntervals = new Interval<int>[]
+        var expectedIntervals = new Interval<int, int?>[]
         {
             (2, 10),
             (3, 12, IntervalType.Closed),
@@ -1010,16 +1010,16 @@ public class IntervalSetTests
     public void Union_CurrentEmpty_ShouldUnionOnlyOtherIntervalSet()
     {
         // Arrange
-        var intervalSet = new IntervalSet<int>();
+        var intervalSet = new IntervalSet<int, int?>();
 
-        var otherIntervalSet = new IntervalSet<int>
+        var otherIntervalSet = new IntervalSet<int, int?>
         {
             (2, 10),
             (3, 12, IntervalType.Closed),
             (5, 10, IntervalType.StartClosed)
         };
 
-        var expectedIntervals = new Interval<int>[]
+        var expectedIntervals = new Interval<int, int?>[]
         {
             (2, 10),
             (3, 12, IntervalType.Closed),
@@ -1037,9 +1037,9 @@ public class IntervalSetTests
     public void Union_DifferentComparers_ShouldThrowArgumentException()
     {
         // Arrange
-        var intervalSet = new IntervalSet<int>();
+        var intervalSet = new IntervalSet<int, int?>();
 
-        var otherIntervalSet = new IntervalSet<int>((a, b) => b - a);
+        var otherIntervalSet = new IntervalSet<int, int?>((a, b) => b - a);
 
         // Act
         Action act = () => intervalSet.Union(otherIntervalSet);
@@ -1052,21 +1052,21 @@ public class IntervalSetTests
     public void SymmetricExceptWith_HasIntersection_ShouldExceptIntervalSet()
     {
         // Arrange
-        var intervalSet = new IntervalSet<int>
+        var intervalSet = new IntervalSet<int, int?>
         {
             (2, 10),
             (5, 10, IntervalType.StartClosed),
             (3, 12, IntervalType.Closed)
         };
 
-        var exceptIntervalSet = new IntervalSet<int>
+        var exceptIntervalSet = new IntervalSet<int, int?>
         {
             (5, 10, IntervalType.StartClosed),
             (25, 30),
             (33, 35)
         };
 
-        var expectedIntervals = new Interval<int>[]
+        var expectedIntervals = new Interval<int, int?>[]
         {
             (2, 10),
             (3, 12, IntervalType.Closed)
@@ -1083,21 +1083,21 @@ public class IntervalSetTests
     public void IntersectWith_HasIntersection_ShouldIntersectIntervalSet()
     {
         // Arrange
-        var intervalSet = new IntervalSet<int>
+        var intervalSet = new IntervalSet<int, int?>
         {
             (2, 10),
             (5, 10, IntervalType.StartClosed),
             (3, 12, IntervalType.Closed)
         };
 
-        var exceptIntervalSet = new IntervalSet<int>
+        var exceptIntervalSet = new IntervalSet<int, int?>
         {
             (5, 10, IntervalType.StartClosed),
             (25, 30),
             (33, 35)
         };
 
-        var expectedIntervals = new Interval<int>[]
+        var expectedIntervals = new Interval<int, int?>[]
         {
             (5, 10, IntervalType.StartClosed),
         };
@@ -1113,20 +1113,20 @@ public class IntervalSetTests
     public void UnionWith_OtherWithDifferentIntervals_ShouldUnionIntervalSet()
     {
         // Arrange
-        var intervalSet = new IntervalSet<int>
+        var intervalSet = new IntervalSet<int, int?>
         {
             (2, 10),
             (5, 10, IntervalType.StartClosed),
             (3, 12, IntervalType.Closed)
         };
 
-        var otherIntervalSet = new IntervalSet<int>
+        var otherIntervalSet = new IntervalSet<int, int?>
         {
             (25, 30),
             (33, 35)
         };
 
-        var expectedIntervals = new Interval<int>[]
+        var expectedIntervals = new Interval<int, int?>[]
         {
             (2, 10),
             (3, 12, IntervalType.Closed),
@@ -1146,21 +1146,21 @@ public class IntervalSetTests
     public void UnionWith_OtherWithRepeatingIntervals_ShouldUnionIntervalSetWithoutRepetition()
     {
         // Arrange
-        var intervalSet = new IntervalSet<int>
+        var intervalSet = new IntervalSet<int, int?>
         {
             (2, 10),
             (5, 10, IntervalType.StartClosed),
             (3, 12, IntervalType.Closed)
         };
 
-        var otherIntervalSet = new IntervalSet<int>
+        var otherIntervalSet = new IntervalSet<int, int?>
         {
             (25, 30),
             (25, 30),
             (33, 35)
         };
 
-        var expectedIntervals = new Interval<int>[]
+        var expectedIntervals = new Interval<int, int?>[]
         {
             (2, 10),
             (3, 12, IntervalType.Closed),
@@ -1180,14 +1180,14 @@ public class IntervalSetTests
     public void IsSubsetOf_AllElementsAreInOtherIntervalSet_ShouldReturnTrue()
     {
         // Arrange
-        var intervalSet = new IntervalSet<int>
+        var intervalSet = new IntervalSet<int, int?>
         {
             (2, 10),
             (5, 10, IntervalType.StartClosed),
             (3, 12, IntervalType.Closed)
         };
 
-        var otherIntervalSet = new IntervalSet<int>
+        var otherIntervalSet = new IntervalSet<int, int?>
         {
             (2, 10),
             (5, 10, IntervalType.StartClosed),
@@ -1207,14 +1207,14 @@ public class IntervalSetTests
     public void IsSubsetOf_NotAllElementsAreInOtherIntervalSet_ShouldReturnFalse()
     {
         // Arrange
-        var intervalSet = new IntervalSet<int>
+        var intervalSet = new IntervalSet<int, int?>
         {
             (2, 10),
             (5, 10, IntervalType.StartClosed),
             (3, 12, IntervalType.Closed)
         };
 
-        var otherIntervalSet = new IntervalSet<int>
+        var otherIntervalSet = new IntervalSet<int, int?>
         {
             (2, 10),
             (5, 10, IntervalType.StartClosed),
@@ -1233,7 +1233,7 @@ public class IntervalSetTests
     public void IsSupersetOf_AllOtherElementsAreInIntervalSet_ShouldReturnTrue()
     {
         // Arrange
-        var intervalSet = new IntervalSet<int>
+        var intervalSet = new IntervalSet<int, int?>
         {
             (2, 10),
             (5, 10, IntervalType.StartClosed),
@@ -1242,7 +1242,7 @@ public class IntervalSetTests
             (33, 35)
         };
 
-        var otherIntervalSet = new IntervalSet<int>
+        var otherIntervalSet = new IntervalSet<int, int?>
         {
             (2, 10),
             (5, 10, IntervalType.StartClosed),
@@ -1260,7 +1260,7 @@ public class IntervalSetTests
     public void IsSupersetOf_NotAllOtherElementsAreInIntervalSet_ShouldReturnFalse()
     {
         // Arrange
-        var intervalSet = new IntervalSet<int>
+        var intervalSet = new IntervalSet<int, int?>
         {
             (2, 10),
             (5, 10, IntervalType.StartClosed),
@@ -1268,7 +1268,7 @@ public class IntervalSetTests
             (33, 35)
         };
 
-        var otherIntervalSet = new IntervalSet<int>
+        var otherIntervalSet = new IntervalSet<int, int?>
         {
             (2, 10),
             (5, 10, IntervalType.StartClosed),
@@ -1286,7 +1286,7 @@ public class IntervalSetTests
     public void Overlaps_HasMatchingIntervals_ShouldReturnTrue()
     {
         // Arrange
-        var intervalSet = new IntervalSet<int>
+        var intervalSet = new IntervalSet<int, int?>
         {
             (2, 10),
             (5, 10, IntervalType.StartClosed),
@@ -1295,7 +1295,7 @@ public class IntervalSetTests
             (33, 35)
         };
 
-        var otherIntervalSet = new IntervalSet<int>
+        var otherIntervalSet = new IntervalSet<int, int?>
         {
             (2, 10),
             (5, 10, IntervalType.StartClosed),
@@ -1313,7 +1313,7 @@ public class IntervalSetTests
     public void Overlaps_HasNoMatchingIntervals_ShouldReturnFalse()
     {
         // Arrange
-        var intervalSet = new IntervalSet<int>
+        var intervalSet = new IntervalSet<int, int?>
         {
             (2, 10),
             (5, 10, IntervalType.StartClosed),
@@ -1322,7 +1322,7 @@ public class IntervalSetTests
             (33, 35)
         };
 
-        var otherIntervalSet = new IntervalSet<int>
+        var otherIntervalSet = new IntervalSet<int, int?>
         {
             (5, 10),
             (5, 10, IntervalType.EndClosed),
@@ -1340,7 +1340,7 @@ public class IntervalSetTests
     public void SetEquals_HasSameIntervals_ShouldReturnTrue()
     {
         // Arrange
-        var intervalSet = new IntervalSet<int>
+        var intervalSet = new IntervalSet<int, int?>
         {
             (2, 10),
             (5, 10, IntervalType.StartClosed),
@@ -1349,7 +1349,7 @@ public class IntervalSetTests
             (33, 35)
         };
 
-        var otherIntervalSet = new IntervalSet<int>
+        var otherIntervalSet = new IntervalSet<int, int?>
         {
             (2, 10),
             (5, 10, IntervalType.StartClosed),
@@ -1369,7 +1369,7 @@ public class IntervalSetTests
     public void SetEquals_HasNotSameIntervals_ShouldReturnFalse()
     {
         // Arrange
-        var intervalSet = new IntervalSet<int>
+        var intervalSet = new IntervalSet<int, int?>
         {
             (2, 10),
             (5, 10, IntervalType.StartClosed),
@@ -1378,7 +1378,7 @@ public class IntervalSetTests
             (33, 35)
         };
 
-        var otherIntervalSet = new IntervalSet<int>
+        var otherIntervalSet = new IntervalSet<int, int?>
         {
             (2, 10),
             (5, 10),
