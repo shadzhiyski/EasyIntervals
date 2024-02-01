@@ -408,30 +408,143 @@ public class AATreeTests
     }
 
     [Fact]
-    public void Initialize_EvenCountElements_ShouldCreateValidAATree()
+    public void Initialize_RepeatingElements_ShouldHaveCountOfUniqueElements()
     {
-        var evenCountElements = new List<int>(input);
-        evenCountElements.Add(60);
+        var evenCountElements = new [] { 18, 13, 1, 7, 42, 7 };
 
         var aaTree = new AATree<int>(evenCountElements);
 
-        VerifyAATree(aaTree);
+        aaTree.Count.Should().Be(5);
     }
 
+    /// <summary>
+    ///
+    /// Full Tree Structure:
+    /// [3]:                20
+    ///                 /        \
+    /// [2]:        10              30
+    ///           /    \          /    \
+    /// [1]:    5       15     25        45
+    ///
+    /// </summary>
     [Fact]
-    public void Initialize_PowerOfTwoCountElements_ShouldCreateValidAATree()
+    public void Initialize_CountOfElementsForBalancedTree_ShouldCreateValidAATree()
     {
-        var elements = input.Union(new int[] { 60, 45, 12 }).ToList();
+        var elements = new int[] { 5, 10, 15, 20, 25, 30, 35 };
 
         var aaTree = new AATree<int>(elements);
 
         VerifyAATree(aaTree);
     }
 
+    /// <summary>
+    ///
+    /// Subtree:
+    ///    use case      =>  updated child
+    /// +----------------+------------------+
+    ///      .. 30       | .. 30            |
+    ///            \     |       \          |
+    /// [1]:    *35  40  |         35 -> 40 |
+    /// +----------------+------------------+
+    ///
+    /// Full Tree Structure:
+    /// [2]:       30
+    ///          /    \ ---------+
+    /// [1]:  25      | 35 -> 40 |
+    ///               +----------+
+    /// </summary>
     [Fact]
-    public void Initialize_OneBelowPowerOfTwoCountElements_ShouldCreateValidAATree()
+    public void Initialize_HaveLeftmostNextToLeafChild_ShouldUpdateLeafChild()
     {
-        var elements = input.Union(new int[] { 60, 45 }).ToList();
+        var elements = new int[] { 25, 30, 35, 40 };
+
+        var aaTree = new AATree<int>(elements);
+
+        aaTree.Root!.Right!.Value.Should().Be(35);
+    }
+
+    [Fact]
+    public void Initialize_HaveLeftmostNextToLeafChild_ShouldCreateValidAATree()
+    {
+        var elements = new int[] { 25, 30, 35, 40 };
+
+        var aaTree = new AATree<int>(elements);
+
+        VerifyAATree(aaTree);
+    }
+
+    /// <summary>
+    ///
+    /// Subtree:
+    ///          use case       => updated child
+    /// +-----------------------+-----------------+
+    /// [2]:            35      |        35       |
+    ///               /    \    |     /      \    |
+    /// [1]:  *25   30      40  |  25 -> 30    40 |
+    /// +-----------------------+-----------------+
+    ///
+    /// Full Tree Structure:
+    /// [3]:               20
+    ///                 /       \
+    /// [2]:        10      +------ 35 ------+
+    ///           /    \    |    /      \    |
+    /// [1]:    5       15  | 25 -> 30    40 |
+    ///                     +----------------+
+    /// </summary>
+    [Fact]
+    public void Initialize_HaveLeftmostChildOnSubtreeWithThreeNodes_ShouldUpdateLeftChild()
+    {
+        var elements = new int[] { 5, 10, 15, 20, 25, 30, 35, 40 };
+
+        var aaTree = new AATree<int>(elements);
+
+        var subtree = aaTree.Root!.Right;
+        subtree!.Left!.Value.Should().Be(25);
+    }
+
+    [Fact]
+    public void Initialize_HaveLeftmostChildOnThreeNodeTree_ShouldCreateValidAATree()
+    {
+        var elements = new int[] { 5, 10, 15, 20, 25, 30, 35, 40 };
+
+        var aaTree = new AATree<int>(elements);
+
+        VerifyAATree(aaTree);
+    }
+
+    /// <summary>
+    ///
+    /// Subtree:
+    ///            use case            =>         skewed
+    /// +------------------------------+---------------------------+
+    /// [2]:      40  <-  50           |     40  ->  50            |
+    ///         /    \      \          |    /      /    \          |
+    /// [1]:  35     45      55 -> 50  |  35    45        55 -> 60 |
+    /// +------------------------------+---------------------------+
+    ///
+    /// Full Tree Structure:
+    /// [3]:                 30
+    ///                 /          \ -------------------------+
+    /// [2]:        15             |    40  ->  50            |
+    ///         /       \          |   /      /    \          |
+    /// [1]:  5 -> 10    20 -> 25  | 35    45        55 -> 60 |
+    ///                            +--------------------------+
+    /// </summary>
+    [Fact]
+    public void Initialize_LeftChildHaveHigherLevelThanRightChild_ShouldUpdateParent()
+    {
+        var elements = new int[] { 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60 };
+
+        var aaTree = new AATree<int>(elements);
+
+        var subtree = aaTree.Root!.Right;
+        subtree!.Value.Should().Be(40);
+    }
+
+    [Fact]
+    public void Initialize_LeftChildHaveHigherLevelThanRightChild_ShouldCreateValidAATree()
+    {
+        var elements = new int[] { 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60 };
 
         var aaTree = new AATree<int>(elements);
 

@@ -108,8 +108,7 @@ internal class AATree<T> : IEnumerable<T>
 
     public void Reset(IEnumerable<T> elements, bool areElementsSorted = false, bool areElementsUnique = false)
     {
-        _root = AATreeTools.InitializeTree(elements, areElementsSorted, areElementsUnique, _comparer, _onChildChanged);
-        Count = elements.Count();
+        (_root, Count) = AATreeTools.InitializeTree(elements, areElementsSorted, areElementsUnique, _comparer, _onChildChanged);
     }
 
     public bool Add(T element)
