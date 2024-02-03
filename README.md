@@ -19,17 +19,20 @@ dotnet add package EasyIntervals
 An Interval can be created with start and end input parameters. By default type of interval is **Open**. Interval type can be **Closed**, **StartClosed**, **EndClosed** and **Open**.
 
 ```CSharp
-var interval1 = new Interval<int>(10, 50); // open (10, 50)
-var interval2 = new Interval<int>(10, 50, IntervalType.Closed); // closed [10, 50]
-var interval3 = new Interval<int>(10, 50, IntervalType.StartClosed); // end closed [10, 50)
-var interval4 = new Interval<int>(10, 50, IntervalType.EndClosed); // end closed (10, 50]
+var interval1 = new Interval<int, decimal?>(10, 50); // open (10, 50)
+var interval2 = new Interval<int, decimal?>(10, 50, IntervalType.Closed); // closed [10, 50]
+var interval3 = new Interval<int, decimal?>(10, 50, IntervalType.StartClosed); // end closed [10, 50)
+var interval4 = new Interval<int, decimal?>(10, 50, IntervalType.EndClosed); // end closed (10, 50]
+
+var interval5 = new Interval<int, decimal?>(10, 50, 2.5m, IntervalType.Closed); // closed (10, 50], value: 2.5
 ```
 
 Interval can also be created from value tuple:
 
 ```CSharp
-Interval<double> interval1 = (0.1d, 0.5d); // open (0.1, 0.5)
-Interval<double> interval2 = (0.1d, 0.5d, IntervalType.Closed); // closed [0.1, 0.5]
+Interval<double, decimal?> interval1 = (0.1d, 0.5d); // open (0.1, 0.5)
+Interval<double, decimal?> interval2 = (0.1d, 0.5d, IntervalType.Closed); // closed [0.1, 0.5]
+Interval<double, decimal?> interval3 = (0.1d, 0.5d, 2.5m, IntervalType.Closed); // closed [0.1, 0.5], value: 2.5
 ```
 
 Operations over specific intervals is done through the functions of **IntervalTools** class.
@@ -53,7 +56,7 @@ var result1 = IntervalTools.Covers(interval: (10, 20), other: (12, 18));
 Console.WriteLine(result1);
 // True
 
-var result2 = IntervalTools.HasAnyIntersection(interval: (10, 20), other: (10, 30));
+var result2 = IntervalTools.Covers(interval: (10, 20), other: (10, 30));
 Console.WriteLine(result2);
 // False
 ```
@@ -65,14 +68,14 @@ Manipulation on sets of intervals is done with **IntervalSet** collection. You c
 Unions all unique intervals from the current and input interval set:
 
 ```CSharp
-var intervalSet1 = new IntervalSet<int>
+var intervalSet1 = new IntervalSet<int, decimal?>
 {
     (2, 5), // (2, 5)
     (3, 8, IntervalType.Open), // (3, 8)
     (7, 10), // (7, 10)
 };
 
-var intervalSet2 = new IntervalSet<int>
+var intervalSet2 = new IntervalSet<int, decimal?>
 {
     (3, 8, IntervalType.Closed), // [3, 8]
     (7, 10), // (7, 10)
@@ -87,27 +90,27 @@ Console.WriteLine($"[{string.Join(", ", unionIntervalSet)}]");
 
 ### UnionWith
 
-Adds all unique intervals from given input enumeration of intervals:
+Adds all unique intervals from given input enumeration of intervals. If there are intervals with same span but different values, only the last one will be added.
 
 ```CSharp
-var intervalSet = new IntervalSet<int>
+var intervalSet = new IntervalSet<int, decimal?>
 {
     (2, 5), // (2, 5)
     (3, 8, IntervalType.Open), // (3, 8)
-    (7, 10), // (7, 10)
+    (7, 10, 2.5m), // (7, 10): 2.5
 };
 
-var inputIntervals = new List<Interval<int>>
+var inputIntervals = new List<Interval<int, decimal?>>
 {
     (3, 8, IntervalType.Closed), // [3, 8]
-    (7, 10), // (7, 10)
+    (7, 10, 3m), // (7, 10): 3
     (11, 16, IntervalType.StartClosed), // [11, 16)
     (11, 14, IntervalType.EndClosed), // (11, 14]
 };
 
 intervalSet.UnionWith(inputIntervals);
 Console.WriteLine($"[{string.Join(", ", intervalSet)}]");
-// [(2, 5), [3, 8], (3, 8), (7, 10), [11, 16), (11, 14]]
+// [(2, 5), [3, 8], (3, 8), (7, 10): 3, [11, 16), (11, 14]]
 ```
 
 ### Intersection
@@ -133,7 +136,7 @@ gantt
 Code:
 
 ```CSharp
-var intervalSet = new IntervalSet<int>
+var intervalSet = new IntervalSet<int, decimal?>
 {
     (2, 5), // (2, 5)
     (3, 8, IntervalType.Open), // (3, 8)
@@ -143,7 +146,7 @@ var intervalSet = new IntervalSet<int>
     (11, 14, IntervalType.EndClosed), // (11, 14]
 };
 
-var intersectionInterval = new Interval<int>(8, 11, IntervalType.Closed);
+var intersectionInterval = new Interval<int, decimal?>(8, 11, IntervalType.Closed);
 var intersectedIntervals = intervalSet
     .Intersect(intersectionInterval); // [8, 11]
 Console.WriteLine($"[{string.Join(", ", intersectedIntervals)}]");
