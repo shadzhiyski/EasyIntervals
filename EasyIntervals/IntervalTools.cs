@@ -112,4 +112,39 @@ public static class IntervalTools
             startIntervalType | endIntervalType
         );
     }
+
+    /// <summary>
+    /// Merges 2 intervals.
+    /// <para>
+    /// !IMPORTANT!: This method assumes that <c>precedingInterval</c> is lower than <c>followingInterval</c> and they both have intersection.
+    /// </para>
+    /// </summary>
+    /// <typeparam name="TLimit"></typeparam>
+    /// <param name="precedingInterval"></param>
+    /// <param name="followingInterval"></param>
+    /// <param name="comparer"></param>
+    /// <returns></returns>
+    internal static Interval<TLimit, TValue> Merge<TLimit, TValue>(
+        in Interval<TLimit, TValue> precedingInterval,
+        in Interval<TLimit, TValue> followingInterval,
+        Func<Interval<TLimit, TValue>, Interval<TLimit, TValue>, TValue> mergeFunction,
+        IComparer<TLimit> comparer)
+    {
+        var startComparison = comparer.Compare(followingInterval.Start, precedingInterval.Start);
+        var startIntervalType = startComparison == 0
+            ? (followingInterval.Type | precedingInterval.Type) & IntervalType.StartClosed
+            : precedingInterval.Type & IntervalType.StartClosed;
+        var endComparison = comparer.Compare(followingInterval.End, precedingInterval.End);
+        var endIntervalType = endComparison > 0
+            ? followingInterval.Type & IntervalType.EndClosed
+            : endComparison < 0
+                ? precedingInterval.Type & IntervalType.EndClosed
+                : (followingInterval.Type | precedingInterval.Type) & IntervalType.EndClosed;
+        return (
+            precedingInterval.Start,
+            endComparison > 0 ? followingInterval.End : precedingInterval.End,
+            mergeFunction(precedingInterval, followingInterval),
+            startIntervalType | endIntervalType
+        );
+    }
 }

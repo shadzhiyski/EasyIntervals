@@ -128,6 +128,24 @@ public class IntervalSetTests
     }
 
     [Fact]
+    public void Merge_NonEmptyCollection_ShouldReturnMergedIntervalsByMergeFunction()
+    {
+        // Arrange
+        var intervalSet = new IntervalSet<int, decimal?>
+        {
+            (6, 11, 20m, IntervalType.Closed),
+            (7, 12, 10m, IntervalType.StartClosed)
+        };
+        var expected = new Interval<int, decimal?>(6, 12, 30m, IntervalType.StartClosed);
+
+        // Act
+        var result = intervalSet.Merge((itv1, itv2) => itv1.Value + itv2.Value);
+
+        // Assert
+        result.Should().ContainEquivalentOf(expected);
+    }
+
+    [Fact]
     public void Merge_EmptyCollection_ShouldReturnEmptyIntervalSet()
     {
         // Arrange

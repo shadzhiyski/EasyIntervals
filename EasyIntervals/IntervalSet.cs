@@ -327,36 +327,41 @@ public class IntervalSet<TLimit, TValue> : ISet<Interval<TLimit, TValue>>
     /// Merges intersecting intervals.
     /// </summary>
     /// <returns>interval set with merged intervals.</returns>
-    public IntervalSet<TLimit, TValue> Merge()
+    public IntervalSet<TLimit, TValue> Merge(Func<Interval<TLimit, TValue>, Interval<TLimit, TValue>, TValue>? mergeFunction = null)
     {
         var result = new List<Interval<TLimit, TValue>>();
-        Merge(_aaTree.Root, result);
+        Merge(_aaTree.Root, mergeFunction, result);
 
         return new IntervalSet<TLimit, TValue>(result, areIntervalsSorted: true, areIntervalsUnique: true, _limitComparer);
     }
 
     private void Merge(
-        AATree<Interval<TLimit, TValue>>.Node? node, IList<Interval<TLimit, TValue>> intervals)
+        AATree<Interval<TLimit, TValue>>.Node? node,
+        Func<Interval<TLimit, TValue>, Interval<TLimit, TValue>, TValue>? mergeFunction,
+        IList<Interval<TLimit, TValue>> intervals)
     {
         if (node is null)
         {
             return;
         }
 
-        Merge(node.Left, intervals);
+        Merge(node.Left, mergeFunction, intervals);
 
-        MergeCurrent(node, intervals);
+        MergeCurrent(node, mergeFunction, intervals);
 
-        Merge(node.Right, intervals);
+        Merge(node.Right, mergeFunction, intervals);
     }
 
-    private void MergeCurrent(AATree<Interval<TLimit, TValue>>.Node? node, IList<Interval<TLimit, TValue>> intervals)
+    private void MergeCurrent(
+        AATree<Interval<TLimit, TValue>>.Node? node,
+        Func<Interval<TLimit, TValue>, Interval<TLimit, TValue>, TValue>? mergeFunction,
+        IList<Interval<TLimit, TValue>> intervals)
     {
         if (intervals.Count > 0)
         {
             var lastIndex = intervals.Count - 1;
             var precedingInterval = intervals[lastIndex];
-            var isMerged = TryMerge(precedingInterval, node!.Value, out Interval<TLimit, TValue> mergedInterval);
+            var isMerged = TryMerge(precedingInterval, node!.Value, mergeFunction, out Interval<TLimit, TValue> mergedInterval);
 
             if (isMerged)
             {
@@ -369,12 +374,23 @@ public class IntervalSet<TLimit, TValue> : ISet<Interval<TLimit, TValue>>
     }
 
     private bool TryMerge(
-        in Interval<TLimit, TValue> precedingInterval, in Interval<TLimit, TValue> followingInterval, out Interval<TLimit, TValue> result)
+        in Interval<TLimit, TValue> precedingInterval,
+        in Interval<TLimit, TValue> followingInterval,
+        Func<Interval<TLimit, TValue>, Interval<TLimit, TValue>, TValue>? mergeFunction,
+        out Interval<TLimit, TValue> result)
     {
         if (IntervalTools.HasAnyIntersection(precedingInterval, followingInterval, _limitComparer)
                 || IntervalTools.Touch(precedingInterval, followingInterval, _limitComparer))
         {
-            result = IntervalTools.Merge(precedingInterval, followingInterval, _limitComparer);
+            if (mergeFunction is not null)
+            {
+                result = IntervalTools.Merge(precedingInterval, followingInterval, mergeFunction, _limitComparer);
+            }
+            else
+            {
+                result = IntervalTools.Merge(precedingInterval, followingInterval, _limitComparer);
+            }
+
             return true;
         }
 
