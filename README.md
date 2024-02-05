@@ -77,7 +77,7 @@ Manipulation over sets of intervals is done with **IntervalSet** collection. It'
 
 You can do all basic operations - **Add**, **Remove**, **Union**, **UnionWith**, **Intersect**, **Except**, **Merge**.
 
-## Add/Remove
+### Add/Remove
 
 Adding an interval. It returns `true` if it's added. When interval with same limts and type exists, it's not added.
 
