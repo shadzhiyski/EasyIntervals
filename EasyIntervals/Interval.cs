@@ -54,7 +54,7 @@ public struct Interval<TLimit, TValue> : IEquatable<Interval<TLimit, TValue>>
 
     public override int GetHashCode()
     {
-        return HashCode.Combine(Start, End, Type);
+        return HashCode.Combine(Start, End, Type, Value);
     }
 
     public override bool Equals(object? obj)
@@ -85,7 +85,12 @@ public struct Interval<TLimit, TValue> : IEquatable<Interval<TLimit, TValue>>
     {
         var startBracket = (Type & IntervalType.StartClosed) == IntervalType.StartClosed ? '[' : '(';
         var endBracket = (Type & IntervalType.EndClosed) == IntervalType.EndClosed ? ']' : ')';
-        return $"{startBracket}{Start}, {End}{endBracket}";
+        if (Value is null)
+        {
+            return $"{startBracket}{Start}, {End}{endBracket}";
+        }
+
+        return $"{startBracket}{Start}, {End}{endBracket}: {Value}";
     }
 
     public static implicit operator Interval<TLimit, TValue>((TLimit Start, TLimit End) interval) =>

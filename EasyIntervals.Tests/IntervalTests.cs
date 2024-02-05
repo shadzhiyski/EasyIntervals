@@ -52,8 +52,8 @@ public class IntervalTests
     [Fact]
     public void Equals_SameIntervals_ShouldBeTrue()
     {
-        var interval1 = new Interval<int, int?>(1, 2, IntervalType.Open);
-        var interval2 = new Interval<int, int?>(1, 2, IntervalType.Open);
+        var interval1 = new Interval<int, int?>(1, 2, 5, IntervalType.Open);
+        var interval2 = new Interval<int, int?>(1, 2, 5, IntervalType.Open);
 
         var result = interval1.Equals(interval2);
 
@@ -73,13 +73,15 @@ public class IntervalTests
     }
 
     [Theory]
-    [InlineData(2, 5, IntervalType.Open, "(2, 5)")]
-    [InlineData(2, 5, IntervalType.Closed, "[2, 5]")]
-    [InlineData(2, 5, IntervalType.EndClosed, "(2, 5]")]
-    [InlineData(2, 5, IntervalType.StartClosed, "[2, 5)")]
-    public void ToString_ShouldPrintCorrect(int start, int end, IntervalType intervalType, string expectedValue)
+    [InlineData(2, 5, null, IntervalType.Open, "(2, 5)")]
+    [InlineData(2, 5, null, IntervalType.Closed, "[2, 5]")]
+    [InlineData(2, 5, null, IntervalType.EndClosed, "(2, 5]")]
+    [InlineData(2, 5, null, IntervalType.StartClosed, "[2, 5)")]
+    [InlineData(2, 5, 10, IntervalType.Open, "(2, 5): 10")]
+    [InlineData(2, 5, 10, IntervalType.Closed, "[2, 5]: 10")]
+    public void ToString_ShouldPrintCorrect(int start, int end, int? value, IntervalType intervalType, string expectedValue)
     {
-        var interval = new Interval<int, int?>(start, end, intervalType);
+        var interval = new Interval<int, int?>(start, end, value, intervalType);
 
         interval.ToString().Should().BeEquivalentTo(expectedValue);
     }
