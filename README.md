@@ -45,19 +45,6 @@ Interval<double, decimal?> interval2 = (0.1d, 0.5d); // open (0.1, 0.5), value: 
 Interval<double, decimal> interval3 = (0.1d, 0.5d); // open (0.1, 0.5), value: 0.0
 ```
 
-The value is not taken into account when comparing intervals. Only their limits and types are used for comparison. However, the value is taken into account when checking if intervals are equal:
-
-```CSharp
-IComparer<Interval<double, decimal?>> comparer = IntervalComparer<double, decimal?>.Create(Comparer<double>.Default);
-
-// not passing value
-Interval<double, decimal?> interval1 = (0.1d, 0.5d, 3m); // open (0.1, 0.5), value: 3.0
-Interval<double, decimal?> interval2 = (0.1d, 0.5d, 2.5m); // open (0.1, 0.5), value: 2.5
-
-Console.WriteLine(comparer.Compare(interval1, interval2)); // 0
-Console.WriteLine(interval1.Equals(interval2)); // False
-```
-
 Operations over specific intervals is done through the functions of **IntervalTools** class.
 
 Here is an example how to check if 2 intervals intersect:
