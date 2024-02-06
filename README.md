@@ -408,7 +408,7 @@ Console.WriteLine(
 
 ### Merge
 
-You can also merge intervals. Calling **Merge** returns IntervalSet with the merged intervals.
+You can also merge intervals. Calling **Merge** returns IntervalSet with the merged intervals. If no merge function given, default value is assigned to the new merged intervals:
 
 ```mermaid
 ---
@@ -433,7 +433,10 @@ gantt
 Code:
 
 ```CSharp
-var intervalSet = new IntervalSet<DateOnly>
+---
+displayMode: compact
+---
+var intervalSet = new IntervalSet<DateOnly, decimal?>
 {
     (new DateOnly(2023, 09, 2), new DateOnly(2023, 09, 5)), // (2 - 5)
     (new DateOnly(2023, 09, 5), new DateOnly(2023, 09, 10), IntervalType.StartClosed), // [5 - 10)
@@ -444,4 +447,39 @@ var intervalSet = new IntervalSet<DateOnly>
 var mergedIntervalSet = intervalSet.Merge();
 Console.WriteLine($"[{string.Join(", ", mergedIntervalSet)}]");
 // [(9/2/2023, 9/10/2023), [9/12/2023, 9/26/2023)]
+```
+
+Here is an example passing a merge function:
+
+```mermaid
+gantt
+    title Example Intervals
+    dateFormat  YYYY-MM-DD
+    axisFormat %Y-%m-%d
+
+    section Intervals
+    (2.9.2023 - 5.9.2023) value#58; 2.5    : 2023-09-02, 2023-09-05
+    [5.9.2023 - 10.9.2023) value#58; 2.5   : 2023-09-05, 2023-09-10
+    [12.9.2023 - 16.9.2023] value#58; 3.0  : 2023-09-12, 2023-09-16
+    [14.9.2023 - 26.9.2023) value#58; 5.0  : 2023-09-14, 2023-09-26
+
+    section Merged Intervals
+    (2.9.2023 - 10.9.2023) value#58; 5.0    : 2023-09-02, 2023-09-10
+    [12.9.2023 - 26.9.2023) value#58; 8.0   : 2023-09-12, 2023-09-26
+```
+
+Code:
+
+```CSharp
+var intervalSet = new IntervalSet<DateOnly, decimal?>
+{
+    (new DateOnly(2023, 09, 2), new DateOnly(2023, 09, 5), 2.5m), // (2 - 5)
+    (new DateOnly(2023, 09, 5), new DateOnly(2023, 09, 10), 2.5m, IntervalType.StartClosed), // [5 - 10)
+    (new DateOnly(2023, 09, 12), new DateOnly(2023, 09, 16), 3.0m, IntervalType.Closed), // [12 - 16]
+    (new DateOnly(2023, 09, 14), new DateOnly(2023, 09, 26), 5.0m, IntervalType.StartClosed) // [14 - 26)
+};
+
+var mergedIntervalSet = intervalSet.Merge((itv1, itv2) => itv1.Value + itv2.Value);
+Console.WriteLine($"[{string.Join(", ", mergedIntervalSet)}]");
+// [(9/2/2023, 9/10/2023): 5.0, [9/12/2023, 9/26/2023): 8.0]
 ```
