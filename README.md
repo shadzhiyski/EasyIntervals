@@ -73,7 +73,7 @@ Console.WriteLine(result2);
 
 ### IntervalSet
 
-Manipulation over sets of intervals is done with **IntervalSet** collection. It's an implementation of [Augmented Interval Tree](https://en.wikipedia.org/wiki/Interval_tree#Augmented_tree) abstract data structure, using self-balancing Binary Search Tree (BST) - [AA Tree](https://en.wikipedia.org/wiki/AA_tree). Part of **IntervalSet**'s implementation is influenced by [SortedSet's implementation](https://github.com/dotnet/runtime/blob/main/src/libraries/System.Collections/src/System/Collections/Generic/SortedSet.cs) from [System.Collections.Generic](https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.sortedset-1).
+Manipulation over sets of intervals is done with **IntervalSet** collection. It's an implementation of [Augmented Interval Tree](https://en.wikipedia.org/wiki/Interval_tree#Augmented_tree) abstract data structure, using self-balancing Binary Search Tree (BST) - [AA Tree](https://en.wikipedia.org/wiki/AA_tree).
 
 You can do all basic operations - **Add**, **Remove**, **Union**, **UnionWith**, **Intersect**, **Except**, **Merge**.
 
