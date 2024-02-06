@@ -172,11 +172,11 @@ internal class AATree<T> : IEnumerable<T>
         {
             (node.Left, isRemoved) = Remove(node.Left, element);
         }
-        else if (node!.Left is null)
+        else if ((node!.Value?.Equals(element) ?? false) && node!.Left is null)
         {
             return (node!.Right, true);
         }
-        else
+        else if (node!.Value?.Equals(element) ?? false)
         {
             var nextNode = FindMin(node.Right!);
             nextNode!.Right = RemoveMin(node.Right!);

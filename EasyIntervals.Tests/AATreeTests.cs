@@ -212,6 +212,17 @@ public class AATreeTests
         result.Should().BeFalse();
     }
 
+    [Fact]
+    public void Remove_NonExistingElement_ShouldNotChangeCount()
+    {
+        var aaTree = CreateAATree(input);
+        var expectedCount = aaTree.Count;
+
+        aaTree.Remove(199);
+
+        aaTree.Count.Should().Be(expectedCount);
+    }
+
     [Theory]
     [InlineData(24)] // Leaf
     [InlineData(42)] // Low Level (< 2) Inner Element
@@ -247,14 +258,29 @@ public class AATreeTests
     }
 
     [Fact]
-    public void Remove_NonExistingElement_ShouldNotChangeCount()
+    public void Remove_NonEqualExistingElement_ShouldNotRemoveElement()
     {
-        var aaTree = CreateAATree(input);
-        var expectedCount = aaTree.Count;
+        var aaTree = new AATree<Interval<int, int?>>(
+            Enumerable.Empty<Interval<int, int?>>(),
+            IntervalComparer<int, int?>.Create(Comparer<int>.Default), (_) => {});
+        aaTree.Add((10, 20, 2));
 
-        aaTree.Remove(199);
+        aaTree.Remove((10, 20, 5));
 
-        aaTree.Count.Should().Be(expectedCount);
+        aaTree.Count.Should().Be(1);
+    }
+
+    [Fact]
+    public void Remove_EqualExistingElement_ShouldRemoveElement()
+    {
+        var aaTree = new AATree<Interval<int, int?>>(
+            Enumerable.Empty<Interval<int, int?>>(),
+            IntervalComparer<int, int?>.Create(Comparer<int>.Default), (_) => {});
+        aaTree.Add((10, 20, 2));
+
+        aaTree.Remove((10, 20, 2));
+
+        aaTree.Count.Should().Be(0);
     }
 
     [Theory]

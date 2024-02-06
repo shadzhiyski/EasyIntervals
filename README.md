@@ -79,18 +79,18 @@ You can do all basic operations - **Add**, **Remove**, **Union**, **UnionWith**,
 
 ### Add/Remove
 
-Adding an interval. It returns `true` if it's added. When interval with same limts and type exists, it's not added.
+Adding an interval. It returns `true` if it's added. When interval with same limits and type exists, it's not added.
 
 ```CSharp
 var intervalSet = new IntervalSet<int, decimal?>();
 
 Console.WriteLine(intervalSet.Add((5, 10, 20.5m))); // True
+Console.WriteLine($"[{string.Join(", ", intervalSet)}]"); // [(5, 10): 20.5]
 Console.WriteLine(intervalSet.Add((5, 10, 25.5m))); // False
-Console.WriteLine($"[{string.Join(", ", intervalSet)}]");
-// [(5, 10): 20.5]
+Console.WriteLine($"[{string.Join(", ", intervalSet)}]"); // [(5, 10): 20.5]
 ```
 
-Removing interval. It returns `true` if it's removed. When interval with same limts and type exists, it's being removed, wether it's value is the same of not.
+Removing interval. It returns `true` if it's removed. When interval with same limits, type and value exists, it's being removed.
 
 ```CSharp
 var intervalSet = new IntervalSet<int, decimal?>()
@@ -98,10 +98,10 @@ var intervalSet = new IntervalSet<int, decimal?>()
     (5, 10, 20.5m)
 };
 
-Console.WriteLine(intervalSet.Remove((5, 10, 25.5m))); // True
-Console.WriteLine(intervalSet.Remove((5, 10, 20.5m))); // False
-Console.WriteLine($"[{string.Join(", ", intervalSet)}]");
-// []
+Console.WriteLine(intervalSet.Remove((5, 10, 25.5m))); // False
+Console.WriteLine($"[{string.Join(", ", intervalSet)}]"); // [(5, 10): 20.5]
+Console.WriteLine(intervalSet.Remove((5, 10, 20.5m))); // True
+Console.WriteLine($"[{string.Join(", ", intervalSet)}]"); // []
 ```
 
 ### Union
