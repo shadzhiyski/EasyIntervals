@@ -2,10 +2,10 @@ namespace EasyIntervals;
 
 internal static class AATreeTools
 {
-    public static AATree<T>.Node? InitializeTree<T>(
+    public static (AATree<T>.Node?, int) InitializeTree<T>(
         IEnumerable<T> elements, bool areSorted, bool areUnique, IComparer<T> comparer, Action<AATree<T>.Node> onChildChanged)
     {
-        if (elements.Count() == 0)
+        if (!elements.Any())
         {
             return default;
         }
@@ -22,54 +22,75 @@ internal static class AATreeTools
             uniqueElementsCount = ShiftUniqueElementsToBeginning(orderedElements, comparer);
         }
 
-        var orderedNodes = orderedElements.Take(uniqueElementsCount)
-            .Select(n => new AATree<T>.Node(n, onChildChanged))
-            .ToArray();
-
-        if (orderedNodes.Length % 2 == 0)
-        {
-            orderedNodes[orderedNodes.Length - 2].Right = orderedNodes[orderedNodes.Length - 1];
-        }
-
-        var treeDepth = (int)Math.Ceiling(Math.Log2(orderedNodes.Length));
-        var startIndex = 0;
-        for (int iteration = 2; iteration <= treeDepth; iteration++)
-        {
-            var step = 1 << iteration;
-            var childStep = step >> 2;
-            var halfStep = step >> 1;
-            startIndex = halfStep - 1;
-            if (startIndex >= (double)orderedNodes.Length / 2)
-            {
-                startIndex = (step >> 2) - 1;
-                break;
-            }
-
-            var index = startIndex;
-            for (; index <= orderedNodes.Length - (childStep << 1); index += step)
-            {
-                SetChildren(orderedNodes, iteration, childStep, index);
-            }
-
-            index -= halfStep;
-            if (index < orderedNodes.Length - 1
-                && orderedNodes[index].Left is null
-                && orderedNodes[index].Right is null)
-            {
-                SetChildren(orderedNodes, iteration, childStep, index);
-
-                orderedNodes[index - halfStep].Right = orderedNodes[index];
-            }
-        }
-
-        return orderedNodes[startIndex];
+        var root = ConstructTreeFromSortedArray(orderedElements, 0, uniqueElementsCount - 1, null, onChildChanged);
+        return (root, uniqueElementsCount);
     }
 
-    private static void SetChildren<T>(AATree<T>.Node[] orderedNodes, int iteration, int childStep, int index)
+    private static AATree<T>.Node? ConstructTreeFromSortedArray<T>(
+        T[] elements, int startIndex, int endIndex, AATree<T>.Node? leftmostNode, Action<AATree<T>.Node> onChildChanged)
     {
-        orderedNodes[index].Level = iteration;
-        orderedNodes[index].Left = orderedNodes[index - childStep];
-        orderedNodes[index].Right = orderedNodes[index + childStep];
+        int size = endIndex - startIndex + 1;
+        AATree<T>.Node? node;
+
+        switch (size)
+        {
+            case 0:
+                node = null; break;
+            case 1:
+                node = new AATree<T>.Node(elements[startIndex], onChildChanged);
+                if (leftmostNode is not null)
+                {
+                    leftmostNode.Right = node;
+                    node = leftmostNode;
+                }
+                break;
+            case 2:
+                node = new AATree<T>.Node(elements[startIndex], onChildChanged);
+                node.Right = new AATree<T>.Node(elements[endIndex], onChildChanged);
+                if (leftmostNode is not null)
+                {
+                    node.Left = leftmostNode;
+                    node.Level = 2;
+                }
+                break;
+            case 3:
+                node = new AATree<T>.Node(elements[startIndex + 1], onChildChanged);
+                node.Level = 2;
+                node.Left = new AATree<T>.Node(elements[startIndex], onChildChanged);
+                node.Right = new AATree<T>.Node(elements[endIndex], onChildChanged);
+                if (leftmostNode is not null)
+                {
+                    leftmostNode.Right = node.Left;
+                    node.Left = leftmostNode;
+                }
+                break;
+            default:
+                int middleIndex = (startIndex + endIndex) / 2;
+                node = new AATree<T>.Node(elements[middleIndex], onChildChanged);
+                node.Left = ConstructTreeFromSortedArray(elements, startIndex, middleIndex - 1, leftmostNode, onChildChanged);
+                node.Right = size % 2 == 0 ?
+                    ConstructTreeFromSortedArray(elements, middleIndex + 2, endIndex, new AATree<T>.Node(elements[middleIndex + 1], onChildChanged), onChildChanged) :
+                    ConstructTreeFromSortedArray(elements, middleIndex + 1, endIndex, null, onChildChanged);
+                node.Level = node.Right?.Level ?? node.Level;
+                if (node.Left?.Level == node.Right?.Level)
+                {
+                    node.Level++;
+                }
+                else if (node.Left?.Level > node.Right?.Level)
+                {
+                    var leftNode = node.Left;
+                    var middleNode = leftNode.Right;
+
+                    node.Left = middleNode;
+                    leftNode.Right = node;
+                    node.Level = leftNode.Level;
+
+                    node = leftNode;
+                }
+                break;
+        }
+
+        return node;
     }
 
     public static int ShiftUniqueElementsToBeginning<T>(T[] orderedElements, IComparer<T> comparer)

@@ -12,7 +12,7 @@ public class IntervalCollectionsInitializationBenchmarks
     private const int MaxStartLimit = 10_000_000;
     private const int MaxIntervalLength = 1_000;
 
-    private readonly IList<Interval<int>> _intervals;
+    private readonly IList<Interval<int, int?>> _intervals;
 
     public IntervalCollectionsInitializationBenchmarks()
     {
@@ -22,26 +22,26 @@ public class IntervalCollectionsInitializationBenchmarks
     [Benchmark]
     public void Initialize_IntervalSet()
     {
-        var _ = new IntervalSet<int>(_intervals);
+        var _ = new IntervalSet<int, int?>(_intervals);
     }
 
     [Benchmark]
     public void Initialize_SortedSet()
     {
-        var _ = new SortedSet<Interval<int>>(_intervals, IntervalComparer<int>.Create(Comparer<int>.Default));
+        var _ = new SortedSet<Interval<int, int?>>(_intervals, IntervalComparer<int, int?>.Create(Comparer<int>.Default));
     }
 
     [Benchmark]
     public void UnionWith_IntervalSet()
     {
-        var intervalSet = new IntervalSet<int>(_intervals.Take(_intervals.Count / 3));
+        var intervalSet = new IntervalSet<int, int?>(_intervals.Take(_intervals.Count / 3));
         intervalSet.UnionWith(_intervals.Skip(_intervals.Count / 3));
     }
 
     [Benchmark]
     public void UnionWith_SortedSet()
     {
-        var intervalSet = new SortedSet<Interval<int>>(_intervals.Take(_intervals.Count / 3), IntervalComparer<int>.Create(Comparer<int>.Default));
+        var intervalSet = new SortedSet<Interval<int, int?>>(_intervals.Take(_intervals.Count / 3), IntervalComparer<int, int?>.Create(Comparer<int>.Default));
         intervalSet.UnionWith(_intervals.Skip(_intervals.Count / 3));
     }
 }

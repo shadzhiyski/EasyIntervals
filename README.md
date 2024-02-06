@@ -16,20 +16,33 @@ dotnet add package EasyIntervals
 
 ### Interval Basics
 
-An Interval can be created with start and end input parameters. By default type of interval is **Open**. Interval type can be **Closed**, **StartClosed**, **EndClosed** and **Open**.
+An Interval can be created with start, end and optional value input parameters. By default type of interval is **Open**. Interval type can be **Closed**, **StartClosed**, **EndClosed** and **Open**.
 
 ```CSharp
-var interval1 = new Interval<int>(10, 50); // open (10, 50)
-var interval2 = new Interval<int>(10, 50, IntervalType.Closed); // closed [10, 50]
-var interval3 = new Interval<int>(10, 50, IntervalType.StartClosed); // end closed [10, 50)
-var interval4 = new Interval<int>(10, 50, IntervalType.EndClosed); // end closed (10, 50]
+var interval1 = new Interval<int, decimal?>(10, 50); // open (10, 50) - excludes both limits
+var interval2 = new Interval<int, decimal?>(10, 50, IntervalType.Closed); // closed [10, 50] - includes both limits
+var interval3 = new Interval<int, decimal?>(10, 50, IntervalType.StartClosed); // end closed [10, 50) - includes start only
+var interval4 = new Interval<int, decimal?>(10, 50, IntervalType.EndClosed); // end closed (10, 50] - includes end only
+var interval5 = new Interval<int, decimal?>(10, 50, 2.5m, IntervalType.Closed); // closed [10, 50], value: 2.5
 ```
 
 Interval can also be created from value tuple:
 
 ```CSharp
-Interval<double> interval1 = (0.1d, 0.5d); // open (0.1, 0.5)
-Interval<double> interval2 = (0.1d, 0.5d, IntervalType.Closed); // closed [0.1, 0.5]
+Interval<double, decimal?> interval1 = (0.1d, 0.5d); // open (0.1, 0.5)
+Interval<double, decimal?> interval2 = (0.1d, 0.5d, IntervalType.Closed); // closed [0.1, 0.5]
+Interval<double, decimal?> interval3 = (0.1d, 0.5d, 2.5m, IntervalType.Closed); // closed [0.1, 0.5], value: 2.5
+```
+
+When no value is passed to create an Interval, a default value is assigned:
+
+```CSharp
+// passing value
+Interval<double, decimal?> interval1 = (0.1d, 0.5d, 2.5m); // open (0.1, 0.5), value: 2.5
+
+// not passing value
+Interval<double, decimal?> interval2 = (0.1d, 0.5d); // open (0.1, 0.5), value: null
+Interval<double, decimal> interval3 = (0.1d, 0.5d); // open (0.1, 0.5), value: 0.0
 ```
 
 Operations over specific intervals is done through the functions of **IntervalTools** class.
@@ -37,11 +50,11 @@ Operations over specific intervals is done through the functions of **IntervalTo
 Here is an example how to check if 2 intervals intersect:
 
 ```CSharp
-var result1 = IntervalTools.HasAnyIntersection((10, 20), (18, 30));
+var result1 = IntervalTools.HasAnyIntersection<int, decimal?>((10, 20), (18, 30));
 Console.WriteLine(result1);
 // True
 
-var result2 = IntervalTools.HasAnyIntersection((10, 20), (22, 30));
+var result2 = IntervalTools.HasAnyIntersection<int, decimal?>((10, 20), (22, 30));
 Console.WriteLine(result2);
 // False
 ```
@@ -49,65 +62,96 @@ Console.WriteLine(result2);
 Here is an example how to check if an interval covers another interval:
 
 ```CSharp
-var result1 = IntervalTools.Covers(interval: (10, 20), other: (12, 18));
+var result1 = IntervalTools.Covers<int, decimal?>(interval: (10, 20), other: (12, 18));
 Console.WriteLine(result1);
 // True
 
-var result2 = IntervalTools.HasAnyIntersection(interval: (10, 20), other: (10, 30));
+var result2 = IntervalTools.Covers<int, decimal?>(interval: (10, 20), other: (10, 30));
 Console.WriteLine(result2);
 // False
 ```
 
-Manipulation on sets of intervals is done with **IntervalSet** collection. You can do all basic operations on intervals set - **AddRange**, **Union**, **Intersect**, **Except**, **Merge**.
+### IntervalSet
+
+Manipulation over sets of intervals is done with **IntervalSet** collection. It's an implementation of [Augmented Interval Tree](https://en.wikipedia.org/wiki/Interval_tree#Augmented_tree) abstract data structure, using self-balancing Binary Search Tree (BST) - [AA Tree](https://en.wikipedia.org/wiki/AA_tree).
+
+You can do all basic operations - **Add**, **Remove**, **Union**, **UnionWith**, **Intersect**, **Except**, **Merge**.
+
+### Add/Remove
+
+Adding an interval. It returns `true` if it's added. When interval with same limits and type exists, it's not added.
+
+```CSharp
+var intervalSet = new IntervalSet<int, decimal?>();
+
+Console.WriteLine(intervalSet.Add((5, 10, 20.5m))); // True
+Console.WriteLine($"[{string.Join(", ", intervalSet)}]"); // [(5, 10): 20.5]
+Console.WriteLine(intervalSet.Add((5, 10, 25.5m))); // False
+Console.WriteLine($"[{string.Join(", ", intervalSet)}]"); // [(5, 10): 20.5]
+```
+
+Removing interval. It returns `true` if it's removed. When interval with same limits, type and value exists, it's being removed.
+
+```CSharp
+var intervalSet = new IntervalSet<int, decimal?>()
+{
+    (5, 10, 20.5m)
+};
+
+Console.WriteLine(intervalSet.Remove((5, 10, 25.5m))); // False
+Console.WriteLine($"[{string.Join(", ", intervalSet)}]"); // [(5, 10): 20.5]
+Console.WriteLine(intervalSet.Remove((5, 10, 20.5m))); // True
+Console.WriteLine($"[{string.Join(", ", intervalSet)}]"); // []
+```
 
 ### Union
 
-Unions all unique intervals from the current and input interval set:
+Unions all unique intervals from the current and input interval set. If there are intervals with same limits and type but different values, only the first occurence will be added:
 
 ```CSharp
-var intervalSet1 = new IntervalSet<int>
+var intervalSet1 = new IntervalSet<int, decimal?>
 {
     (2, 5), // (2, 5)
     (3, 8, IntervalType.Open), // (3, 8)
-    (7, 10), // (7, 10)
+    (7, 10, 2.5m), // (7, 10): 2.5
 };
 
-var intervalSet2 = new IntervalSet<int>
+var intervalSet2 = new IntervalSet<int, decimal?>
 {
     (3, 8, IntervalType.Closed), // [3, 8]
-    (7, 10), // (7, 10)
+    (7, 10, 3m), // (7, 10): 3.0
     (11, 16, IntervalType.StartClosed), // [11, 16)
     (11, 14, IntervalType.EndClosed), // (11, 14]
 };
 
-var unionIntervalSet = intervalSet1.Union(intervalSet2);
+var unionIntervalSet1 = intervalSet1.Union(intervalSet2);
 Console.WriteLine($"[{string.Join(", ", unionIntervalSet)}]");
-// [(2, 5), [3, 8], (3, 8), (7, 10), [11, 16), (11, 14]]
+// [(2, 5), [3, 8], (3, 8), (7, 10): 2.5, [11, 16), (11, 14]]
 ```
 
 ### UnionWith
 
-Adds all unique intervals from given input enumeration of intervals:
+Adds all unique intervals from given input enumeration of intervals. If there are intervals matching by limits and type but different values, only the existing occurence will remain:
 
 ```CSharp
-var intervalSet = new IntervalSet<int>
+var intervalSet = new IntervalSet<int, decimal?>
 {
     (2, 5), // (2, 5)
     (3, 8, IntervalType.Open), // (3, 8)
-    (7, 10), // (7, 10)
+    (7, 10, 2.5m), // (7, 10): 2.5
 };
 
-var inputIntervals = new List<Interval<int>>
+var inputIntervals = new List<Interval<int, decimal?>>
 {
     (3, 8, IntervalType.Closed), // [3, 8]
-    (7, 10), // (7, 10)
+    (7, 10, 3m), // (7, 10): 3
     (11, 16, IntervalType.StartClosed), // [11, 16)
     (11, 14, IntervalType.EndClosed), // (11, 14]
 };
 
 intervalSet.UnionWith(inputIntervals);
-Console.WriteLine($"[{string.Join(", ", intervalSet)}]");
-// [(2, 5), [3, 8], (3, 8), (7, 10), [11, 16), (11, 14]]
+Console.WriteLine($"[{string.Join(", ", intervalSet.Select(itv => itv.Value is null ? $"{itv}" : $"{itv}: {itv.Value}"))}]");
+// [(2, 5), [3, 8], (3, 8), (7, 10): 2.5, [11, 16), (11, 14]]
 ```
 
 ### Intersection
@@ -133,7 +177,7 @@ gantt
 Code:
 
 ```CSharp
-var intervalSet = new IntervalSet<int>
+var intervalSet = new IntervalSet<int, decimal?>
 {
     (2, 5), // (2, 5)
     (3, 8, IntervalType.Open), // (3, 8)
@@ -143,7 +187,7 @@ var intervalSet = new IntervalSet<int>
     (11, 14, IntervalType.EndClosed), // (11, 14]
 };
 
-var intersectionInterval = new Interval<int>(8, 11, IntervalType.Closed);
+var intersectionInterval = new Interval<int, decimal?>(8, 11, IntervalType.Closed);
 var intersectedIntervals = intervalSet
     .Intersect(intersectionInterval); // [8, 11]
 Console.WriteLine($"[{string.Join(", ", intersectedIntervals)}]");
@@ -184,7 +228,15 @@ gantt
 Code:
 
 ```CSharp
-var intersectionInterval = (5, 11, IntervalType.Closed);
+var intervalSet = new IntervalSet<int, decimal?>
+{
+    (2, 5), // (2, 5)
+    (3, 12, IntervalType.Closed), // [3, 12]
+    (5, 10, IntervalType.StartClosed), // [5, 10)
+    (11, 16, IntervalType.StartClosed), // [11, 16)
+};
+
+var intersectionInterval = new Interval<int, decimal?>(5, 11, IntervalType.Closed);
 var coveredIntervals = intervalSet
     .Intersect(intersectionInterval, IntersectionType.Cover);
 Console.WriteLine(
@@ -215,7 +267,15 @@ gantt
 Code:
 
 ```CSharp
-var intersectionInterval = (5, 11, IntervalType.Closed);
+var intervalSet = new IntervalSet<int, decimal?>
+{
+    (2, 5), // (2, 5)
+    (3, 12, IntervalType.Closed), // [3, 12]
+    (5, 10, IntervalType.StartClosed), // [5, 10)
+    (11, 16, IntervalType.StartClosed), // [11, 16)
+};
+
+var intersectionInterval = new Interval<int, decimal?>(5, 11, IntervalType.Closed);
 var coveringIntervals = intervalSet
     .Intersect(intersectionInterval, IntersectionType.Within);
 Console.WriteLine(
@@ -248,6 +308,17 @@ gantt
 Code:
 
 ```CSharp
+var intervalSet = new IntervalSet<int, decimal?>
+{
+    (2, 5), // (2, 5)
+    (3, 8, IntervalType.Open), // (3, 8)
+    (3, 8, IntervalType.Closed), // [3, 8]
+    (7, 10), // (7, 10)
+    (8, 11, IntervalType.Closed), // [8, 11]
+    (11, 16, IntervalType.StartClosed), // [11, 16)
+    (11, 14, IntervalType.EndClosed), // (11, 14]
+};
+
 var intersectionInterval = (8, 11, IntervalType.Closed);
 var exceptedIntervals = intervalSet
     .Except(intersectionInterval);
@@ -278,7 +349,16 @@ gantt
 Code:
 
 ```CSharp
-var coveringInterval = (5, 11, IntervalType.Closed);
+var intervalSet = new IntervalSet<int, decimal?>
+{
+    (2, 5), // (2, 5)
+    (3, 12, IntervalType.Closed), // [3, 8]
+    (5, 10, IntervalType.StartClosed), // (7, 10)
+    (5, 11, IntervalType.Closed), // [5, 11]
+    (11, 16, IntervalType.StartClosed), // [11, 16)
+};
+
+var coveringInterval = new Interval<int, decimal?>(5, 11, IntervalType.Closed);
 var notCoveredIntervals = intervalSet
     .Except(coveringInterval, IntersectionType.Cover);
 Console.WriteLine(
@@ -309,7 +389,16 @@ gantt
 Code:
 
 ```CSharp
-var withinInterval = (5, 11, IntervalType.Closed);
+var intervalSet = new IntervalSet<int, decimal?>
+{
+    (2, 5), // (2, 5)
+    (3, 12, IntervalType.Closed), // [3, 8]
+    (5, 10, IntervalType.StartClosed), // (7, 10)
+    (5, 11, IntervalType.Closed), // [5, 11]
+    (11, 16, IntervalType.StartClosed), // [11, 16)
+};
+
+var withinInterval = new Interval<int, decimal?>(5, 11, IntervalType.Closed);
 var notCoveringIntervals = intervalSet
     .Except(withinInterval, IntersectionType.Within);
 Console.WriteLine(
