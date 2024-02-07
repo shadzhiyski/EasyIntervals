@@ -21,7 +21,7 @@ An Interval can be created with start, end and optional value input parameters. 
 ```CSharp
 var interval1 = new Interval<int, decimal?>(10, 50); // open (10, 50) - excludes both limits
 var interval2 = new Interval<int, decimal?>(10, 50, IntervalType.Closed); // closed [10, 50] - includes both limits
-var interval3 = new Interval<int, decimal?>(10, 50, IntervalType.StartClosed); // end closed [10, 50) - includes start only
+var interval3 = new Interval<int, decimal?>(10, 50, IntervalType.StartClosed); // start closed [10, 50) - includes start only
 var interval4 = new Interval<int, decimal?>(10, 50, IntervalType.EndClosed); // end closed (10, 50] - includes end only
 var interval5 = new Interval<int, decimal?>(10, 50, 2.5m, IntervalType.Closed); // closed [10, 50], value: 2.5
 ```
@@ -118,13 +118,14 @@ var intervalSet2 = new IntervalSet<int, decimal?>
 {
     (3, 8, IntervalType.Closed), // [3, 8]
     (7, 10, 3m), // (7, 10): 3.0
-    (11, 16, IntervalType.StartClosed), // [11, 16)
+    (11, 16, 15.0m, IntervalType.StartClosed), // [11, 16): 15.0
+    (11, 16, 10.0m, IntervalType.StartClosed), // [11, 16): 10.0
     (11, 14, IntervalType.EndClosed), // (11, 14]
 };
 
-var unionIntervalSet1 = intervalSet1.Union(intervalSet2);
+var unionIntervalSet = intervalSet1.Union(intervalSet2);
 Console.WriteLine($"[{string.Join(", ", unionIntervalSet)}]");
-// [(2, 5), [3, 8], (3, 8), (7, 10): 2.5, [11, 16), (11, 14]]
+// [(2, 5), [3, 8], (3, 8), (7, 10): 2.5, [11, 16): 15.0, (11, 14]]
 ```
 
 ### UnionWith
@@ -143,13 +144,14 @@ var inputIntervals = new List<Interval<int, decimal?>>
 {
     (3, 8, IntervalType.Closed), // [3, 8]
     (7, 10, 3m), // (7, 10): 3
-    (11, 16, IntervalType.StartClosed), // [11, 16)
+    (11, 16, 15.0m, IntervalType.StartClosed), // [11, 16): 15.0
+    (11, 16, 10.0m, IntervalType.StartClosed), // [11, 16): 10.0
     (11, 14, IntervalType.EndClosed), // (11, 14]
 };
 
 intervalSet.UnionWith(inputIntervals);
-Console.WriteLine($"[{string.Join(", ", intervalSet.Select(itv => itv.Value is null ? $"{itv}" : $"{itv}: {itv.Value}"))}]");
-// [(2, 5), [3, 8], (3, 8), (7, 10): 2.5, [11, 16), (11, 14]]
+Console.WriteLine($"[{string.Join(", ", intervalSet)}]");
+// [(2, 5), [3, 8], (3, 8), (7, 10): 2.5, [11, 16): 15.0, (11, 14]]
 ```
 
 ### Intersection
@@ -351,7 +353,7 @@ var intervalSet = new IntervalSet<int, decimal?>
 {
     (2, 5), // (2, 5)
     (3, 12, IntervalType.Closed), // [3, 8]
-    (5, 10, IntervalType.StartClosed), // (7, 10)
+    (5, 10, IntervalType.StartClosed), // [5, 10)
     (5, 11, IntervalType.Closed), // [5, 11]
     (11, 16, IntervalType.StartClosed), // [11, 16)
 };
@@ -391,7 +393,7 @@ var intervalSet = new IntervalSet<int, decimal?>
 {
     (2, 5), // (2, 5)
     (3, 12, IntervalType.Closed), // [3, 8]
-    (5, 10, IntervalType.StartClosed), // (7, 10)
+    (5, 10, IntervalType.StartClosed), // [5, 10)
     (5, 11, IntervalType.Closed), // [5, 11]
     (11, 16, IntervalType.StartClosed), // [11, 16)
 };
