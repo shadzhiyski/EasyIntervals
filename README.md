@@ -14,6 +14,17 @@ dotnet add package EasyIntervals
 
 ## Usage
 
+- [Interval Basics](#interval-basics)
+- [IntervalSet](#intervalset)
+- [Add/Remove](#addremove)
+- [Intersection](#intersection)
+- [Covering Intersection](#covering-intersection)
+- [Within Intersection](#within-intersection)
+- [Exception](#exception)
+- [Covering Exception](#covering-exception)
+- [Within Exception](#within-exception)
+- [Merge](#merge)
+
 ### Interval Basics
 
 An Interval can be created with start, end and optional value input parameters. By default type of interval is **Open**. Interval type can be **Closed**, **StartClosed**, **EndClosed** and **Open**.
