@@ -314,7 +314,6 @@ var intervalSet = new IntervalSet<int, decimal?>
     (3, 8, IntervalType.Open), // (3, 8)
     (3, 8, IntervalType.Closed), // [3, 8]
     (7, 10), // (7, 10)
-    (8, 11, IntervalType.Closed), // [8, 11]
     (11, 16, IntervalType.StartClosed), // [11, 16)
     (11, 14, IntervalType.EndClosed), // (11, 14]
 };
@@ -354,7 +353,6 @@ var intervalSet = new IntervalSet<int, decimal?>
     (2, 5), // (2, 5)
     (3, 12, IntervalType.Closed), // [3, 8]
     (5, 10, IntervalType.StartClosed), // [5, 10)
-    (5, 11, IntervalType.Closed), // [5, 11]
     (11, 16, IntervalType.StartClosed), // [11, 16)
 };
 
@@ -394,7 +392,6 @@ var intervalSet = new IntervalSet<int, decimal?>
     (2, 5), // (2, 5)
     (3, 12, IntervalType.Closed), // [3, 8]
     (5, 10, IntervalType.StartClosed), // [5, 10)
-    (5, 11, IntervalType.Closed), // [5, 11]
     (11, 16, IntervalType.StartClosed), // [11, 16)
 };
 
