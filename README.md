@@ -2,7 +2,7 @@
 
 # EasyIntervals
 
-A .NET package intended to simplify the work with sets of generic intervals, especially in use cases requiring often mutation (add, remove). This is done with **IntervalSet** collection. It provides main operations like **Add**, **Remove**, **Union**, **Intersect**, **Except**, **Merge**.
+A .NET package intended to efficiently simplify the work with sets of generic intervals, especially in use cases requiring often mutation (add, remove). This is done with **IntervalSet** collection. It provides main operations like **Add**, **Remove**, **Union**, **Intersect**, **Except**, **Merge**.
 
 ## Get Started
 
@@ -14,16 +14,21 @@ dotnet add package EasyIntervals
 
 ## Usage
 
-- [Interval Basics](#interval-basics)
-- [IntervalSet](#intervalset)
-- [Add/Remove](#addremove)
-- [Intersection](#intersection)
-- [Covering Intersection](#covering-intersection)
-- [Within Intersection](#within-intersection)
-- [Exception](#exception)
-- [Covering Exception](#covering-exception)
-- [Within Exception](#within-exception)
-- [Merge](#merge)
+- [EasyIntervals](#easyintervals)
+  - [Get Started](#get-started)
+  - [Usage](#usage)
+    - [Interval Basics](#interval-basics)
+    - [IntervalSet](#intervalset)
+    - [Add/Remove](#addremove)
+    - [Union](#union)
+    - [UnionWith](#unionwith)
+    - [Intersection](#intersection)
+    - [Covering Intersection](#covering-intersection)
+    - [Within Intersection](#within-intersection)
+    - [Exception](#exception)
+    - [Covering Exception](#covering-exception)
+    - [Within Exception](#within-exception)
+    - [Merge](#merge)
 
 ### Interval Basics
 
