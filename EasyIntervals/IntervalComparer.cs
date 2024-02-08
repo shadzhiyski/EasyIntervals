@@ -1,6 +1,6 @@
 namespace EasyIntervals;
 
-internal class IntervalComparer<TLimit> : IComparer<Interval<TLimit>>
+internal class IntervalComparer<TLimit, TValue> : IComparer<Interval<TLimit, TValue>>
 {
     private readonly IComparer<TLimit> _limitComparer;
 
@@ -9,12 +9,12 @@ internal class IntervalComparer<TLimit> : IComparer<Interval<TLimit>>
         _limitComparer = limitComparer;
     }
 
-    public static IntervalComparer<TLimit> Create(IComparer<TLimit> limitComparer)
+    public static IntervalComparer<TLimit, TValue> Create(IComparer<TLimit> limitComparer)
     {
-        return new IntervalComparer<TLimit>(limitComparer);
+        return new IntervalComparer<TLimit, TValue>(limitComparer);
     }
 
-    public int Compare(Interval<TLimit> int1, Interval<TLimit> int2)
+    public int Compare(Interval<TLimit, TValue> int1, Interval<TLimit, TValue> int2)
     {
         var comparison = _limitComparer.Compare(int1.Start, int2.Start);
         if (comparison != 0)

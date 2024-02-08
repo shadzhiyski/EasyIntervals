@@ -108,8 +108,7 @@ internal class AATree<T> : IEnumerable<T>
 
     public void Reset(IEnumerable<T> elements, bool areElementsSorted = false, bool areElementsUnique = false)
     {
-        _root = AATreeTools.InitializeTree(elements, areElementsSorted, areElementsUnique, _comparer, _onChildChanged);
-        Count = elements.Count();
+        (_root, Count) = AATreeTools.InitializeTree(elements, areElementsSorted, areElementsUnique, _comparer, _onChildChanged);
     }
 
     public bool Add(T element)
@@ -173,11 +172,11 @@ internal class AATree<T> : IEnumerable<T>
         {
             (node.Left, isRemoved) = Remove(node.Left, element);
         }
-        else if (node!.Left is null)
+        else if ((node!.Value?.Equals(element) ?? false) && node!.Left is null)
         {
             return (node!.Right, true);
         }
-        else
+        else if (node!.Value?.Equals(element) ?? false)
         {
             var nextNode = FindMin(node.Right!);
             nextNode!.Right = RemoveMin(node.Right!);
