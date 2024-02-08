@@ -14,21 +14,18 @@ dotnet add package EasyIntervals
 
 ## Usage
 
-- [EasyIntervals](#easyintervals)
-  - [Get Started](#get-started)
-  - [Usage](#usage)
-    - [Interval Basics](#interval-basics)
-    - [IntervalSet](#intervalset)
-    - [Add/Remove](#addremove)
-    - [Union](#union)
-    - [UnionWith](#unionwith)
-    - [Intersection](#intersection)
-    - [Covering Intersection](#covering-intersection)
-    - [Within Intersection](#within-intersection)
-    - [Exception](#exception)
-    - [Covering Exception](#covering-exception)
-    - [Within Exception](#within-exception)
-    - [Merge](#merge)
+- [Interval Basics](#interval-basics)
+- [IntervalSet](#intervalset)
+- [Add/Remove](#addremove)
+- [Union](#union)
+- [UnionWith](#unionwith)
+- [Intersection](#intersection)
+- [Covering Intersection](#covering-intersection)
+- [Within Intersection](#within-intersection)
+- [Exception](#exception)
+- [Covering Exception](#covering-exception)
+- [Within Exception](#within-exception)
+- [Merge](#merge)
 
 ### Interval Basics
 
