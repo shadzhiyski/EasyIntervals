@@ -2,7 +2,7 @@
 
 # EasyIntervals
 
-A .NET package intended to efficiently simplify the work with sets of generic intervals, especially in use cases requiring often mutation (add, remove). This is done with **IntervalSet** collection. It provides main operations like **Add**, **Remove**, **Union**, **Intersect**, **Except**, **Merge**.
+A .NET package intended to simplify the work with sets of generic intervals, especially suitable for use cases requiring often mutation (add, remove). This is done with **IntervalSet** collection. It provides main operations like **Add**, **Remove**, **Union**, **Intersect**, **Except**, **Merge**.
 
 ## Get Started
 
@@ -23,8 +23,8 @@ dotnet add package EasyIntervals
 - [Covering Intersection](#covering-intersection)
 - [Within Intersection](#within-intersection)
 - [Exception](#exception)
-- [Covering Exception](#covering-exception)
-- [Within Exception](#within-exception)
+- [Not Covering Exception](#not-covering-exception)
+- [Not Within Exception](#not-within-exception)
 - [Merge](#merge)
 
 ### Interval Basics
@@ -338,7 +338,7 @@ Console.WriteLine($"[{string.Join(", ", exceptedIntervals)}]");
 // [(2, 5), (3, 8), (11, 14]]
 ```
 
-### Covering Exception
+### Not Covering Exception
 
 Exception of interval set with an input interval that doesn't cover excepted intervals:
 
@@ -377,7 +377,7 @@ Console.WriteLine(
 // [5, 11] doesn't cover [(2, 5), [3, 12], [11, 16)]
 ```
 
-### Within Exception
+### Not Within Exception
 
 Exception of interval set with an input interval that is not within excepted intervals:
 
