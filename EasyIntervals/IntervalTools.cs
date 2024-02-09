@@ -6,6 +6,7 @@ public static class IntervalTools
     /// Checks if <c>interval1</c> has any intersection with <c>interval2</c>.
     /// </summary>
     /// <typeparam name="TLimit"></typeparam>
+    /// <typeparam name="TValue"></typeparam>
     /// <param name="interval1"></param>
     /// <param name="interval2"></param>
     /// <returns></returns>
@@ -16,6 +17,7 @@ public static class IntervalTools
     /// Checks if <c>interval1</c> has any intersection with <c>interval2</c>.
     /// </summary>
     /// <typeparam name="TLimit"></typeparam>
+    /// <typeparam name="TValue"></typeparam>
     /// <param name="interval1"></param>
     /// <param name="interval2"></param>
     /// <param name="comparer"></param>
@@ -45,6 +47,7 @@ public static class IntervalTools
     /// Checks if <c>interval</c> covers <c>other</c>.
     /// </summary>
     /// <typeparam name="TLimit"></typeparam>
+    /// <typeparam name="TValue"></typeparam>
     /// <param name="interval"></param>
     /// <param name="other"></param>
     /// <returns></returns>
@@ -54,6 +57,7 @@ public static class IntervalTools
     /// Checks if <c>interval</c> covers <c>other</c>.
     /// </summary>
     /// <typeparam name="TLimit"></typeparam>
+    /// <typeparam name="TValue"></typeparam>
     /// <param name="interval"></param>
     /// <param name="other"></param>
     /// <param name="comparer"></param>
@@ -75,6 +79,7 @@ public static class IntervalTools
     /// </para>
     /// </summary>
     /// <typeparam name="TLimit"></typeparam>
+    /// <typeparam name="TValue"></typeparam>
     /// <param name="precedingInterval"></param>
     /// <param name="followingInterval"></param>
     /// <param name="comparer"></param>
@@ -90,6 +95,7 @@ public static class IntervalTools
     /// </para>
     /// </summary>
     /// <typeparam name="TLimit"></typeparam>
+    /// <typeparam name="TValue"></typeparam>
     /// <param name="precedingInterval"></param>
     /// <param name="followingInterval"></param>
     /// <param name="comparer"></param>
@@ -120,8 +126,10 @@ public static class IntervalTools
     /// </para>
     /// </summary>
     /// <typeparam name="TLimit"></typeparam>
+    /// <typeparam name="TValue"></typeparam>
     /// <param name="precedingInterval"></param>
     /// <param name="followingInterval"></param>
+    /// <param name="mergeFunction"></param>
     /// <param name="comparer"></param>
     /// <returns></returns>
     internal static Interval<TLimit, TValue> Merge<TLimit, TValue>(

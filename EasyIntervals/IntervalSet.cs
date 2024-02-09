@@ -35,6 +35,7 @@ public enum IntersectionType
 /// It provides functionalities for add, remove, intersect, except, union and merge of intervals.
 /// </remarks>
 /// <typeparam name="TLimit">Represents the limit type of start and end of interval</typeparam>
+/// <typeparam name="TValue">Represents the type of the value of interval</typeparam>
 public class IntervalSet<TLimit, TValue> : ISet<Interval<TLimit, TValue>>
 {
     private readonly AATree<Interval<TLimit, TValue>> _aaTree;
@@ -95,6 +96,8 @@ public class IntervalSet<TLimit, TValue> : ISet<Interval<TLimit, TValue>>
     /// <c>areIntervalsSorted</c> and <c>areIntervalsUnique</c> flags defining if intervals are sorted or unique.
     /// </summary>
     /// <param name="comparer">comparer</param>
+    /// <param name="areIntervalsSorted">areIntervalsSorted</param>
+    /// <param name="areIntervalsUnique">areIntervalsUnique</param>
     /// <param name="intervals">intervals</param>
     private IntervalSet(
         IEnumerable<Interval<TLimit, TValue>> intervals, bool areIntervalsSorted, bool areIntervalsUnique, IComparer<TLimit> comparer)

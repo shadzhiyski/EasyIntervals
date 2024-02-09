@@ -70,7 +70,7 @@ internal class AATree<T> : IEnumerable<T>
     /// <summary>
     /// Creates AATree with comparison.
     /// </summary>
-    /// <param name="comparer"></param>
+    /// <param name="comparison"></param>
     public AATree(Comparison<T> comparison)
         : this(Enumerable.Empty<T>(), Comparer<T>.Create(comparison), (_) => {})
     { }
@@ -79,6 +79,7 @@ internal class AATree<T> : IEnumerable<T>
     /// Creates AATree with comparer.
     /// </summary>
     /// <param name="comparer"></param>
+    /// <param name="onChildChanged"></param>
     public AATree(IComparer<T> comparer, Action<Node> onChildChanged)
         : this(Enumerable.Empty<T>(), comparer, onChildChanged)
     { }
@@ -86,7 +87,9 @@ internal class AATree<T> : IEnumerable<T>
     /// <summary>
     /// Creates AATree with comparer and elements.
     /// </summary>
+    /// <param name="elements"></param>
     /// <param name="comparer"></param>
+    /// <param name="onChildChanged"></param>
     public AATree(IEnumerable<T> elements, IComparer<T> comparer, Action<Node> onChildChanged)
         : this(elements, areElementsSorted: false, false, comparer, onChildChanged)
     { }
@@ -94,7 +97,11 @@ internal class AATree<T> : IEnumerable<T>
     /// <summary>
     /// Creates AATree with comparer and elements and flag if elements are sorted.
     /// </summary>
+    /// <param name="elements"></param>
+    /// <param name="areElementsSorted"></param>
+    /// <param name="areElementsUnique"></param>
     /// <param name="comparer"></param>
+    /// <param name="onChildChanged"></param>
     internal AATree(IEnumerable<T> elements, bool areElementsSorted, bool areElementsUnique, IComparer<T> comparer, Action<Node> onChildChanged)
     {
         _comparer = comparer;
