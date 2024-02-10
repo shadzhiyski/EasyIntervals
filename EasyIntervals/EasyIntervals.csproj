@@ -7,7 +7,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <PackageId>EasyIntervals</PackageId>
-    <PackageVersion>1.0.0</PackageVersion>
+    <PackageVersion>1.0.1</PackageVersion>
     <Authors>Stoyan Hadzhiyski</Authors>
     <Description>A .NET package intended to simplify the work with sets of generic intervals, especially suitable for use cases requiring often mutation (add, remove). This is done with IntervalSet collection. It provides main operations like Add, Remove, Union, Intersect, Except, Merge.</Description>
     <Copyright>Copyright (c) Stoyan Hadzhiyski 2024</Copyright>
