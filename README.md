@@ -61,16 +61,14 @@ Interval<double, decimal?> interval2 = (0.1d, 0.5d); // open (0.1, 0.5), value: 
 Interval<double, decimal> interval3 = (0.1d, 0.5d); // open (0.1, 0.5), value: 0.0
 ```
 
-Operations over specific intervals is done through the functions of **IntervalTools** class.
-
 Here is an example how to check if 2 intervals intersect:
 
 ```CSharp
-var result1 = IntervalTools.HasAnyIntersection<int, decimal?>((10, 20), (18, 30));
+var result1 = (10, 20).HasIntersection<int, int?>((18, 30));
 Console.WriteLine(result1);
 // True
 
-var result2 = IntervalTools.HasAnyIntersection<int, decimal?>((10, 20), (22, 30));
+var result2 = (10, 20).HasIntersection<int, int?>((22, 30));
 Console.WriteLine(result2);
 // False
 ```
@@ -78,11 +76,11 @@ Console.WriteLine(result2);
 Here is an example how to check if an interval covers another interval:
 
 ```CSharp
-var result1 = IntervalTools.Covers<int, decimal?>(interval: (10, 20), other: (12, 18));
+var result1 = (10, 20).HasIntersection<int, int?>((12, 18), IntersectionType.Cover) // Check if (10, 20) covers (12, 18)
 Console.WriteLine(result1);
 // True
 
-var result2 = IntervalTools.Covers<int, decimal?>(interval: (10, 20), other: (10, 30));
+var result2 = (10, 20).HasIntersection<int, int?>((10, 30), IntersectionType.Cover) // Check if (10, 20) covers (10, 30)
 Console.WriteLine(result2);
 // False
 ```
