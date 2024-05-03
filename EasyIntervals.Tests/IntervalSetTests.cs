@@ -503,6 +503,262 @@ public class IntervalSetTests
     ///    [--------------]
     ///    (--------------)        (--------]
     /// (--------)     (--------)  [--------------)
+    /// 2--3-----5-----7--8-----10-11-------14----16-
+    /// Expected result: true
+    /// </summary>
+    [Fact]
+    public void HasIntersection_GivenIntervalHasAnyIntersection_ShouldReturnTrue()
+    {
+        // Arrange
+        var expected = new Interval<int, int?>[] {
+            (3, 8, IntervalType.Closed),
+            (11, 16, IntervalType.StartClosed),
+            (7, 10),
+        };
+
+        var intervalSet = new IntervalSet<int, int?>
+        {
+            (2, 5), // (2, 5)
+            (7, 10), // (7, 10)
+            (3, 8, IntervalType.Open), // (3, 8)
+            (3, 8, IntervalType.Closed), // [3, 8]
+            (11, 16, IntervalType.StartClosed), // [11, 16)
+            (11, 14, IntervalType.EndClosed) // (11, 14]
+        };
+
+        // Act
+        var result = intervalSet.HasIntersection((8, 11, IntervalType.Closed));
+
+        // Assert
+        result.Should().BeTrue();
+    }
+
+    /// <summary>
+    /// Intersection interval:
+    ///                   (--------)
+    /// Set:
+    ///    [--------------]
+    ///    (--------------)        (--------]
+    /// (--------)                 [--------------)
+    /// 2--3-----5--------8--------11-------14----16-
+    ///  Expected result: false
+    /// </summary>
+    [Fact]
+    public void HasIntersection_GivenIntervalHasNoIntersection_ShouldReturnFalse()
+    {
+        // Arrange
+        var intervalSet = new IntervalSet<int, int?>
+        {
+            (2, 5), // (2, 5)
+            (3, 8, IntervalType.Open), // (3, 8)
+            (3, 8, IntervalType.Closed), // [3, 8]
+            (11, 16, IntervalType.StartClosed), // [11, 16)
+            (11, 14, IntervalType.EndClosed) // (11, 14]
+        };
+
+        // Act
+        var result = intervalSet.HasIntersection((8, 11));
+
+        // Assert
+        result.Should().BeFalse();
+    }
+
+    /// <summary>
+    /// Intersection interval:
+    ///          [--------------------------------]
+    /// Set:
+    ///    [--------------------------]
+    /// (--------)
+    ///          [--------------)  (--------]
+    /// 2--3-----5--------------10-11-12----14----16-
+    /// Expected result: true
+    /// </summary>
+    [Fact]
+    public void HasIntersection_GivenIntervalHasCoveringIntersection_ShouldReturnIntersectedIntervals()
+    {
+        // Arrange
+        var intervalSet = new IntervalSet<int, int?>
+        {
+            (2, 5),
+            (5, 10, IntervalType.StartClosed),
+            (3, 12, IntervalType.Closed),
+            (11, 14, IntervalType.EndClosed)
+        };
+
+        // Act
+        var result = intervalSet.HasIntersection((5, 16, IntervalType.Closed), IntersectionType.Cover);
+
+        // Assert
+        result.Should().BeTrue();
+    }
+
+    /// <summary>
+    /// Intersection interval:
+    ///          (--------------)
+    /// Set:
+    ///    [--------------------------]
+    /// (--------)
+    ///          [--------------)  (--------]
+    /// 2--3-----5--------------10-11-12----14----16-
+    /// Expected result: false
+    /// </summary>
+    [Fact]
+    public void HasIntersection_GivenIntervalHasNoCoveringIntersection_ShouldReturnEmptyCollection()
+    {
+        // Arrange
+        var intervalSet = new IntervalSet<int, int?>
+        {
+            (2, 5),
+            (5, 10, IntervalType.StartClosed),
+            (3, 12, IntervalType.Closed),
+            (11, 16, IntervalType.StartClosed)
+        };
+
+        // Act
+        var result = intervalSet.HasIntersection((5, 10), IntersectionType.Cover);
+
+        // Assert
+        result.Should().BeFalse();
+    }
+
+    /// <summary>
+    /// Intersection interval:
+    ///          [-----------------]
+    /// Set:
+    ///    [--------------------------]
+    /// (--------)
+    ///          [--------------)  (--------]
+    /// 2--3-----5--------------10-11-12----14----16-
+    /// Expected result: true
+    /// </summary>
+    [Fact]
+    public void HasIntersection_GivenIntervalHasWithinIntersection_ShouldReturnIntersectedIntervals()
+    {
+        // Arrange
+        var intervalSet = new IntervalSet<int, int?>
+        {
+            (2, 5),
+            (5, 10, IntervalType.StartClosed),
+            (3, 12, IntervalType.Closed),
+            (11, 16, IntervalType.StartClosed)
+        };
+
+        // Act
+        var result = intervalSet.HasIntersection((5, 11, IntervalType.Closed), IntersectionType.Within);
+
+        // Assert
+        result.Should().BeTrue();
+    }
+
+    /// <summary>
+    /// Intersection interval:
+    ///          (--------------------------------)
+    /// Set:
+    ///    [--------------------------]
+    /// (--------)
+    ///          [--------------)  (--------]
+    /// 2--3-----5--------------10-11-12----14----16-
+    /// Expected result: false
+    /// </summary>
+    [Fact]
+    public void HasIntersection_GivenIntervalHasNoWithinIntersection_ShouldReturnEmptyCollection()
+    {
+        // Arrange
+        var intervalSet = new IntervalSet<int, int?>
+        {
+            (2, 5),
+            (5, 10, IntervalType.StartClosed),
+            (3, 12, IntervalType.Closed),
+            (11, 16, IntervalType.StartClosed)
+        };
+
+        // Act
+        var result = intervalSet.HasIntersection((5, 16), IntersectionType.Within);
+
+        // Assert
+        result.Should().BeFalse();
+    }
+
+    /// <summary>
+    /// Intersection intervals:
+    ///                   [--------]                ... [20, 30] ... [40, 50]
+    /// Set:
+    ///    [--------------]
+    ///    (--------------)        (--------]
+    /// (--------)     (--------)  [--------------)
+    /// 2--3-----5-----7--8-----10-11-------14----16-
+    /// Expected result: true
+    /// </summary>
+    [Fact]
+    public void HasIntersection_AnyGivenIntervalHasAnyIntersection_ShouldReturnTrue()
+    {
+        // Arrange
+        var expected = new Interval<int, int?>[] {
+            (3, 8, IntervalType.Closed),
+            (11, 16, IntervalType.StartClosed),
+            (7, 10),
+        };
+
+        var intervalSet = new IntervalSet<int, int?>
+        {
+            (2, 5), // (2, 5)
+            (7, 10), // (7, 10)
+            (3, 8, IntervalType.Open), // (3, 8)
+            (3, 8, IntervalType.Closed), // [3, 8]
+            (11, 16, IntervalType.StartClosed), // [11, 16)
+            (11, 14, IntervalType.EndClosed) // (11, 14]
+        };
+
+        // Act
+        var result = intervalSet.HasIntersection(new Interval<int, int?>[]
+        {
+            (8, 11, IntervalType.Closed), (20, 30, IntervalType.Closed), (40, 50, IntervalType.Closed)
+        });
+
+        // Assert
+        result.Should().BeTrue();
+    }
+
+    /// <summary>
+    /// Intersection interval:
+    ///                   (--------)               ... [20, 30] ... [40, 50]
+    /// Set:
+    ///    [--------------]
+    ///    (--------------)        (--------]
+    /// (--------)                 [--------------)
+    /// 2--3-----5--------8--------11-------14----16-
+    ///  Expected result: false
+    /// </summary>
+    [Fact]
+    public void HasIntersection_NoGivenIntervalHasNoIntersection_ShouldReturnFalse()
+    {
+        // Arrange
+        var intervalSet = new IntervalSet<int, int?>
+        {
+            (2, 5), // (2, 5)
+            (3, 8, IntervalType.Open), // (3, 8)
+            (3, 8, IntervalType.Closed), // [3, 8]
+            (11, 16, IntervalType.StartClosed), // [11, 16)
+            (11, 14, IntervalType.EndClosed) // (11, 14]
+        };
+
+        // Act
+        var result = intervalSet.HasIntersection(new Interval<int, int?>[]
+        {
+            (8, 11), (20, 30, IntervalType.Closed), (40, 50, IntervalType.Closed)
+        });
+
+        // Assert
+        result.Should().BeFalse();
+    }
+
+    /// <summary>
+    /// Intersection interval:
+    ///                   [--------]
+    /// Set:
+    ///    [--------------]
+    ///    (--------------)        (--------]
+    /// (--------)     (--------)  [--------------)
     /// Expected set:
     ///                (--------)
     ///    [--------------]        [--------------)
