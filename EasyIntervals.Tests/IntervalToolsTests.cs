@@ -5,10 +5,10 @@ public class IntervalToolsTests
     [Fact]
     public void HasAnyIntersection_IntersectingIntervals_ShouldReturnTrue()
     {
-        var start = (2, 5);
-        var end = (4, 8);
+        var interval1 = (2, 5);
+        var interval2 = (4, 8);
 
-        var result = IntervalTools.HasAnyIntersection<int, int?>(start, end, Comparer<int>.Default);
+        var result = IntervalTools.HasAnyIntersection<int, int?>(interval1, interval2, Comparer<int>.Default);
 
         result.Should().BeTrue();
     }
@@ -16,10 +16,34 @@ public class IntervalToolsTests
     [Fact]
     public void HasAnyIntersection_NotIntersectingIntervals_ShouldReturnFalse()
     {
-        var start = (2, 5);
-        var end = (6, 8);
+        var interval1 = (6, 8);
+        var interval2 = (2, 5);
 
-        var result = IntervalTools.HasAnyIntersection<int, int?>(start, end, Comparer<int>.Default);
+        var result = IntervalTools.HasAnyIntersection<int, int?>(interval1, interval2, Comparer<int>.Default);
+
+        result.Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasAnyIntersection_IntersectingIntervalsWithCustomComparer_ShouldReturnTrue()
+    {
+        var comparer = Comparer<int>.Create((i1, i2) => i2 - i1);
+        var interval = (5, 2, comparer);
+        var other = (8, 4, comparer);
+
+        var result = IntervalTools.HasAnyIntersection<int, int?>(interval, other, comparer);
+
+        result.Should().BeTrue();
+    }
+
+    [Fact]
+    public void HasAnyIntersection_NotIntersectingIntervalsWithCustomComparer_ShouldReturnFalse()
+    {
+        var comparer = Comparer<int>.Create((i1, i2) => i2 - i1);
+        var interval = (5, 2, comparer);
+        var other = (8, 6, comparer);
+
+        var result = IntervalTools.HasAnyIntersection<int, int?>(interval, other, comparer);
 
         result.Should().BeFalse();
     }
