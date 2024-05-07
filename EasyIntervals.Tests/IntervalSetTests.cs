@@ -12,17 +12,17 @@ public class IntervalSetTests
     private ISet<Interval<int, int?>> input = new HashSet<Interval<int, int?>> {
             (18, 34, IntervalType.Closed),
             (13, 18, IntervalType.Closed),
-            (1, 2),
+            (1, 2, IntervalType.Open),
             (7, 12, IntervalType.Closed),
-            (42, 68),
-            (73, 90),
-            (56, 65),
-            (24, 56),
-            (6, 11),
-            (2, 4),
-            (74, 80),
-            (69, 92),
-            (55, 58)
+            (42, 68, IntervalType.Open),
+            (73, 90, IntervalType.Open),
+            (56, 65, IntervalType.Open),
+            (24, 56, IntervalType.Open),
+            (6, 11, IntervalType.Open),
+            (2, 4, IntervalType.Open),
+            (74, 80, IntervalType.Open),
+            (69, 92, IntervalType.Open),
+            (55, 58, IntervalType.Open)
         };
 
     private IntervalSet<int, int?> CreateIntervalSet(ISet<Interval<int, int?>> input)
@@ -72,7 +72,7 @@ public class IntervalSetTests
     {
         var intervalSet = CreateIntervalSet(input);
 
-        var result = intervalSet.Contains((1, 2));
+        var result = intervalSet.Contains((1, 2, IntervalType.Open));
 
         result.Should().BeTrue();
     }
@@ -557,7 +557,7 @@ public class IntervalSetTests
         };
 
         // Act
-        var result = intervalSet.HasIntersection((8, 11));
+        var result = intervalSet.HasIntersection((8, 11, IntervalType.Open));
 
         // Assert
         result.Should().BeFalse();
@@ -615,7 +615,7 @@ public class IntervalSetTests
         };
 
         // Act
-        var result = intervalSet.HasIntersection((5, 10), IntersectionType.Cover);
+        var result = intervalSet.HasIntersection((5, 10, IntervalType.Open), IntersectionType.Cover);
 
         // Assert
         result.Should().BeFalse();
@@ -816,7 +816,7 @@ public class IntervalSetTests
         };
 
         // Act
-        var result = intervalSet.Intersect((8, 11));
+        var result = intervalSet.Intersect((8, 11, IntervalType.Open));
 
         // Assert
         result.Should().BeEmpty();
@@ -881,7 +881,7 @@ public class IntervalSetTests
         };
 
         // Act
-        var result = intervalSet.Intersect((5, 10), IntersectionType.Cover);
+        var result = intervalSet.Intersect((5, 10, IntervalType.Open), IntersectionType.Cover);
 
         // Assert
         result.Should().BeEmpty();
@@ -1180,7 +1180,7 @@ public class IntervalSetTests
         };
 
         // Act
-        var result = intervalSet.Except((5, 10), IntersectionType.Within);
+        var result = intervalSet.Except((5, 10, IntervalType.Open), IntersectionType.Within);
 
         // Assert
         result.Should().BeEmpty();
