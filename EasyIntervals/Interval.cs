@@ -16,11 +16,11 @@ public enum IntervalType
 /// </summary>
 public struct Interval<TLimit, TValue> : IEquatable<Interval<TLimit, TValue>>
 {
-    public Interval(TLimit start, TLimit end, IntervalType type = IntervalType.Open, IComparer<TLimit>? comparer = null)
+    public Interval(TLimit start, TLimit end, IntervalType type = IntervalType.Closed, IComparer<TLimit>? comparer = null)
         : this(start, end, default, type, comparer)
     { }
 
-    public Interval(TLimit start, TLimit end, TValue? value, IntervalType type = IntervalType.Open, IComparer<TLimit>? comparer = null)
+    public Interval(TLimit start, TLimit end, TValue? value, IntervalType type = IntervalType.Closed, IComparer<TLimit>? comparer = null)
     {
         comparer ??= Comparer<TLimit>.Default;
         var startEndComparison = comparer.Compare(start, end);
