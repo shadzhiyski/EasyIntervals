@@ -50,8 +50,8 @@ public class IntervalToolsTests
 
     [Theory]
     [InlineData(2, 8, IntervalType.Open, 2, 8, IntervalType.Open)]
-    [InlineData(2, 8, IntervalType.StartClosed, 2, 8, IntervalType.Open)]
-    [InlineData(2, 8, IntervalType.EndClosed, 2, 8, IntervalType.Open)]
+    [InlineData(2, 8, IntervalType.EndOpen, 2, 8, IntervalType.Open)]
+    [InlineData(2, 8, IntervalType.StartOpen, 2, 8, IntervalType.Open)]
     public void Covers_IntervalCoversOther_ShouldReturnTrue(
         int intervalStart, int intervalEnd, IntervalType intervalType,
         int otherIntervalStart, int otherIntervalEnd, IntervalType otherIntervalType)
@@ -66,8 +66,8 @@ public class IntervalToolsTests
 
     [Theory]
     [InlineData(3, 5, IntervalType.Open, 2, 8, IntervalType.Open)]
-    [InlineData(2, 8, IntervalType.Open, 2, 8, IntervalType.StartClosed)]
-    [InlineData(2, 8, IntervalType.Open, 2, 8, IntervalType.EndClosed)]
+    [InlineData(2, 8, IntervalType.Open, 2, 8, IntervalType.EndOpen)]
+    [InlineData(2, 8, IntervalType.Open, 2, 8, IntervalType.StartOpen)]
     public void Covers_IntervalNotCoversOther_ShouldReturnTrue(
         int intervalStart, int intervalEnd, IntervalType intervalType,
         int otherIntervalStart, int otherIntervalEnd, IntervalType otherIntervalType)

@@ -33,12 +33,12 @@ public static class IntervalTools
         }
 
         var overlapsStartEnd = startEndComparison < 0
-            || ((interval1.Type & IntervalType.StartClosed) > 0
-                && (interval2.Type & IntervalType.EndClosed) > 0
+            || ((interval1.Type & IntervalType.EndOpen) > 0
+                && (interval2.Type & IntervalType.StartOpen) > 0
                 && startEndComparison == 0);
         var overlapsEndStart = endStartComparison > 0
-            || ((interval1.Type & IntervalType.EndClosed) > 0
-                && (interval2.Type & IntervalType.StartClosed) > 0
+            || ((interval1.Type & IntervalType.StartOpen) > 0
+                && (interval2.Type & IntervalType.EndOpen) > 0
                 && endStartComparison == 0);
         return overlapsStartEnd && overlapsEndStart;
     }
@@ -67,9 +67,9 @@ public static class IntervalTools
         var startsComparison = comparer.Compare(interval.Start, other.Start);
         var endsComparison = comparer.Compare(interval.End, other.End);
         return (startsComparison < 0
-                || (startsComparison == 0 && (interval.Type & IntervalType.StartClosed) >= (other.Type & IntervalType.StartClosed)))
+                || (startsComparison == 0 && (interval.Type & IntervalType.EndOpen) >= (other.Type & IntervalType.EndOpen)))
             && (endsComparison > 0
-                || (endsComparison == 0 && (interval.Type & IntervalType.EndClosed) >= (other.Type & IntervalType.EndClosed)));
+                || (endsComparison == 0 && (interval.Type & IntervalType.StartOpen) >= (other.Type & IntervalType.StartOpen)));
     }
 
     /// <summary>
@@ -86,7 +86,7 @@ public static class IntervalTools
     /// <returns></returns>
     internal static bool Touch<TLimit, TValue>(in Interval<TLimit, TValue> precedingInterval, in Interval<TLimit, TValue> followingInterval, IComparer<TLimit> comparer) =>
         comparer.Compare(precedingInterval.End, followingInterval.Start) == 0
-            && ((precedingInterval.Type & IntervalType.EndClosed) | (followingInterval.Type & IntervalType.StartClosed)) > 0;
+            && ((precedingInterval.Type & IntervalType.StartOpen) | (followingInterval.Type & IntervalType.EndOpen)) > 0;
 
     /// <summary>
     /// Merges 2 intervals.
@@ -104,14 +104,14 @@ public static class IntervalTools
     {
         var startComparison = comparer.Compare(followingInterval.Start, precedingInterval.Start);
         var startIntervalType = startComparison == 0
-            ? (followingInterval.Type | precedingInterval.Type) & IntervalType.StartClosed
-            : precedingInterval.Type & IntervalType.StartClosed;
+            ? (followingInterval.Type | precedingInterval.Type) & IntervalType.EndOpen
+            : precedingInterval.Type & IntervalType.EndOpen;
         var endComparison = comparer.Compare(followingInterval.End, precedingInterval.End);
         var endIntervalType = endComparison > 0
-            ? followingInterval.Type & IntervalType.EndClosed
+            ? followingInterval.Type & IntervalType.StartOpen
             : endComparison < 0
-                ? precedingInterval.Type & IntervalType.EndClosed
-                : (followingInterval.Type | precedingInterval.Type) & IntervalType.EndClosed;
+                ? precedingInterval.Type & IntervalType.StartOpen
+                : (followingInterval.Type | precedingInterval.Type) & IntervalType.StartOpen;
         return (
             precedingInterval.Start,
             endComparison > 0 ? followingInterval.End : precedingInterval.End,
@@ -140,14 +140,14 @@ public static class IntervalTools
     {
         var startComparison = comparer.Compare(followingInterval.Start, precedingInterval.Start);
         var startIntervalType = startComparison == 0
-            ? (followingInterval.Type | precedingInterval.Type) & IntervalType.StartClosed
-            : precedingInterval.Type & IntervalType.StartClosed;
+            ? (followingInterval.Type | precedingInterval.Type) & IntervalType.EndOpen
+            : precedingInterval.Type & IntervalType.EndOpen;
         var endComparison = comparer.Compare(followingInterval.End, precedingInterval.End);
         var endIntervalType = endComparison > 0
-            ? followingInterval.Type & IntervalType.EndClosed
+            ? followingInterval.Type & IntervalType.StartOpen
             : endComparison < 0
-                ? precedingInterval.Type & IntervalType.EndClosed
-                : (followingInterval.Type | precedingInterval.Type) & IntervalType.EndClosed;
+                ? precedingInterval.Type & IntervalType.StartOpen
+                : (followingInterval.Type | precedingInterval.Type) & IntervalType.StartOpen;
         return (
             precedingInterval.Start,
             endComparison > 0 ? followingInterval.End : precedingInterval.End,

@@ -6,9 +6,9 @@ namespace EasyIntervals;
 public enum IntervalType
 {
     Open = 0,
-    StartClosed = 1,
-    EndClosed = 2,
-    Closed = StartClosed | EndClosed,
+    EndOpen = 1,
+    StartOpen = 2,
+    Closed = EndOpen | StartOpen,
 }
 
 /// <summary>
@@ -83,8 +83,8 @@ public struct Interval<TLimit, TValue> : IEquatable<Interval<TLimit, TValue>>
 
     public override string ToString()
     {
-        var startBracket = (Type & IntervalType.StartClosed) == IntervalType.StartClosed ? '[' : '(';
-        var endBracket = (Type & IntervalType.EndClosed) == IntervalType.EndClosed ? ']' : ')';
+        var startBracket = (Type & IntervalType.EndOpen) == IntervalType.EndOpen ? '[' : '(';
+        var endBracket = (Type & IntervalType.StartOpen) == IntervalType.StartOpen ? ']' : ')';
         if (Value is null)
         {
             return $"{startBracket}{Start}, {End}{endBracket}";

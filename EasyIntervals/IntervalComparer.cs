@@ -22,8 +22,8 @@ internal class IntervalComparer<TLimit, TValue> : IComparer<Interval<TLimit, TVa
             return comparison;
         }
 
-        var startType1 = int1.Type & IntervalType.StartClosed;
-        var startType2 = int2.Type & IntervalType.StartClosed;
+        var startType1 = int1.Type & IntervalType.EndOpen;
+        var startType2 = int2.Type & IntervalType.EndOpen;
         if (startType1 != startType2)
         {
             return startType2.CompareTo(startType1);
@@ -35,8 +35,8 @@ internal class IntervalComparer<TLimit, TValue> : IComparer<Interval<TLimit, TVa
             return endComparison;
         }
 
-        var endType1 = int1.Type & IntervalType.EndClosed;
-        var endType2 = int2.Type & IntervalType.EndClosed;
+        var endType1 = int1.Type & IntervalType.StartOpen;
+        var endType2 = int2.Type & IntervalType.StartOpen;
         return endType1.CompareTo(endType2);
     }
 }

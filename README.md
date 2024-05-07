@@ -32,13 +32,13 @@ dotnet add package EasyIntervals
 
 ### Interval Basics
 
-An Interval can be created with start, end and optional value input parameters. By default type of interval is **Open**. Interval type can be **Closed**, **StartClosed**, **EndClosed** and **Open**.
+An Interval can be created with start, end and optional value input parameters. By default type of interval is **Open**. Interval type can be **Closed**, **EndOpen**, **StartOpen** and **Open**.
 
 ```CSharp
 var interval1 = new Interval<int, decimal?>(10, 50); // closed (by default) [10, 50] - includes both limits
 var interval2 = new Interval<int, decimal?>(10, 50, IntervalType.Open); // open (10, 50) - excludes both limits
-var interval3 = new Interval<int, decimal?>(10, 50, IntervalType.StartClosed); // start closed [10, 50) - includes start only
-var interval4 = new Interval<int, decimal?>(10, 50, IntervalType.EndClosed); // end closed (10, 50] - includes end only
+var interval3 = new Interval<int, decimal?>(10, 50, IntervalType.EndOpen); // start closed [10, 50) - includes start only
+var interval4 = new Interval<int, decimal?>(10, 50, IntervalType.StartOpen); // end closed (10, 50] - includes end only
 var interval5 = new Interval<int, decimal?>(10, 50, 2.5m); // closed [10, 50], value: 2.5
 ```
 
@@ -132,9 +132,9 @@ var intervalSet2 = new IntervalSet<int, decimal?>
 {
     (3, 8), // [3, 8]
     (7, 10, 3m, IntervalType.Open), // (7, 10): 3.0
-    (11, 16, 15.0m, IntervalType.StartClosed), // [11, 16): 15.0
-    (11, 16, 10.0m, IntervalType.StartClosed), // [11, 16): 10.0
-    (11, 14, IntervalType.EndClosed), // (11, 14]
+    (11, 16, 15.0m, IntervalType.EndOpen), // [11, 16): 15.0
+    (11, 16, 10.0m, IntervalType.EndOpen), // [11, 16): 10.0
+    (11, 14, IntervalType.StartOpen), // (11, 14]
 };
 
 var unionIntervalSet = intervalSet1.Union(intervalSet2);
@@ -158,9 +158,9 @@ var inputIntervals = new List<Interval<int, decimal?>>
 {
     (3, 8), // [3, 8]
     (7, 10, 3m, IntervalType.Open), // (7, 10): 3
-    (11, 16, 15.0m, IntervalType.StartClosed), // [11, 16): 15.0
-    (11, 16, 10.0m, IntervalType.StartClosed), // [11, 16): 10.0
-    (11, 14, IntervalType.EndClosed), // (11, 14]
+    (11, 16, 15.0m, IntervalType.EndOpen), // [11, 16): 15.0
+    (11, 16, 10.0m, IntervalType.EndOpen), // [11, 16): 10.0
+    (11, 14, IntervalType.StartOpen), // (11, 14]
 };
 
 intervalSet.UnionWith(inputIntervals);
@@ -197,8 +197,8 @@ var intervalSet = new IntervalSet<int, decimal?>
     (3, 8, IntervalType.Open), // (3, 8)
     (3, 8), // [3, 8]
     (7, 10, IntervalType.Open), // (7, 10)
-    (11, 16, IntervalType.StartClosed), // [11, 16)
-    (11, 14, IntervalType.EndClosed), // (11, 14]
+    (11, 16, IntervalType.EndOpen), // [11, 16)
+    (11, 14, IntervalType.StartOpen), // (11, 14]
 };
 
 var intersectionInterval = new Interval<int, decimal?>(8, 11, IntervalType.Closed);
@@ -246,8 +246,8 @@ var intervalSet = new IntervalSet<int, decimal?>
 {
     (2, 5, IntervalType.Open), // (2, 5)
     (3, 12, IntervalType.Closed), // [3, 12]
-    (5, 10, IntervalType.StartClosed), // [5, 10)
-    (11, 16, IntervalType.StartClosed), // [11, 16)
+    (5, 10, IntervalType.EndOpen), // [5, 10)
+    (11, 16, IntervalType.EndOpen), // [11, 16)
 };
 
 var intersectionInterval = new Interval<int, decimal?>(5, 11, IntervalType.Closed);
@@ -285,8 +285,8 @@ var intervalSet = new IntervalSet<int, decimal?>
 {
     (2, 5, IntervalType.Open), // (2, 5)
     (3, 12, IntervalType.Closed), // [3, 12]
-    (5, 10, IntervalType.StartClosed), // [5, 10)
-    (11, 16, IntervalType.StartClosed), // [11, 16)
+    (5, 10, IntervalType.EndOpen), // [5, 10)
+    (11, 16, IntervalType.EndOpen), // [11, 16)
 };
 
 var intersectionInterval = new Interval<int, decimal?>(5, 11, IntervalType.Closed);
@@ -328,8 +328,8 @@ var intervalSet = new IntervalSet<int, decimal?>
     (3, 8, IntervalType.Open), // (3, 8)
     (3, 8, IntervalType.Closed), // [3, 8]
     (7, 10, IntervalType.Open), // (7, 10)
-    (11, 16, IntervalType.StartClosed), // [11, 16)
-    (11, 14, IntervalType.EndClosed), // (11, 14]
+    (11, 16, IntervalType.EndOpen), // [11, 16)
+    (11, 14, IntervalType.StartOpen), // (11, 14]
 };
 
 var intersectionInterval = (8, 11, IntervalType.Closed);
@@ -366,8 +366,8 @@ var intervalSet = new IntervalSet<int, decimal?>
 {
     (2, 5, IntervalType.Open), // (2, 5)
     (3, 12, IntervalType.Closed), // [3, 8]
-    (5, 10, IntervalType.StartClosed), // [5, 10)
-    (11, 16, IntervalType.StartClosed), // [11, 16)
+    (5, 10, IntervalType.EndOpen), // [5, 10)
+    (11, 16, IntervalType.EndOpen), // [11, 16)
 };
 
 var coveringInterval = new Interval<int, decimal?>(5, 11, IntervalType.Closed);
@@ -405,8 +405,8 @@ var intervalSet = new IntervalSet<int, decimal?>
 {
     (2, 5, IntervalType.Open), // (2, 5)
     (3, 12, IntervalType.Closed), // [3, 8]
-    (5, 10, IntervalType.StartClosed), // [5, 10)
-    (11, 16, IntervalType.StartClosed), // [11, 16)
+    (5, 10, IntervalType.EndOpen), // [5, 10)
+    (11, 16, IntervalType.EndOpen), // [11, 16)
 };
 
 var withinInterval = new Interval<int, decimal?>(5, 11, IntervalType.Closed);
@@ -450,9 +450,9 @@ displayMode: compact
 var intervalSet = new IntervalSet<DateOnly, decimal?>
 {
     (new DateOnly(2023, 09, 2), new DateOnly(2023, 09, 5), IntervalType.Open), // (2 - 5)
-    (new DateOnly(2023, 09, 5), new DateOnly(2023, 09, 10), IntervalType.StartClosed), // [5 - 10)
+    (new DateOnly(2023, 09, 5), new DateOnly(2023, 09, 10), IntervalType.EndOpen), // [5 - 10)
     (new DateOnly(2023, 09, 12), new DateOnly(2023, 09, 16), IntervalType.Closed), // [12 - 16]
-    (new DateOnly(2023, 09, 14), new DateOnly(2023, 09, 26), IntervalType.StartClosed) // [14 - 26)
+    (new DateOnly(2023, 09, 14), new DateOnly(2023, 09, 26), IntervalType.EndOpen) // [14 - 26)
 };
 
 var mergedIntervalSet = intervalSet.Merge();
@@ -485,9 +485,9 @@ Code:
 var intervalSet = new IntervalSet<DateOnly, decimal?>
 {
     (new DateOnly(2023, 09, 2), new DateOnly(2023, 09, 5), 2.5m, IntervalType.Open), // (2 - 5)
-    (new DateOnly(2023, 09, 5), new DateOnly(2023, 09, 10), 2.5m, IntervalType.StartClosed), // [5 - 10)
+    (new DateOnly(2023, 09, 5), new DateOnly(2023, 09, 10), 2.5m, IntervalType.EndOpen), // [5 - 10)
     (new DateOnly(2023, 09, 12), new DateOnly(2023, 09, 16), 3.0m, IntervalType.Closed), // [12 - 16]
-    (new DateOnly(2023, 09, 14), new DateOnly(2023, 09, 26), 5.0m, IntervalType.StartClosed) // [14 - 26)
+    (new DateOnly(2023, 09, 14), new DateOnly(2023, 09, 26), 5.0m, IntervalType.EndOpen) // [14 - 26)
 };
 
 var mergedIntervalSet = intervalSet.Merge((itv1, itv2) => itv1.Value + itv2.Value);
