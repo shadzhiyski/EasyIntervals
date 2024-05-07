@@ -17,7 +17,7 @@ public class IntervalComparerTests
     {
         var intervalComparer = IntervalComparer<int, int?>.Create(Comparer<int>.Default);
 
-        var result = intervalComparer.Compare((5, 12, IntervalType.StartClosed), (5, 10));
+        var result = intervalComparer.Compare((5, 12, IntervalType.StartClosed), (5, 10, IntervalType.Open));
 
         result.Should().Be(-1);
     }
