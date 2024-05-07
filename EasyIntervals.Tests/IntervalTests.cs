@@ -15,8 +15,8 @@ public class IntervalTests
 
     [Theory]
     [InlineData(IntervalType.Open)]
-    [InlineData(IntervalType.StartClosed)]
-    [InlineData(IntervalType.EndClosed)]
+    [InlineData(IntervalType.EndOpen)]
+    [InlineData(IntervalType.StartOpen)]
     public void Initialization_EqualLimitsNotClosedIntervalType_ShouldThrowArgumentException(IntervalType intervalType)
     {
         var start = 5;
@@ -75,8 +75,8 @@ public class IntervalTests
     [Theory]
     [InlineData(2, 5, null, IntervalType.Open, "(2, 5)")]
     [InlineData(2, 5, null, IntervalType.Closed, "[2, 5]")]
-    [InlineData(2, 5, null, IntervalType.EndClosed, "(2, 5]")]
-    [InlineData(2, 5, null, IntervalType.StartClosed, "[2, 5)")]
+    [InlineData(2, 5, null, IntervalType.StartOpen, "(2, 5]")]
+    [InlineData(2, 5, null, IntervalType.EndOpen, "[2, 5)")]
     [InlineData(2, 5, 10, IntervalType.Open, "(2, 5): 10")]
     [InlineData(2, 5, 10, IntervalType.Closed, "[2, 5]: 10")]
     public void ToString_ShouldPrintCorrect(int start, int end, int? value, IntervalType intervalType, string expectedValue)

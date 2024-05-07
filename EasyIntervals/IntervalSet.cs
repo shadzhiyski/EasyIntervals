@@ -215,6 +215,61 @@ public class IntervalSet<TLimit, TValue> : ISet<Interval<TLimit, TValue>>
     }
 
     /// <summary>
+    /// Checks if <c>interval</c> has intersection by <c>intersectionType</c> with the set.
+    /// </summary>
+    /// <param name="interval">interval</param>
+    /// <param name="intersectionType">intersectionType</param>
+    /// <returns>true if has intersection; otherwise, false.</returns>
+    public bool HasIntersection(
+        in Interval<TLimit, TValue> interval, IntersectionType intersectionType = IntersectionType.Any) =>
+            HasIntersection(_aaTree.Root, interval, intersectionType);
+
+    /// <summary>
+    /// Checks if any of input <c>intervals</c> has intersection by <c>intersectionType</c> with the set.
+    /// </summary>
+    /// <param name="intervals">intervals</param>
+    /// <param name="intersectionType">intersectionType</param>
+    /// <returns>true if has intersection; otherwise, false.</returns>
+    public bool HasIntersection(
+        IEnumerable<Interval<TLimit, TValue>> intervals, IntersectionType intersectionType = IntersectionType.Any) => intervals
+            .Any(itv => HasIntersection(_aaTree.Root, itv, intersectionType));
+
+    private bool HasIntersection(AATree<Interval<TLimit, TValue>>.Node? node,
+        in Interval<TLimit, TValue> interval, IntersectionType intersectionType)
+    {
+        if (node is null
+            || _limitComparer.Compare(interval.Start, node.Value.MaxEnd) > 0)
+        {
+            return false;
+        }
+
+        var leftHasIntersection = HasIntersection(node.Left, interval, intersectionType);
+        if (leftHasIntersection)
+        {
+            return true;
+        }
+
+        if ((intersectionType == IntersectionType.Any && IntervalTools.HasAnyIntersection(interval, node!.Value, _limitComparer))
+            || (intersectionType == IntersectionType.Cover && IntervalTools.Covers(interval, node!.Value, _limitComparer))
+            || (intersectionType == IntersectionType.Within && IntervalTools.Covers(node!.Value, interval, _limitComparer)))
+        {
+            return true;
+        }
+
+        var endStartComparison = _limitComparer.Compare(interval.End, node!.Value.Start);
+        if (endStartComparison >= 0)
+        {
+            var rightHasIntersection = HasIntersection(node.Right, interval, intersectionType);
+            if (rightHasIntersection)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /// <summary>
     /// Intersects the set with <c>interval</c> by <c>intersectionType</c>.
     /// </summary>
     /// <param name="interval">interval</param>
@@ -309,9 +364,9 @@ public class IntervalSet<TLimit, TValue> : ISet<Interval<TLimit, TValue>>
     /// <returns>interval set with united intervals.</returns>
     public IntervalSet<TLimit, TValue> Union(IntervalSet<TLimit, TValue> other)
     {
-        if (_limitComparer.GetType() != other._limitComparer.GetType())
+        if (!AreEqualComparers(_limitComparer, other._limitComparer))
         {
-            throw new ArgumentException("Comparers types differ.");
+            throw new ArgumentException("The interval set comparer must be of the same type as the comparer of the given other interval set comparer.");
         }
 
         var otherCount = other.Count;

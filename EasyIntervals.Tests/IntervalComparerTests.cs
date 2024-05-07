@@ -3,21 +3,21 @@ namespace EasyIntervals.Tests;
 public class IntervalComparerTests
 {
     [Fact]
-    public void SameStartFirstOpenSecondStartClosed_ShouldReturnOne()
+    public void SameStartFirstOpenSecondEndOpen_ShouldReturnOne()
     {
         var intervalComparer = IntervalComparer<int, int?>.Create(Comparer<int>.Default);
 
-        var result = intervalComparer.Compare((5, 12), (5, 10, IntervalType.StartClosed));
+        var result = intervalComparer.Compare((5, 12), (5, 10, IntervalType.EndOpen));
 
         result.Should().Be(1);
     }
 
     [Fact]
-    public void SameStartFirstStartClosedSecondOpen_ShouldReturnMinusOne()
+    public void SameStartFirstEndOpenSecondOpen_ShouldReturnMinusOne()
     {
         var intervalComparer = IntervalComparer<int, int?>.Create(Comparer<int>.Default);
 
-        var result = intervalComparer.Compare((5, 12, IntervalType.StartClosed), (5, 10));
+        var result = intervalComparer.Compare((5, 12, IntervalType.EndOpen), (5, 10, IntervalType.Open));
 
         result.Should().Be(-1);
     }
@@ -27,7 +27,7 @@ public class IntervalComparerTests
     {
         var intervalComparer = IntervalComparer<int, int?>.Create(Comparer<int>.Default);
 
-        var result = intervalComparer.Compare((5, 12, IntervalType.StartClosed), (5, 10, IntervalType.StartClosed));
+        var result = intervalComparer.Compare((5, 12, IntervalType.EndOpen), (5, 10, IntervalType.EndOpen));
 
         result.Should().Be(1);
     }
@@ -37,27 +37,27 @@ public class IntervalComparerTests
     {
         var intervalComparer = IntervalComparer<int, int?>.Create(Comparer<int>.Default);
 
-        var result = intervalComparer.Compare((5, 9, IntervalType.StartClosed), (5, 10, IntervalType.StartClosed));
+        var result = intervalComparer.Compare((5, 9, IntervalType.EndOpen), (5, 10, IntervalType.EndOpen));
 
         result.Should().Be(-1);
     }
 
     [Fact]
-    public void SameLimitsSameStartTypeFirstEndClosed_ShouldReturnOne()
+    public void SameLimitsSameStartTypeFirstStartOpen_ShouldReturnOne()
     {
         var intervalComparer = IntervalComparer<int, int?>.Create(Comparer<int>.Default);
 
-        var result = intervalComparer.Compare((5, 10, IntervalType.Closed), (5, 10, IntervalType.StartClosed));
+        var result = intervalComparer.Compare((5, 10, IntervalType.Closed), (5, 10, IntervalType.EndOpen));
 
         result.Should().Be(1);
     }
 
     [Fact]
-    public void SameLimitsSameStartTypeSecondEndClosed_ShouldReturnMinusOne()
+    public void SameLimitsSameStartTypeSecondStartOpen_ShouldReturnMinusOne()
     {
         var intervalComparer = IntervalComparer<int, int?>.Create(Comparer<int>.Default);
 
-        var result = intervalComparer.Compare((5, 10, IntervalType.StartClosed), (5, 10, IntervalType.Closed));
+        var result = intervalComparer.Compare((5, 10, IntervalType.EndOpen), (5, 10, IntervalType.Closed));
 
         result.Should().Be(-1);
     }
@@ -67,7 +67,7 @@ public class IntervalComparerTests
     {
         var intervalComparer = IntervalComparer<int, int?>.Create(Comparer<int>.Default);
 
-        var result = intervalComparer.Compare((5, 10, IntervalType.StartClosed), (5, 10, IntervalType.StartClosed));
+        var result = intervalComparer.Compare((5, 10, IntervalType.EndOpen), (5, 10, IntervalType.EndOpen));
 
         result.Should().Be(0);
     }

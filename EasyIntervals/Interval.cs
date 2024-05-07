@@ -6,9 +6,9 @@ namespace EasyIntervals;
 public enum IntervalType
 {
     Open = 0,
-    StartClosed = 1,
-    EndClosed = 2,
-    Closed = StartClosed | EndClosed,
+    EndOpen = 1,
+    StartOpen = 2,
+    Closed = EndOpen | StartOpen,
 }
 
 /// <summary>
@@ -16,11 +16,11 @@ public enum IntervalType
 /// </summary>
 public struct Interval<TLimit, TValue> : IEquatable<Interval<TLimit, TValue>>
 {
-    public Interval(TLimit start, TLimit end, IntervalType type = IntervalType.Open, IComparer<TLimit>? comparer = null)
+    public Interval(TLimit start, TLimit end, IntervalType type = IntervalType.Closed, IComparer<TLimit>? comparer = null)
         : this(start, end, default, type, comparer)
     { }
 
-    public Interval(TLimit start, TLimit end, TValue? value, IntervalType type = IntervalType.Open, IComparer<TLimit>? comparer = null)
+    public Interval(TLimit start, TLimit end, TValue? value, IntervalType type = IntervalType.Closed, IComparer<TLimit>? comparer = null)
     {
         comparer ??= Comparer<TLimit>.Default;
         var startEndComparison = comparer.Compare(start, end);
@@ -83,8 +83,8 @@ public struct Interval<TLimit, TValue> : IEquatable<Interval<TLimit, TValue>>
 
     public override string ToString()
     {
-        var startBracket = (Type & IntervalType.StartClosed) == IntervalType.StartClosed ? '[' : '(';
-        var endBracket = (Type & IntervalType.EndClosed) == IntervalType.EndClosed ? ']' : ')';
+        var startBracket = (Type & IntervalType.EndOpen) == IntervalType.EndOpen ? '[' : '(';
+        var endBracket = (Type & IntervalType.StartOpen) == IntervalType.StartOpen ? ']' : ')';
         if (Value is null)
         {
             return $"{startBracket}{Start}, {End}{endBracket}";
