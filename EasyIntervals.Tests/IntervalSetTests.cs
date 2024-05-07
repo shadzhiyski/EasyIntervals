@@ -93,11 +93,11 @@ public class IntervalSetTests
         // Arrange
         var intervalSet = CreateIntervalSet(input);
         var expected = new Interval<int, int?>[] {
-            (1, 2, IntervalType.Open),
-            (2, 4, IntervalType.Open),
+            (1, 2),
+            (2, 4),
             (6, 12, IntervalType.EndClosed),
             (13, 68, IntervalType.StartClosed),
-            (69, 92, IntervalType.Open),
+            (69, 92),
         };
 
         // Act
@@ -113,11 +113,11 @@ public class IntervalSetTests
         // Arrange
         var intervalSet = CreateIntervalSet(input);
         var expected = new Interval<int, int?>[] {
-            (1, 2, IntervalType.Open),
-            (2, 4, IntervalType.Open),
+            (1, 2),
+            (2, 4),
             (6, 12, IntervalType.EndClosed),
             (13, 68, IntervalType.StartClosed),
-            (69, 92, IntervalType.Open),
+            (69, 92),
         };
 
         // Act
@@ -549,7 +549,7 @@ public class IntervalSetTests
         // Arrange
         var intervalSet = new IntervalSet<int, int?>
         {
-            (2, 5, IntervalType.Open), // (2, 5)
+            (2, 5), // (2, 5)
             (3, 8, IntervalType.Open), // (3, 8)
             (3, 8, IntervalType.Closed), // [3, 8]
             (11, 16, IntervalType.StartClosed), // [11, 16)
@@ -608,7 +608,7 @@ public class IntervalSetTests
         // Arrange
         var intervalSet = new IntervalSet<int, int?>
         {
-            (2, 5, IntervalType.Open),
+            (2, 5),
             (5, 10, IntervalType.StartClosed),
             (3, 12, IntervalType.Closed),
             (11, 16, IntervalType.StartClosed)
@@ -745,7 +745,7 @@ public class IntervalSetTests
         // Act
         var result = intervalSet.HasIntersection(new Interval<int, int?>[]
         {
-            (8, 11, IntervalType.Open), (20, 30), (40, 50)
+            (8, 11), (20, 30, IntervalType.Closed), (40, 50, IntervalType.Closed)
         });
 
         // Assert
@@ -808,7 +808,7 @@ public class IntervalSetTests
         // Arrange
         var intervalSet = new IntervalSet<int, int?>
         {
-            (2, 5, IntervalType.Open), // (2, 5)
+            (2, 5), // (2, 5)
             (3, 8, IntervalType.Open), // (3, 8)
             (3, 8, IntervalType.Closed), // [3, 8]
             (11, 16, IntervalType.StartClosed), // [11, 16)
@@ -874,7 +874,7 @@ public class IntervalSetTests
         // Arrange
         var intervalSet = new IntervalSet<int, int?>
         {
-            (2, 5, IntervalType.Open),
+            (2, 5),
             (5, 10, IntervalType.StartClosed),
             (3, 12, IntervalType.Closed),
             (11, 16, IntervalType.StartClosed)
@@ -1174,7 +1174,7 @@ public class IntervalSetTests
         // Arrange
         var intervalSet = new IntervalSet<int, int?>
         {
-            (2, 10, IntervalType.Open),
+            (2, 10),
             (5, 10, IntervalType.StartClosed),
             (3, 12, IntervalType.Closed)
         };
