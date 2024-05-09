@@ -1,5 +1,5 @@
 using BenchmarkDotNet.Running;
-using EasyIntervals.Playground;
+using NeatIntervals.Playground;
 
 BenchmarkRunner.Run<IntervalCollectionsInitializationBenchmarks>();
 BenchmarkRunner.Run<IntervalCollectionsBenchmarks>();

@@ -1,18 +1,18 @@
 ![Components Relationships](/assets/img/logo/logo160x105.png)
 
-# EasyIntervals
+# NeatIntervals
 
-[![NuGet version](https://badge.fury.io/nu/EasyIntervals.svg)](https://www.nuget.org/packages/EasyIntervals)
-[![build status badge](https://github.com/shadzhiyski/EasyIntervals/actions/workflows/dotnet.yml/badge.svg)](https://github.com/shadzhiyski/EasyIntervals/actions/workflows/dotnet.yml)
+[![NuGet version](https://badge.fury.io/nu/NeatIntervals.svg)](https://www.nuget.org/packages/NeatIntervals)
+[![build status badge](https://github.com/shadzhiyski/NeatIntervals/actions/workflows/dotnet.yml/badge.svg)](https://github.com/shadzhiyski/NeatIntervals/actions/workflows/dotnet.yml)
 
 A .NET package intended to simplify the work with sets of generic intervals, especially suitable for use cases requiring often mutation (add, remove). This is done with **IntervalSet** collection. It provides main operations like **Add**, **Remove**, **Union**, **Intersect**, **Except**, **Merge**.
 
 ## Get Started
 
-EasyIntervals can be installed using the Nuget package manager or the `dotnet` CLI.
+NeatIntervals can be installed using the Nuget package manager or the `dotnet` CLI.
 
 ```Shell
-dotnet add package EasyIntervals
+dotnet add package NeatIntervals
 ```
 
 ## Usage

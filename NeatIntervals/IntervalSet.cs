@@ -1,4 +1,4 @@
-namespace EasyIntervals;
+namespace NeatIntervals;
 
 using System.Collections;
 using System.Collections.Generic;

@@ -1,4 +1,4 @@
-namespace EasyIntervals;
+namespace NeatIntervals;
 
 internal class IntervalComparer<TLimit, TValue> : IComparer<Interval<TLimit, TValue>>
 {

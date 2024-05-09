@@ -1,6 +1,6 @@
 using System.Security.Cryptography;
 
-namespace EasyIntervals.Playground;
+namespace NeatIntervals.Playground;
 
 public class BenchmarkTools
 {

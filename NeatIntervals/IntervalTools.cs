@@ -1,4 +1,4 @@
-namespace EasyIntervals;
+namespace NeatIntervals;
 
 public static class IntervalTools
 {

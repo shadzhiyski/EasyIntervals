@@ -1,4 +1,4 @@
-namespace EasyIntervals;
+namespace NeatIntervals;
 
 internal static class AATreeTools
 {

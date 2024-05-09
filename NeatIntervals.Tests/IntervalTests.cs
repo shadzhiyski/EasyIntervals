@@ -1,4 +1,4 @@
-namespace EasyIntervals.Tests;
+namespace NeatIntervals.Tests;
 
 public class IntervalTests
 {

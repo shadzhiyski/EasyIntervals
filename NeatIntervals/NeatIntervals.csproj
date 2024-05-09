@@ -1,0 +1,34 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>$(NoWarn);1591</NoWarn>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <PackageId>NeatIntervals</PackageId>
+    <PackageVersion>1.0.0</PackageVersion>
+    <Authors>Stoyan Hadzhiyski</Authors>
+    <Description>A .NET package intended to simplify the work with sets of generic intervals, especially suitable for use cases requiring often mutation (add, remove). This is done with IntervalSet collection. It provides main operations like Add, Remove, Union, Intersect, Except, Merge.</Description>
+    <Copyright>Copyright (c) Stoyan Hadzhiyski 2024</Copyright>
+    <PackageProjectUrl>https://github.com/shadzhiyski/NeatIntervals</PackageProjectUrl>
+    <PackageIcon>logo160x105.png</PackageIcon>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <RepositoryUrl>https://github.com/shadzhiyski/NeatIntervals</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>interval;set;collection</PackageTags>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="../README.md" Pack="true" PackagePath=""/>
+    <None Include="../LICENSE" Pack="true" PackagePath=""/>
+    <None Include="../assets/img/logo/logo160x105.png" Pack="true" PackagePath="\"/>
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="NeatIntervals.Tests" />
+    <InternalsVisibleTo Include="NeatIntervals.Playground" />
+  </ItemGroup>
+
+</Project>

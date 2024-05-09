@@ -1,4 +1,4 @@
-namespace EasyIntervals;
+namespace NeatIntervals;
 
 /// <summary>
 /// Type of interval.
