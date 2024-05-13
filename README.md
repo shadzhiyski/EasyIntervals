@@ -1,4 +1,4 @@
-![Components Relationships](/assets/img/logo/logo160x105.png)
+![Components Relationships](/assets/img/logo/logo150x67.png)
 
 # NeatIntervals
 
@@ -17,18 +17,21 @@ dotnet add package NeatIntervals
 
 ## Usage
 
-- [Interval Basics](#interval-basics)
-- [IntervalSet](#intervalset)
-- [Add/Remove](#addremove)
-- [Union](#union)
-- [UnionWith](#unionwith)
-- [Intersection](#intersection)
-- [Covering Intersection](#covering-intersection)
-- [Within Intersection](#within-intersection)
-- [Exception](#exception)
-- [Not Covering Exception](#not-covering-exception)
-- [Not Within Exception](#not-within-exception)
-- [Merge](#merge)
+- [NeatIntervals](#neatintervals)
+  - [Get Started](#get-started)
+  - [Usage](#usage)
+    - [Interval Basics](#interval-basics)
+    - [IntervalSet](#intervalset)
+    - [Add/Remove](#addremove)
+    - [Union](#union)
+    - [UnionWith](#unionwith)
+    - [Intersection](#intersection)
+    - [Covering Intersection](#covering-intersection)
+    - [Within Intersection](#within-intersection)
+    - [Exception](#exception)
+    - [Not Covering Exception](#not-covering-exception)
+    - [Not Within Exception](#not-within-exception)
+    - [Merge](#merge)
 
 ### Interval Basics
 

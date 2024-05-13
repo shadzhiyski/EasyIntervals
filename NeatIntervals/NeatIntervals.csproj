@@ -12,7 +12,7 @@
     <Description>A .NET package intended to simplify the work with sets of generic intervals, especially suitable for use cases requiring often mutation (add, remove). This is done with IntervalSet collection. It provides main operations like Add, Remove, Union, Intersect, Except, Merge.</Description>
     <Copyright>Copyright (c) Stoyan Hadzhiyski 2024</Copyright>
     <PackageProjectUrl>https://github.com/shadzhiyski/NeatIntervals</PackageProjectUrl>
-    <PackageIcon>logo160x105.png</PackageIcon>
+    <PackageIcon>logo150x67.png</PackageIcon>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <RepositoryUrl>https://github.com/shadzhiyski/NeatIntervals</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
@@ -23,7 +23,7 @@
   <ItemGroup>
     <None Include="../README.md" Pack="true" PackagePath=""/>
     <None Include="../LICENSE" Pack="true" PackagePath=""/>
-    <None Include="../assets/img/logo/logo160x105.png" Pack="true" PackagePath="\"/>
+    <None Include="../assets/img/logo/logo150x67.png" Pack="true" PackagePath="\"/>
   </ItemGroup>
 
   <ItemGroup>
