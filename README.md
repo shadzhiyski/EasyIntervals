@@ -1,4 +1,4 @@
-![Components Relationships](/assets/img/logo/logo150x67.png)
+![Components Relationships](/assets/img/logo/logo176x150.png)
 
 # NeatIntervals
 
